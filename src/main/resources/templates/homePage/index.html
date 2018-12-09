@@ -1,10 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>主页</title>
+    <meta charset="utf-8">
+    <title></title>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+
+    <style>
+
+        @import url("https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css");
+
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+
+
+
+    </style>
 </head>
 <body>
+
+<div id="top">
+
+    <el-menu
+            :default-active="activeIndex2"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b"
+    >
+        <!-- _blank -- 在新窗口中打开链接 _parent -- 在父窗体中打开链接 _self -- 在当前窗体打开链接,此为默认值 _top -- 在当前窗体打开链接，并替换当前的整个窗体(框架页)  -->
+        <el-menu-item index="1" >首页</el-menu-item>
+        <!--<a th:text="${message} " style="text-decoration: none;" target="_blank" v-for='(ud,index) in userData'></a>-->
+
+        <el-submenu index="2">
+            <template slot="title">员工中心</template>
+            <el-menu-item index="2-1">修改姓名</el-menu-item>
+            <el-menu-item index="2-2">修改密码</el-menu-item>
+            <el-menu-item index="2-3">修改签名</el-menu-item>
+            <!-- <el-submenu index="2-4">
+                <template slot="title">选项4</template>
+                <el-menu-item index="2-4-1">选项1</el-menu-item>
+                <el-menu-item index="2-4-2">选项2</el-menu-item>
+                <el-menu-item index="2-4-3">选项3</el-menu-item>
+            </el-submenu> -->
+        </el-submenu>
+
+        <!-- <el-menu-item index="3" disabled>消息中心</el-menu-item> -->
+        <el-menu-item index="4"><span style="color: blue" th:text="${username}"></span></el-menu-item>
+    </el-menu>
+
+
+</div>
+
+
+
+<div id="app">
+    <!-- <el-container style="border: 1px solid #eee"> -->
+
+    <!-- <el-header style="text-align: right; width: auto; font-size: 12px"> -->
+    <!--<el-dropdown>
+        <i class="el-icon-setting" style="margin-right: 15px"></i>
+        <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>查看</el-dropdown-item>
+            <el-dropdown-item>新增</el-dropdown-item>
+            <el-dropdown-item>删除</el-dropdown-item>
+        </el-dropdown-menu>
+    </el-dropdown>
+    <span>王小虎</span>
+
+ </el-header> -->
+
+
+
+    <el-container>
+        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+
+
+                <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+
+
+        </el-aside>
+
+
+        <el-main>
+            <div class="iframe-container">
+                <iframe :src="src" width="100%" height="500" scrolling="auto" frameborder="0" class="frame">
+                </iframe>
+            </div>
+        </el-main>
+
+    </el-container>
+
+    <!-- </el-container> -->
+</div>
+<script>
+
+    var top = new Vue({
+        el:'#top',
+        data:{
+            activeIndex: '1',
+            activeIndex2: '1',
+
+
+        },
+        methods:{
+
+            handleSelect:function(key, keyPath) {
+                if (key === '1') {
+                    //alert('你点击了 处理中心') // 实际修改为跳转到 处理中心
+                    console.log("你点击了首页");
+                    location.href = "/sb/emp/toIndex";
+                }
+                if (key === '2-1') {
+                    //alert('你点击了 我的工作台 | 选项一') // 实际修改为跳转到 选项一
+                    console.log("2-1");
+                }
+            }
+        }
+
+    })
+
+
+
+    var app = new Vue({
+        el:'#app',
+        data:{
+            treeData:[],
+            defaultProps: {
+                children: 'children',
+                label: 'label'
+            }
+        },
+        created:function(){
+           // this.src = "https://www.baidu.com/";
+            var self = this;
+            axios.post("/sb/role/tree").then(function (response) {
+                alert(JSON.stringify(response.data));
+                self.treeData = response.data;
+            });
+
+        },
+        methods:{
+            handleNodeClick:function(data) {
+                console.log(data);
+                alert(JSON.stringify(data))
+            },
+            handleOpen:function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose:function(key, keyPath) {
+                console.log(key, keyPath);
+            }
+            // 这时改为 switch 语句更好
+        }
+
+
+    })
+
+
+
+
+</script>
+
 
 </body>
 </html>

@@ -36,7 +36,7 @@ public class UserRealm extends AuthorizingRealm {
         System.out.println("执行授权逻辑");
 
         //给资源进行授权
-        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        //SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         //添加资源的授权字符串
         //info.addStringPermission("user:add");
 
@@ -58,7 +58,7 @@ public class UserRealm extends AuthorizingRealm {
 
         //info.addStringPermission(userRole);
 
-        return info;
+        return null;
     }
 
     /**
@@ -95,7 +95,10 @@ public class UserRealm extends AuthorizingRealm {
         }
 
         //1 principal 需要返回login方法的数据 2 数据库的密码，shiro自行判断 3 shiro名字
-        return new SimpleAuthenticationInfo(userName,userList.get(0).get("PASSWORD"),"");
+        System.out.println(11111111);
+        System.out.println(userName);
+        System.out.println(userList.get(0).get("PASSWORD"));
+        return new SimpleAuthenticationInfo("",userList.get(0).get("PASSWORD"),"");
 
 
 

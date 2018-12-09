@@ -41,4 +41,47 @@ public interface EmpService {
      */
     List<Map> selByUserId(int id);
 
+    /**
+     * 员工带参分页查询
+     * @param map
+     * @return
+     */
+    List<Map> getPageByParam(Map map);
+
+    /**
+     * 员工查询分页总数量
+     * @param map
+     * @return
+     */
+    int getPageCount(Map map);
+
+    /**
+     * 批量删除
+     * @param ids
+     * @return
+     */
+    int batchDelete(String ids);
+
+    /**
+     * 添加
+     * @param map
+     * @return
+     */
+    int add(Map map);
+
+    /**
+     * 更新
+     * @param map
+     * @return
+     */
+    int upd(Map map);
+
+    /**
+     * 删除
+     * @param id
+     * @return
+     */
+    int del(Integer id);
+
+
 }

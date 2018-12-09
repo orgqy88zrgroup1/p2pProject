@@ -74,7 +74,11 @@ public class ShiroConfig {
 
         //不拦截该资源(放行)
         //filterMap.put("/user/test","anon");
-        filterMap.put("/loginPage/login","anon");
+        filterMap.put("/css/*", "anon");
+        filterMap.put("/js/*", "anon");
+        filterMap.put("/image/*", "anon");
+        filterMap.put("/emp/login","anon");
+
 
         //授权过滤器(顺序，放在拦截页面下面不生效)
         //当授权拦截后，shiro自动跳转到 未授权的页面，(未授权的页面需要设置)
@@ -82,10 +86,10 @@ public class ShiroConfig {
         //filterMap.put("/user/toUpd","perms[user:update]");
 
         //拦截页面
-        filterMap.put("/emp/*","authc");
+        filterMap.put("/**","authc");
 
         //设置未授权的页面
-        shiroFilterFactoryBean.setUnauthorizedUrl("/emp/unAuthorization");
+        //shiroFilterFactoryBean.setUnauthorizedUrl("/emp/unAuthorization");
 
         //拦截成功默认跳到 http://localhost:8888/sb/login.jsp
         //修改默认跳转的页面

@@ -1,8 +1,10 @@
 package com.aaa.sb.controller;
 
+import com.aaa.sb.service.DeptService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * className:DeptController
@@ -10,18 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
  * author:wzb
  * createTime:2018-12-08 23:57
  */
-@RestController
+@Controller
 @RequestMapping("dept")
 public class DeptController {
-    /*@Autowired
-    private DeptService deptService;*/
+
+    @Autowired
+    private DeptService deptService;
 
     /**
      * 查询部门列表
      * @return
      */
-    /*@RequestMapping("list")
+    @ResponseBody
+    @RequestMapping("list")
     public Object list(){
-        return deptService.getList();
-    }*/
+        return deptService.getDeptList();
+    }
+
 }

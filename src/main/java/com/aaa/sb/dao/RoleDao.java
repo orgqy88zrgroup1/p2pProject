@@ -8,21 +8,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * className:DeptDao
+ * className:RoleDao
  * discription:
  * author:wzb
- * createTime:2018-12-09 13:13
+ * createTime:2018-12-10 18:38
  */
 @CacheNamespace(implementation = RedisCache.class)
-public interface DeptDao {
+public interface RoleDao {
 
     /**
-     * 部门列表查询 部门状态为启用
+     * 职位列表查询
      * @return
      */
-    @Select("select id,dname,des,state from tb_dept where state = 1")
-    List<Map> getDeptList();
-
+    @Select("select id,role from tb_role")
+    List<Map> getRoleList();
 
 
 }

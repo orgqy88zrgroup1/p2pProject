@@ -42,6 +42,15 @@ public class EmpController {
     private HttpSession session;
 
     /**
+     * 跳转列表页面
+     * @return
+     */
+    @RequestMapping("/toList")
+    public String toList(){
+        return "emp/empList";
+    }
+
+    /**
      * 查询分页
      * 模拟测试用 @RequestParam
      * http://localhost:8888/sb/emp/page?start=0&end=20
@@ -50,7 +59,7 @@ public class EmpController {
      */
     @ResponseBody
     @RequestMapping("/page")
-    public Object list(@RequestParam Map map){
+    public Object list(@RequestBody Map map){
         Map resultMap = new HashMap();
         resultMap.put("pageData",empService.getPageByParam(map));
         resultMap.put("total",empService.getPageCount(map));

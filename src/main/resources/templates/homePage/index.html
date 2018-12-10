@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <title></title>
     <script type="text/javascript" src="../js/axios.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
@@ -58,7 +59,7 @@
         </el-submenu>
 
         <!-- <el-menu-item index="3" disabled>消息中心</el-menu-item> -->
-        <el-menu-item index="4"><span style="color: blue" th:text="${username}"></span></el-menu-item>
+        <el-menu-item index="4"><span style="color: rosybrown" th:text="${username}"></span></el-menu-item>
     </el-menu>
 
 
@@ -84,21 +85,42 @@
 
 
 
-    <el-container>
-        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-
-
-                <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
-
-
+    <el-container width="890px">
+        <el-aside width="150px" style="background-color: rgb(238, 241, 246)">
+            <div class="tree">
+                <!--<el-tree :data="treeData" icon-class="el-icon-menu" :props="defaultProps" @node-click="handleNodeClick">
+                    </el-tree>-->
+                <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick">
+                    <span class="custom-tree-node" slot-scope="{ node, data }"> <span> <i :class="{node.icon}"></i>{{ node.label }} </span> </span>
+                </el-tree>
+            </div>
         </el-aside>
 
 
         <el-main>
-            <div class="iframe-container">
-                <iframe :src="src" width="100%" height="500" scrolling="auto" frameborder="0" class="frame">
-                </iframe>
-            </div>
+            <el-tabs v-model="editableTabsValue2" closable addable type="card" @tab-add="addTab" @tab-remove="removeTab">
+                <el-tab-pane
+                        v-for="(item, index) in editableTabs2"
+                        :key="item.name"
+                        :label="item.title"
+                        :name="item.name"
+                    >
+                    <!--<div class="iframe-container">
+                        <span v-html = "item.content"></span>
+                    </div>-->
+                    <div class="iframe-container" >
+                        <span v-html = "item.content"></span>
+                    </div>
+                   <!--{{index}} {{editableTabs2.length}}{{index==(editableTabs2.length-1)}}-->
+                  <!--<iframe v-pre :key="index" :src="item.content" v-if="index==(editableTabs2.length-1)"></iframe>-->
+                </el-tab-pane>
+
+            </el-tabs>
+
+           <!-- <div class="iframe-container">-->
+                <!--<iframe :src="src" width="100%" height="600" scrolling="auto" frameborder="0" class="frame">
+                </iframe>-->
+            <!--</div>-->
         </el-main>
 
     </el-container>
@@ -106,6 +128,10 @@
     <!-- </el-container> -->
 </div>
 <script>
+
+    /*$(function(){
+        addTab("主页", "jsp/homePage/zhuye/index.html");
+    });*/
 
     var top = new Vue({
         el:'#top',
@@ -128,6 +154,7 @@
                     console.log("2-1");
                 }
             }
+
         }
 
     })
@@ -140,22 +167,74 @@
             treeData:[],
             defaultProps: {
                 children: 'children',
-                label: 'label'
-            }
-        },
-        created:function(){
-           // this.src = "https://www.baidu.com/";
-            var self = this;
-            axios.post("/sb/role/tree").then(function (response) {
-                alert(JSON.stringify(response.data));
-                self.treeData = response.data;
-            });
+                label: 'label',
+                icon:'iconcls'
+            },
+
+            editableTabsValue2: '2',
+            editableTabs2:[],
+            tabIndex: 2
 
         },
+        created:function(){
+            //this.src = "https://www.baidu.com/";
+            var self = this;
+            axios.post("/sb/role/tree").then(function (response) {
+                //alert(JSON.stringify(response.data));
+                self.treeData = response.data;
+                //alert(JSON.stringify(response.data.CHILDREN));
+                //self.treeData.CHILDREN.addProp(icon-class,el-icon-menu);
+            });
+
+            //this.editableTabs3=this.editableTabs2[this.editableTabs2.length-1]
+        },
         methods:{
-            handleNodeClick:function(data) {
-                console.log(data);
-                alert(JSON.stringify(data))
+
+            addTab:function(content,title,targetName) {
+                let newTabName = ++this.tabIndex + '';
+                //alert(content);
+                this.editableTabs2.push({
+                    title: title,
+                    name: newTabName,
+                    content: content
+                });
+               /* this.editableTabs2=[{
+                    title: title,
+                    name: newTabName,
+                    content: content
+                }];*/
+                this.editableTabsValue2 = newTabName;
+            },
+
+            removeTab:function(targetName) {
+                let tabs = this.editableTabs2;
+                let activeName = this.editableTabsValue2;
+                if (activeName === targetName) {
+                    tabs.forEach((tab, index) => {
+                        if (tab.name === targetName) {
+                            let nextTab = tabs[index + 1] || tabs[index - 1];
+                            if (nextTab) {
+                                activeName = nextTab.name;
+                            }
+                        }
+                    });
+                }
+
+                this.editableTabsValue2 = activeName;
+                this.editableTabs2 = tabs.filter(tab => tab.name !== targetName);
+            },
+            handleNodeClick:function(data,editableTabsValue2) {
+
+                //this.editableTabs2=[];
+
+                var url = data.url;
+                var title = data.label;
+                //alert(url); width='100%' height='500' scrolling='auto'
+                var content = "<iframe src='"+url+"' width='100%' height='700px'   frameborder='0' class='frame'> </iframe>";
+                //var targetName = this.editableTabsValue2;
+                var targetName = editableTabsValue2;
+                this.addTab(content,title,targetName);
+
             },
             handleOpen:function(key, keyPath) {
                 console.log(key, keyPath);
@@ -163,7 +242,12 @@
             handleClose:function(key, keyPath) {
                 console.log(key, keyPath);
             }
-            // 这时改为 switch 语句更好
+
+
+
+
+
+
         }
 
 

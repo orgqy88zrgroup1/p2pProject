@@ -39,7 +39,7 @@ public class PowerServiceImpl implements PowerService {
                 // treeNode = new TreeNode(id, text, parentId, state, iconCls, url);
                 treeNode = new TreeNode(Integer.valueOf(powerMap.get("ID")+""), powerMap.get("LABEL")+"",
                         Integer.valueOf(powerMap.get("PARENTID")+""), powerMap.get("STATE")+""
-                        , powerMap.get("ICONCLS")+"", powerMap.get("URL")+"");
+                        , powerMap.get("ICON")+"", powerMap.get("URL")+"");
                 powerList.add(treeNode);
             }
         }

@@ -14,7 +14,7 @@ public class TreeNode {
     private String label;
     private int parentId;
     private String state;
-    private String iconCls;
+    private String icon;
     private String url;
     //因为要选择树节点
     private String checked;
@@ -23,23 +23,31 @@ public class TreeNode {
     public TreeNode() {
     }
 
-    public TreeNode(int id, String label, int parentId, String state, String iconCls, String url) {
+    public TreeNode(int id, String label, int parentId, String state, String icon, String url) {
         this.id = id;
         this.label = label;
         this.parentId = parentId;
         this.state = state;
-        this.iconCls = iconCls;
+        this.icon = icon;
         this.url = url;
     }
 
-    public TreeNode(int id, String label, int parentId, String state, String iconCls, String url, String checked) {
+    public TreeNode(int id, String label, int parentId, String state, String icon, String url, String checked) {
         this.id = id;
         this.label = label;
         this.parentId = parentId;
         this.state = state;
-        this.iconCls = iconCls;
+        this.icon = icon;
         this.url = url;
         this.checked = checked;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     public int getId() {
@@ -72,14 +80,6 @@ public class TreeNode {
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public String getIconCls() {
-        return iconCls;
-    }
-
-    public void setIconCls(String iconCls) {
-        this.iconCls = iconCls;
     }
 
     public String getUrl() {

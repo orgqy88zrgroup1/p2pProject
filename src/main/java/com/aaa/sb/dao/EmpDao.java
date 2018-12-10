@@ -55,8 +55,14 @@ public interface EmpDao {
      * 如果使用注解方式，动态sql必须在标签<script></script>
      * 如果使用<script></script>标签，大于小于 必须使用 &gt;/&lt;
      */
-    @Select("<script>select id,username,password,roleid,empname,deptno,sex,hiredate,sal,comm,idcard,tel from \n" +
+    /*@Select("<script>select id,username,password,roleid,empname,deptno,sex,hiredate,sal,comm,idcard,tel from \n" +
             "(select rownum rn,id,username,password,roleid,empname,deptno,sex,to_char(hiredate,'yyyy-MM-dd') hiredate,sal,comm,idcard,tel from tb_emp\n" +
+            "where rownum &lt; #{end}   " +
+            "<if test=\"empname!=null and empname!=''\"> and empname like '%'||#{empname}||'%'</if>" +
+            "<if test=\"deptno!=null and deptno!=''\">  and deptno =#{deptno}</if>" +
+            " )a where a.rn &gt; #{start} </script>")*/
+    @Select("<script>select role,dname,id,username,password,roleid,empname,deptno,sex,hiredate,sal,comm,idcard,tel from \n" +
+            "(select rownum rn,tr.role role,td.dname dname,te.id id,te.username username,te.password password,te.roleid roleid,te.empname empname,te.deptno deptno,te.sex sex,to_char(te.hiredate,'yyyy-MM-dd') hiredate,te.sal sal,te.comm comm,te.idcard idcard,te.tel tel from tb_emp te left join tb_role tr on tr.id = te.roleid left join tb_dept td on td.id = te.deptno\n" +
             "where rownum &lt; #{end}   " +
             "<if test=\"empname!=null and empname!=''\"> and empname like '%'||#{empname}||'%'</if>" +
             "<if test=\"deptno!=null and deptno!=''\">  and deptno =#{deptno}</if>" +

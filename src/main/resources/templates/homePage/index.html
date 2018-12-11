@@ -7,12 +7,12 @@
     <script type="text/javascript" src="../js/axios.min.js"></script>
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+    <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css">
 
-    <style>
-
-        @import url("https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css");
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js">
+    </script>
+    <style type="text/css">
 
         .el-header {
             background-color: #B3C0D1;
@@ -28,9 +28,9 @@
 
     </style>
 </head>
-<body>
+<body height="1500px">
 
-<div id="top">
+<div id="top" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)"   >
 
     <el-menu
             :default-active="activeIndex2"
@@ -49,7 +49,6 @@
             <template slot="title">员工中心</template>
             <el-menu-item index="2-1">修改姓名</el-menu-item>
             <el-menu-item index="2-2">修改密码</el-menu-item>
-            <el-menu-item index="2-3">修改签名</el-menu-item>
             <!-- <el-submenu index="2-4">
                 <template slot="title">选项4</template>
                 <el-menu-item index="2-4-1">选项1</el-menu-item>
@@ -66,10 +65,10 @@
 </div>
 
 
-
-<div id="app">
-    <!-- <el-container style="border: 1px solid #eee"> -->
-
+<!--element-loading-spinner="el-icon-loading"-->
+<div id="app" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)" element-loading-text="拼命加载中"   >
+  <el-container style="border: 1px solid #eee">
+      <el-header>Header</el-header>
     <!-- <el-header style="text-align: right; width: auto; font-size: 12px"> -->
     <!--<el-dropdown>
         <i class="el-icon-setting" style="margin-right: 15px"></i>
@@ -85,15 +84,20 @@
 
 
 
-    <el-container width="890px">
-        <el-aside width="150px" style="background-color: rgb(238, 241, 246)">
-            <div class="tree">
-                <!--<el-tree :data="treeData" icon-class="el-icon-menu" :props="defaultProps" @node-click="handleNodeClick">
-                    </el-tree>-->
-                <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick">
-                    <span class="custom-tree-node" slot-scope="{ node, data }"> <span> <i :class="{node.icon}"></i>{{ node.label }} </span> </span>
-                </el-tree>
-            </div>
+    <el-container width="890px"  >
+
+        <!--style="background-color: rgb(238, 241, 246)"-->
+        <el-aside width="150px"  style="background-color: rgb(238, 241, 246)">
+                    <!--<el-tree :data="treeData" icon-class="el-icon-menu" :props="defaultProps" @node-click="handleNodeClick">
+                        </el-tree>-->
+                    <!--{node.icon} class="custom-tree-node"-->
+                    <el-tree :data="treeData" :expand-on-click-node="false"  default-expand-all highlight-current :props="defaultProps" @node-click="handleNodeClick">
+                        <span slot-scope="{ node, data }">
+                            <!-- data-th-class="el-icon-menu" -->
+                            <!--<span> <i :class="node.icon" ></i>{{ node.label }} </span>-->
+                            <span> <i class="el-icon-menu" ></i>{{ node.label }} </span>
+                        </span>
+                    </el-tree>
         </el-aside>
 
 
@@ -117,29 +121,36 @@
 
             </el-tabs>
 
+        </el-main>
+
            <!-- <div class="iframe-container">-->
                 <!--<iframe :src="src" width="100%" height="600" scrolling="auto" frameborder="0" class="frame">
                 </iframe>-->
             <!--</div>-->
-        </el-main>
 
     </el-container>
-
-    <!-- </el-container> -->
+      <el-footer align="center">Footer</el-footer>
+   </el-container>
 </div>
+
 <script>
 
-    /*$(function(){
-        addTab("主页", "jsp/homePage/zhuye/index.html");
-    });*/
 
     var top = new Vue({
         el:'#top',
         data:{
             activeIndex: '1',
             activeIndex2: '1',
+            tables:[{a:'a',b:'b'}],
+            loading1:true
 
-
+        },
+        created:function(){
+            var self = this;
+            setTimeout(() => {
+                console.info("加载数据成功");
+                self.loading1 = false;
+            }, 2000);
         },
         methods:{
 
@@ -157,8 +168,7 @@
 
         }
 
-    })
-
+    });
 
 
     var app = new Vue({
@@ -167,24 +177,36 @@
             treeData:[],
             defaultProps: {
                 children: 'children',
-                label: 'label',
-                icon:'iconcls'
-            },
+                label: 'label'
 
+            },
             editableTabsValue2: '2',
             editableTabs2:[],
-            tabIndex: 2
+            tabIndex: 2,
+            tables:[{a:'a',b:'b'}],
+            loading1:true
+
+
 
         },
         created:function(){
+
+        //<span> <i :class="node.icon" ></i>{{ node.label }} </span>
+
             //this.src = "https://www.baidu.com/";
             var self = this;
-            axios.post("/sb/role/tree").then(function (response) {
+            axios.post("/sb/power/tree").then(function (response) {
                 //alert(JSON.stringify(response.data));
-                self.treeData = response.data;
                 //alert(JSON.stringify(response.data.CHILDREN));
+                self.treeData = response.data;
                 //self.treeData.CHILDREN.addProp(icon-class,el-icon-menu);
             });
+
+
+            setTimeout(() => {
+                console.info("加载数据成功");
+                self.loading1 = false;
+            }, 2000);
 
             //this.editableTabs3=this.editableTabs2[this.editableTabs2.length-1]
         },
@@ -224,13 +246,13 @@
                 this.editableTabs2 = tabs.filter(tab => tab.name !== targetName);
             },
             handleNodeClick:function(data,editableTabsValue2) {
-
+               // alert(this.nodeValue);
                 //this.editableTabs2=[];
 
                 var url = data.url;
                 var title = data.label;
-                //alert(url); width='100%' height='500' scrolling='auto'
-                var content = "<iframe src='"+url+"' width='100%' height='700px'   frameborder='0' class='frame'> </iframe>";
+                //alert(url); width='100%' height='700' scrolling='auto'
+                var content = "<iframe src='"+url+"' width='100%' height='520px'   frameborder='0' class='frame'> </iframe>";
                 //var targetName = this.editableTabsValue2;
                 var targetName = editableTabsValue2;
                 this.addTab(content,title,targetName);
@@ -251,9 +273,8 @@
         }
 
 
+
     })
-
-
 
 
 </script>

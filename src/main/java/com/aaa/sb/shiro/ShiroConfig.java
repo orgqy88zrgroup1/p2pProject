@@ -78,6 +78,7 @@ public class ShiroConfig {
         filterMap.put("/js/*", "anon");
         filterMap.put("/image/*", "anon");
         filterMap.put("/emp/login","anon");
+        filterMap.put("/user/*","anon");
 
 
         //授权过滤器(顺序，放在拦截页面下面不生效)

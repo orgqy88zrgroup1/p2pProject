@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * createTime:2018-12-09 22:15
  */
 @Controller
-@RequestMapping("role")
+@RequestMapping("power")
 public class PowerController {
 
     @Autowired

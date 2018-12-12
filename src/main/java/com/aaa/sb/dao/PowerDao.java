@@ -11,6 +11,7 @@ import java.util.Map;
  * author:wzb
  * createTime:2018-12-09 22:25
  */
+/*@CacheNamespace(implementation = RedisCache.class)*/
 public interface PowerDao {
 
     /**

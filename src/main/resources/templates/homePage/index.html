@@ -68,7 +68,7 @@
 <!--element-loading-spinner="el-icon-loading"-->
 <div id="app" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)" element-loading-text="拼命加载中"   >
   <el-container style="border: 1px solid #eee">
-      <el-header>Header</el-header>
+
     <!-- <el-header style="text-align: right; width: auto; font-size: 12px"> -->
     <!--<el-dropdown>
         <i class="el-icon-setting" style="margin-right: 15px"></i>
@@ -91,12 +91,12 @@
                     <!--<el-tree :data="treeData" icon-class="el-icon-menu" :props="defaultProps" @node-click="handleNodeClick">
                         </el-tree>-->
                     <!--{node.icon} class="custom-tree-node"-->
-                    <el-tree :data="treeData" :expand-on-click-node="false"  default-expand-all highlight-current :props="defaultProps" @node-click="handleNodeClick">
-                        <span slot-scope="{ node, data }">
+                    <el-tree :data="treeData" :expand-on-click-node="false" :render-content="editSpan"  default-expand-all highlight-current :props="defaultProps" @node-click="handleNodeClick">
+                        <!--<span slot-scope="{{node,data}}">-->
                             <!-- data-th-class="el-icon-menu" -->
                             <!--<span> <i :class="node.icon" ></i>{{ node.label }} </span>-->
-                            <span> <i class="el-icon-menu" ></i>{{ node.label }} </span>
-                        </span>
+                        <!--
+                        </span>-->
                     </el-tree>
         </el-aside>
 
@@ -120,17 +120,14 @@
                 </el-tab-pane>
 
             </el-tabs>
-
         </el-main>
+    </el-container>
 
            <!-- <div class="iframe-container">-->
                 <!--<iframe :src="src" width="100%" height="600" scrolling="auto" frameborder="0" class="frame">
                 </iframe>-->
             <!--</div>-->
 
-    </el-container>
-      <el-footer align="center">Footer</el-footer>
-   </el-container>
 </div>
 
 <script>
@@ -181,11 +178,11 @@
 
             },
             editableTabsValue2: '2',
-            editableTabs2:[],
+            editableTabs2:[{title:'首页', name:'2', content:"<iframe src='https://www.baidu.com' frameborder='no' scrolling='no'  style='width:100%;height:550px'> </iframe>"}],
             tabIndex: 2,
             tables:[{a:'a',b:'b'}],
-            loading1:true
-
+            loading1:true,
+            icons:''
 
 
         },
@@ -215,18 +212,58 @@
             addTab:function(content,title,targetName) {
                 let newTabName = ++this.tabIndex + '';
                 //alert(content);
-                this.editableTabs2.push({
-                    title: title,
-                    name: newTabName,
-                    content: content
-                });
-               /* this.editableTabs2=[{
+                if (JSON.stringify(this.editableTabs2).indexOf(title) == -1) {
+                    this.editableTabs2.push({
+                        title: title,
+                        name: newTabName,
+                        content: content
+
+                    });
+
+                    /* this.editableTabs2=[{
                     title: title,
                     name: newTabName,
                     content: content
                 }];*/
-                this.editableTabsValue2 = newTabName;
+                    this.editableTabsValue2 = newTabName;
+                }
             },
+            /*editSpan:function(h, { node, data, store }) {
+            /!*<span slot-scope="scope">
+                <span> <i class="el-icon-menu" ></i>{{ scope.label }} </span>
+                </span>  *!/
+                //var icon = (<icon-svg icon-style="icon-style" icon-class="el-icon-wx"></icon-svg>);
+                return (<span><i class="+node.icon+" ></i>{ node.label } </span>);
+            },*/
+            editSpan:function(createElement,{node,data,store}){
+                //var t1 = data.icon;
+                //alert(JSON.stringify(node.icon));
+                var self =this;
+                var t ="{\""+data.icon+"\":\"true\"}";
+              //  alert(t);
+                var t1 = JSON.parse(t);
+                //alert(JSON.stringify(t1));
+               // this.icons = t;
+               // alert(this.icons);
+                return createElement('span',[
+                    //createElement('i', {'class':{(self.editableTabsValue2.icon): true}}),
+                    createElement('i', {'class':t1}),
+                    createElement('span', node.label),
+
+                ]);
+            },
+
+
+
+                        /*createElement('i',{
+                            //data-th-class:data.icon
+                        })*/
+
+                      /*[
+                        'span',
+                        createElement('span',node.label)
+                    ]*/
+
 
             removeTab:function(targetName) {
                 let tabs = this.editableTabs2;
@@ -252,7 +289,7 @@
                 var url = data.url;
                 var title = data.label;
                 //alert(url); width='100%' height='700' scrolling='auto'
-                var content = "<iframe src='"+url+"' width='100%' height='520px'   frameborder='0' class='frame'> </iframe>";
+                var content = "<iframe src='"+url+"' width='100%' height='550px'   frameborder='0' class='frame'> </iframe>";
                 //var targetName = this.editableTabsValue2;
                 var targetName = editableTabsValue2;
                 this.addTab(content,title,targetName);

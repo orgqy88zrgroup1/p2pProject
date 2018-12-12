@@ -2,7 +2,6 @@ package com.aaa.sb.dao;
 
 import com.aaa.sb.entity.Emp;
 import org.apache.ibatis.annotations.*;
-import org.mybatis.caches.redis.RedisCache;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ import java.util.Map;
  * author:wzb
  * createTime:2018-12-08 22:06
  */
-@CacheNamespace(implementation = RedisCache.class)
+/*@CacheNamespace(implementation = RedisCache.class)*/
 public interface EmpDao {
 
     /**

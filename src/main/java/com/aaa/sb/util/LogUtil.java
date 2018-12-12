@@ -1,9 +1,9 @@
 package com.aaa.sb.util;
 
-import org.aspectj.lang.ProceedingJoinPoint;
+/*import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.Pointcut;*/
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
  * createTime:2018-11-23 18:04
  */
 @Component
-@Aspect
+//@Aspect
 public class LogUtil {
 
     /**
      * 切入点配置
      */
-    @Pointcut(value = "execution(* com.aaa.sb.service.*.*(..))")
+    //@Pointcut(value = "execution(* com.aaa.sb.service.*.*(..))")
     public void pointCutOne(){
     }
 
@@ -73,8 +73,8 @@ public class LogUtil {
      * 环绕通知
      * @param
      */
-    @Around(value = "pointCutOne()")
-    public Object executeAround(ProceedingJoinPoint proceedingJoinPoint){
+    //@Around(value = "pointCutOne()")
+    /*public Object executeAround(ProceedingJoinPoint proceedingJoinPoint){
 
         Object o = null;
         //调用业务方法
@@ -86,7 +86,7 @@ public class LogUtil {
             throwable.printStackTrace();
         }
         return o;
-    }/**/
+    }*/
 
 
 

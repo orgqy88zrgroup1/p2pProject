@@ -30,7 +30,7 @@
 </head>
 <body height="1500px">
 
-<div id="top" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)"   >
+<div id="top" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)" >
 
     <el-menu
             :default-active="activeIndex2"
@@ -87,7 +87,7 @@
     <el-container width="890px"  >
 
         <!--style="background-color: rgb(238, 241, 246)"-->
-        <el-aside width="150px"  style="background-color: rgb(238, 241, 246)">
+        <el-aside width="200px"  style="background-color: rgb(238, 241, 246)">
                     <!--<el-tree :data="treeData" icon-class="el-icon-menu" :props="defaultProps" @node-click="handleNodeClick">
                         </el-tree>-->
                     <!--{node.icon} class="custom-tree-node"-->
@@ -228,23 +228,12 @@
                     this.editableTabsValue2 = newTabName;
                 }
             },
-            /*editSpan:function(h, { node, data, store }) {
-            /!*<span slot-scope="scope">
-                <span> <i class="el-icon-menu" ></i>{{ scope.label }} </span>
-                </span>  *!/
-                //var icon = (<icon-svg icon-style="icon-style" icon-class="el-icon-wx"></icon-svg>);
-                return (<span><i class="+node.icon+" ></i>{ node.label } </span>);
-            },*/
             editSpan:function(createElement,{node,data,store}){
-                //var t1 = data.icon;
                 //alert(JSON.stringify(node.icon));
-                var self =this;
                 var t ="{\""+data.icon+"\":\"true\"}";
-              //  alert(t);
+                //转义 t = "{ "el-icon-menu" : "true" }"
+                //JSON字符串转对象
                 var t1 = JSON.parse(t);
-                //alert(JSON.stringify(t1));
-               // this.icons = t;
-               // alert(this.icons);
                 return createElement('span',[
                     //createElement('i', {'class':{(self.editableTabsValue2.icon): true}}),
                     createElement('i', {'class':t1}),
@@ -253,16 +242,6 @@
                 ]);
             },
 
-
-
-                        /*createElement('i',{
-                            //data-th-class:data.icon
-                        })*/
-
-                      /*[
-                        'span',
-                        createElement('span',node.label)
-                    ]*/
 
 
             removeTab:function(targetName) {

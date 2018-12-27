@@ -57,7 +57,7 @@ public class BidOneAuditController {
     }
 
     /**
-     * 审核驳回
+     * 审核驳回1
      * @param map
      * @return
      */

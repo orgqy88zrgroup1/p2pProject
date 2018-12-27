@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface Bid_one_auditService {
     /**
-     * 满标一审查询
+     * 满标一审查询1
      * @return
      */
     Map getbidList(Map map);

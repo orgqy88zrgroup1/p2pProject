@@ -63,7 +63,7 @@ public class MoneyUtil {
 
 
     /**
-     * 每月应还数额
+     * 每月应还数额1
      * @param biddeadline
      * @param bidrate
      * @param bidCurrentAmount

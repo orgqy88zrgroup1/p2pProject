@@ -24,7 +24,7 @@ public class BidTwoAuditController {
     private Bid_two_auditService bidTwoAuditService;
 
     /**
-     * 审核页面跳转
+     * 审核页面跳转1
      * @return
      */
     @RequestMapping("/toPage")

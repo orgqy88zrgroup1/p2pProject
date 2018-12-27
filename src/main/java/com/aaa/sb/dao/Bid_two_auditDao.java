@@ -138,7 +138,7 @@ public interface Bid_two_auditDao {
 
 
     /**
-     * 满标二审通过
+     * 满标二审通过1
      * @param map
      * @return
      */

@@ -24,7 +24,7 @@ public interface Bid_one_auditDao {
             "   where rownum &gt; #{start}  and bidState=3 ) a where a.rn &lt; #{end} </script>")
     List<Map> getbidList(Map map);
     /**
-     * 查询分页总数量
+     * 查询分页总数量1
      * @param map
      * @return
      */

@@ -24,7 +24,7 @@ public class Bid_one_auditServiceImpl implements Bid_one_auditService {
     private Bid_one_auditDao bidOneAuditDao;
 
     /**
-     * 一审满标分页查询
+     * 一审满标分页查询1
      * @param map
      * @return
      */

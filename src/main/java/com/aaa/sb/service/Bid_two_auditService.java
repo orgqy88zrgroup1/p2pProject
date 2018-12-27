@@ -26,7 +26,7 @@ public interface Bid_two_auditService {
     List<Map> gatList(Map map);
 
     /**
-     * 用户可用余额更新
+     * 用户可用余额更新1
      * @param map
      * @return
      */

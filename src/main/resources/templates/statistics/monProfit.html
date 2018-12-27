@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>统计月盈利</title>
+
+    <link rel="stylesheet" type="text/css" href="../css/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../css/icon.css">
+    <script type="text/javascript" src="../js/echarts.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.easyui.min.js"></script>
+</head>
+<body>
+        <!--年<select id="year">
+            <option>2017</option>
+            <option selected="selected">2018</option>
+            <option>2019</option>
+        </select>-->
+        标id<select id="bid"></select>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width:100%;height:500px;"></div>
+    <input type="button" value="导出为表格" onclick="Export()">
+    <!-- <a href="financeC/echartDataExp.do">导出为表格</a> -->
+<script type="text/javascript">
+    $(function(){
+        var options="";
+        $.ajax({
+            url:"/sb/stat/selBid",
+            type:"post",
+            //data:{year:year},
+            dataType:"json",
+            async:false,//同步
+            success:function(data){
+                //alert(JSON.stringify(data));
+                if(data!=''){
+                    for(var i=0;i<data.length;i++){
+                        options += "<option  value = '"+data[i].ID+"'>"+data[i].ID+"</option>";
+                    }
+                    $("#bid").append(options);
+                }
+            }
+        });
+
+        //js定义数组
+        //默认显示
+        getData(1);
+        //标变化时变化
+        $("#bid").change(function(){
+            $("#main").empty();
+            $("#tt").remove();
+            $('#main').removeAttr('_echarts_instance_');
+            getData($("#bid").val());
+        });
+
+    });
+
+    function getData(bid){
+        var title = [];
+        var biddata = [];
+        //使用ajax得到数据
+        $.ajax({
+            url:"/sb/stat/monProfit",
+            type:"post",
+            data:{id:bid},
+            dataType:"json",
+            async:false,//同步
+            success:function(data){
+                //alert(JSON.stringify(data));
+                if(data!=''){
+                    for(var i=0;i<data.length;i++){
+                        title.push(data[i].USERNAME);
+                        biddata.push(data[i].MONPROFIT);
+                    }
+                    showData(title,biddata);
+                }else{
+                    $("#main").html("本标暂无数据").css({"font-size":"40px","color":"#ff0000","text-align":"center"});
+                    $("#main").append("<input type='hidden' value='100' id='tt'>");
+
+                }
+            }
+        });
+    }
+
+    function showData(title,biddata){
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        option = {
+            title : {
+                text: '月盈利额图示',
+                subtext: '元'
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            legend: {
+                data:['盈利']
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            xAxis : [
+                {
+                    type : 'category',
+                    data : title
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value'
+                }
+            ],
+            series : [
+                {
+                    name:'盈利额',
+                    type:'bar',
+                    data:biddata,
+                    markPoint : {
+                        data : [
+                            {type : 'max', name: '最大值'},
+                            {type : 'min', name: '最小值'}
+                        ]
+                    },
+                    markLine : {
+                        data : [
+                            {type : 'average', name: '平均值'}
+                        ]
+                    }
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    }
+
+    function Export(){
+        if($("#tt").val()==100){
+            $.messager.show({//easyui封装的浏览器右下角弹框
+                title: '信息提示',//弹框标题
+                msg: '本标无数据，无法导出数据！'//提示信息
+            });
+        }else{
+            location.href="/sb/stat/monProfitExcel?id="+$("#bid").val();
+        }
+    }
+
+</script>
+</body>
+</html>

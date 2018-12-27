@@ -12,6 +12,11 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!--sweet alert2-->
+    <link rel="stylesheet" href="../css/sweetalert2.min.css">
+    <script src="../js/sweetalert2.all.min.js"></script>
+    <script src="../js/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
 
 </head>
 <body>
@@ -30,7 +35,7 @@
         <!-- 设置 inline 属性可以让表单域变为行内的表单域 model 双向绑定 searchForm 对象 -->
         <el-form :inline="true" :model="searchForm" class="demo-form-inline">
              <el-form-item label="员工名称">
-                <el-input v-model="searchForm.empname" placeholder="员工名称"></el-input>
+                <el-input @keyup.enter.native="searchClick" v-model="searchForm.empname" prefix-icon="el-icon-search" placeholder="员工名称"></el-input>
             </el-form-item>
             <el-form-item label="部门名称">
                 <!--<el-select v-model="searchForm.deptNo" placeholder="部门名称">
@@ -39,7 +44,7 @@
                     <el-option label="销售部" value="20"></el-option>
                 </el-select>-->
                 <template>
-                    <el-select v-model="searchForm.deptno" clearable placeholder="请选择">
+                    <el-select v-model="searchForm.deptno" @change="searchClick" clearable placeholder="请选择">
                         <el-option
                                 v-for="item in options"
                                 :key="item.ID"
@@ -53,11 +58,11 @@
             <!-- searchClick 查询方法 -->
             <!-- addClick    新增方法 -->
             <el-form-item>
-                <el-tooltip content="客官,点我帮你查询" placement="top">
+                <el-tooltip content="客官,点我帮你查询" placement="top"><!--.native-->
                     <el-button type="primary" icon="search" @click="searchClick">查询</el-button>
                 </el-tooltip>
                 <el-tooltip content="客官,加个员工呗！" placement="bottom" effect="light">
-                    <el-button type="su ccess" icon="plus" @click="addClick">新增</el-button>
+                    <el-button type="success" icon="plus" @click="addClick">新增</el-button>
                 </el-tooltip>
             </el-form-item>
         </el-form>
@@ -70,19 +75,62 @@
             用label属性来定义表格的列名。可以使用width属性来定义列宽。
         -->
         <!-- 1 tableData 数组 2 border属性，它接受一个Boolean，设置为true即可启用 具有竖直方向的边框的 -->
-        <!-- 3 selection-change 当选择项发生变化时会触发该事件-->
+        <!-- 3 selection-change 当选择项发生变化时会触发该事件 4 :default-sort日期排序-->
+        <!-- 5 show-summary 在表格尾部展示合计行 -->
         <el-table
                 :data="tableData"
+                :row-class-name="tableRowClassName"
                 v-loading.body="loading"
                 border
                 @selection-change="selectionChange"
+                :default-sort = "{prop: 'COMM', order: 'descending'}"
+                show-summary
+                :summary-method="getSummaries"
                 style="width: 100%">
+
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                        <el-form-item label="用户名">
+                            <span>{{ props.row.USERNAME }}</span>
+                        </el-form-item>
+                        <el-form-item label="姓名">
+                            <span>{{ props.row.EMPNAME }}</span>
+                        </el-form-item>
+                        <el-form-item label="性别">
+                            <span>{{ props.row.SEX }}</span>
+                        </el-form-item>
+                        <el-form-item label="手机号">
+                            <span>{{ props.row.TEL }}</span>
+                        </el-form-item>
+                        <el-form-item label="部门">
+                            <span>{{ props.row.DNAME }}</span>
+                        </el-form-item>
+                        <el-form-item label="职位">
+                            <span>{{ props.row.ROLE }}</span>
+                        </el-form-item>
+                        <el-form-item label="工资">
+                            <span>{{ props.row.SAL }}</span>
+                        </el-form-item>
+                        <el-form-item label="奖金">
+                            <span>{{ props.row.COMM }}</span>
+                        </el-form-item>
+                    </el-form>
+                </template>
+            </el-table-column>
+
             <el-table-column
                     type="selection"
                     width="55">
             </el-table-column>
             <el-table-column
+                    label="序号"
+                    type="index"
+                    width="50">
+            </el-table-column>
+            <el-table-column
                     prop="ID"
+                    v-if="showTable()"
                     label="序号"
                     width="55">
             </el-table-column>
@@ -100,6 +148,15 @@
                     prop="EMPNAME"
                     label="姓名"
                     width="70">
+                <template slot-scope="scope">
+                    <el-popover trigger="hover" placement="top">
+                        <p>姓名: {{ scope.row.EMPNAME }}</p>
+                        <p>电话: {{ scope.row.TEL }}</p>
+                        <div slot="reference" class="name-wrapper">
+                            <el-tag size="medium">{{ scope.row.EMPNAME }}</el-tag>
+                        </div>
+                    </el-popover>
+                </template>
             </el-table-column>
             <el-table-column
                     prop="DNAME"
@@ -116,26 +173,29 @@
                     label="部门编号"
                     width="120">
             </el-table-column>-->
-            <el-table-column
-                    prop="SEX"
-                    label="性别"
-                    width="55">
-            </el-table-column>
+
             </el-table-column>
             <el-table-column
                     prop="HIREDATE"
                     label="日期"
+                    sortable
                     width="130">
+                <template slot-scope="scope">
+                    <i class="el-icon-time"></i>
+                    <span style="margin-left: 10px">{{ scope.row.HIREDATE }}</span>
+                </template>
             </el-table-column>
             <el-table-column
                     prop="SAL"
-                    label="薪水"
-                    width="60">
+                    sortable
+                    label="薪水(元)"
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="COMM"
-                    label="奖金"
-                    width="60">
+                    sortable
+                    label="奖金(元)"
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="IDCARD"
@@ -146,6 +206,19 @@
                     prop="TEL"
                     label="电话"
                     width="120">
+            </el-table-column>
+            <el-table-column
+                    prop="SEX"
+                    label="性别"
+                    width="100"
+                    :filters="[{ text: '男', value: '男' }, { text: '女', value: '女' }]"
+                    :filter-method="filterTag"
+                    filter-placement="bottom-end">
+                <template slot-scope="scope">
+                    <el-tag
+                            :type="scope.row.tag === '男' ? 'primary' : 'success'"
+                            disable-transitions>{{scope.row.SEX}}</el-tag>
+                </template>
             </el-table-column>
             <el-table-column
                     label="操作">
@@ -187,31 +260,44 @@
     </el-row>
 
     <!--编辑界面-->
-    <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
+    <el-dialog title="操作" size="mini" class="demo-ruleForm" :visible.sync="editFormVisible" :close-on-click-modal="false">
         <el-form :model="editForm" class="demo-ruleForm"  status-icon  label-width="80px" :rules="editFormRules" ref="editForm">
             <!--autocomplete 就是第一次输入内容后，第二次输入会出现以前输入过的内容。就像百度搜索的历史搜索关键词 -->
+        <el-row>
+            <el-col :span="11">
             <el-form-item label="用户名" prop="USERNAME">
                 <el-input v-model="editForm.USERNAME" clearable ></el-input>
             </el-form-item>
-            <el-form-item label="密码" prop="PASSWORD">
-                <el-input type="password" v-model="editForm.PASSWORD" autocomplete="off" clearable ></el-input>
-            </el-form-item>
-
-            <!--<el-form-item label="确认密码" prop="checkPass">
-                <el-input type="password" v-model="editForm.checkPass" autocomplete="off" clearable ></el-input>
-            </el-form-item>-->
-
+            </el-col>
+            <el-col :span="11">
             <el-form-item label="真实姓名" prop="EMPNAME">
                 <el-input v-model="editForm.EMPNAME" clearable ></el-input>
             </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="11">
+            <el-form-item label="密码" prop="PASSWORD">
+                <el-input type="password" v-model="editForm.PASSWORD" autocomplete="off" clearable ></el-input>
+            </el-form-item>
+            </el-col>
+            <el-col :span="11">
+            <el-form-item label="确认密码" prop="checkPass">
+                <el-input type="password" v-model="editForm.checkPass" autocomplete="off" clearable ></el-input>
+            </el-form-item>
+            </el-col>
+        </el-row>
+
             <!-- <el-form-item label="性别">
                  <el-radio-group v-model="editForm.sex">
                      <el-radio class="radio" :label="1">男</el-radio>
                      <el-radio class="radio" :label="0">女</el-radio>
                  </el-radio-group>
              </el-form-item>-->
+        <el-row>
+            <el-col :span="11">
             <el-form-item label="部门名称" prop="DEPTNO" >
-                    <el-select v-model="editForm.DEPTNO" clearable placeholder="请选择">
+                <el-select v-model="editForm.DEPTNO" clearable placeholder="请选择">
                         <el-option
                                 v-for="item in options"
                                 :key="item.ID"
@@ -220,7 +306,8 @@
                         </el-option>
                     </el-select>
              </el-form-item>
-
+            </el-col>
+            <el-col :span="11">
             <el-form-item label="职位名称" prop="ROLEID" >
                 <el-select v-model="editForm.ROLEID" clearable placeholder="请选择">
                     <el-option
@@ -231,36 +318,66 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="11">
             <el-form-item label="性别" prop="SEX">
                 <el-radio-group v-model="editForm.SEX">
                     <el-radio class="radio" label="男">男</el-radio>
                     <el-radio class="radio" label="女">女</el-radio>
                 </el-radio-group>
             </el-form-item>
-
-            <el-form-item label="雇佣日期" prop="HIREDATE">
-                <el-date-picker type="date" value-format="yyyy-MM-dd" placeholder="选择日期" v-model="editForm.HIREDATE"></el-date-picker>
+            </el-col>
+             <el-col :span="11">
+                <el-form-item label="雇佣日期" prop="HIREDATE">
+                    <el-date-picker type="date" value-format="yyyy-MM-dd" placeholder="选择日期" v-model="editForm.HIREDATE"></el-date-picker>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="11">
+                <el-form-item label="薪水" prop="SAL">
+                    <el-input  v-model="editForm.SAL" auto-complete="off" placeholder="请输入薪水">
+                        <template slot="append">元</template>
+                    </el-input>
+                </el-form-item>
+            </el-col>
+            <el-col :span="11">
+                <el-form-item label="奖金" prop="COMM">
+                    <el-input  v-model="editForm.COMM" auto-complete="off" placeholder="请输入奖金">
+                        <template slot="append">元</template>
+                    </el-input>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col>
+            <el-form-item label="身份证号" prop="IDCARD">
+                <el-input type="text" v-model="editForm.IDCARD" auto-complete="off" placeholder="请输入身份证号"></el-input>
             </el-form-item>
-
-            <el-form-item label="薪水">
-                <el-input-number v-model="editForm.SAL" ></el-input-number>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col>
+            <el-form-item label="电话号" prop="TEL">
+                <el-input type="text" v-model="editForm.TEL" auto-complete="off" placeholder="请输入手机号"></el-input>
             </el-form-item>
-            <el-form-item label="奖金">
-                <el-input-number v-model="editForm.COMM" ></el-input-number>
+            </el-col>
+        </el-row>
+            <el-row>
+                <el-col :push="6">
+            <!--<div slot="footer" class="dialog-footer">-->
+            <el-form-item>
+                <el-button type="warning" @click="resetForm()">重置</el-button>
+                <el-button type="danger" @click.native="editFormVisible = false">取消</el-button>
+                <!-- :loading="editLoading" -->
+                <el-button type="primary" @click.native="editSubmit('editForm')" >提交</el-button>
             </el-form-item>
-            <el-form-item label="身份证号">
-                <el-input-number v-model="editForm.IDCARD" ></el-input-number>
-            </el-form-item>
-            <el-form-item label="电话号">
-                <el-input-number v-model="editForm.TEL" ></el-input-number>
-            </el-form-item>
-
+            <!--</div>-->
+                </el-col>
+            </el-row>
         </el-form>
-        <div slot="footer" class="dialog-footer">
-            <el-button @click.native="editFormVisible = false">取消</el-button>
-            <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
-        </div>
     </el-dialog>
 
 </div>
@@ -276,312 +393,379 @@
 
     var tableView = new Vue({
         el: '#tableView',
-        data: {
-            //用户名数组
-            names: [],
-            //查询职位名称
-            roles: [],
-            //查询部门名称
-            options: [],
-            //列表数据
-            tableData: [],
-            //显示加载中样式
-            loading:false,
-            //搜索表单
-            searchForm: {
-                empname: '',
-                deptno: ''
-            },
-            //多选值
-            multipleSelection: [],
-            //当前页
-            currentPage:1,
-            //分页大小
-            pageSize:10,
-            //总记录数
-            total:800,
-            //删除的弹出框
-            deleteVisible:false,
-            //编辑界面是否显示
-            editFormVisible: false,
-            editLoading: false,
-            goUrl:'',
+        data() {
 
-            editFormRules: {
-                USERNAME: [
-                    { required: true, message: '亲,请输入用户名', trigger: 'blur' },
-                    { min: 3, max: 7, message: '亲,长度在 3 到 7 个字符', trigger: 'blur' }
-                ],
-                /*USERNAME: [
-                    { validator: validatePass3, trigger: 'blur' }
-                ],
-                EMPNAME: [
-                    { required: true, message: '亲,请输入真实姓名', trigger: 'blur' },
-                    { min: 2, max: 4, message: '亲,长度在 2 到 4 个字符', trigger: 'blur' }
-                ],
-                DEPTNO: [
-                    { required: true, message: '请选择部门名', trigger: 'change' }
-                ],
-                PASSWORD: [
-                    { validator: validatePass, trigger: 'blur' }
-                ],
-                checkPass: [
-                    { validator: validatePass2, trigger: 'blur' }
-                ],
-                HIREDATE: [
-                    { type: 'date', required: true, message: '亲,请选择日期', trigger: 'change' }
-                ],
-                SEX: [
-                    { required: true, message: '亲,请选择性别,至少选一个哦', trigger: 'change' }
-                ],
-                SAL: [
-                    { required: true, message: '亲,请输入工资', trigger: 'blur' },
-                    { min: 3, max: 7, message: '亲,长度在 3 到 7 个字符', trigger: 'blur' }
-                ],
-                COMM: [
-                    { required: true, message: '亲,请输入奖金', trigger: 'blur' },
-                    { min: 3, max: 7, message: '亲,长度在 3 到 7 个字符', trigger: 'blur' }
-                ],
-                IDCARD: [
-                    { required: true, message: '亲,请输入身份证号', trigger: 'blur' },
-                    { min: 18, max: 18, message: '亲,请输入正确的身份证号', trigger: 'blur' }
-                ],
-                TEL: [
-                    { required: true, message: '亲,请输入电话号', trigger: 'blur' },
-                    { min: 11, max: 11, message: '亲,请输入正确的电话号', trigger: 'blur' }
-                ]*/
-            },
-            //编辑界面数据
-            editForm: {
-                ID:0,
-                USERNAME:'',
-                PASSWORD:'',
-                checkPass:'',
-                ROLEID:0,
-                EMPNAME:'',
-                DEPTNO:0,
-                SEX:'',
-                HIREDATE:'',
-                SAL:0,
-                COMM:0,
-                IDCARD:'',
-                TEL:''
-
-            }
-
-        },
-        created:function(){
-            //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
-            var self = this;
-            var start =(this.currentPage-1)*this.pageSize;
-            var end =this.currentPage*this.pageSize+1;
-
-            /*var validatePass = (rule, value, callback) => {
+            var validatePass = (rule, value, callback) => {
                 if (value === '') {
-                    callback(new Error('请输入密码'));
+                    callback(new Error('亲,请输入密码'));
                 } else {
-                    if (self.editForm.checkPass !== '') {
-                        self.$refs.editForm.validateField('checkPass');
+                    if (this.editForm.checkPass !== '') {
+                        this.$refs.editForm.validateField('checkPass');
                     }
                     callback();
                 }
             };
-            var validatePass2 = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error('请再次输入密码'));
-                } else if (value !== self.editForm.PASSWORD) {
-                    callback(new Error('两次输入密码不一致!'));
-                } else {
-                    callback();
+            var isInArray=(arr,value)=> {
+                for(var i = 0; i < arr.length; i++){
+                    if(value === arr[i]){
+                        return true;
+                    }
                 }
-            };*/
+                return false;
+            };
+             var validatePass2 = (rule, value, callback) => {
 
-            axios.post('/sb/emp/page',{'start':start,'end':end}).then(function(response){
-                // console.log(response.data);
+                     if (value === '') {
+                         callback(new Error('请您再次输入密码'));
+                     } else if (value !== this.editForm.PASSWORD) {
+                         callback(new Error('两次输入密码不一致哦!'));
+                     } else {
+                         callback();
+                     }
+                 };
+             var validatePass3 = (rule,value,callback)=> {
+                 var arr = this.usernames;
+
+                 if (value === '') {
+                     callback(new Error('请您输入用户名'));
+                 } else if (isInArray(arr,value)) {
+                     callback(new Error('用户名重复!'));
+                 } else {
+                     callback();
+                 }
+             };
+
+            return {
+                //用户名集合
+                usernames: [],
+                //查询职位名称
+                roles: [],
+                //查询部门名称
+                options: [],
+                //列表数据
+                tableData: [],
+                //显示加载中样式
+                loading: false,
+                //搜索表单
+                searchForm: {
+                    empname: '',
+                    deptno: ''
+                },
+                //多选值
+                multipleSelection: [],
+                //当前页
+                currentPage: 1,
+                //分页大小
+                pageSize: 10,
+                //总记录数
+                total: 800,
+                //删除的弹出框
+                deleteVisible: false,
+                //编辑界面是否显示
+                editFormVisible: false,
+                editLoading: false,
+                goUrl: '',
+                addResult:0,
+
+                //编辑界面数据
+                editForm: {
+                    USERNAME: '',
+                    PASSWORD: '',
+                    ROLEID: '',
+                    EMPNAME: '',
+                    DEPTNO: '',
+                    SEX: '',
+                    HIREDATE: '',
+                    SAL: '',
+                    COMM: '',
+                    IDCARD: '',
+                    TEL: '',
+                    checkPass:''
+
+                },
+
+
+                editFormRules: {
+                    USERNAME: [
+                        {required: true, message: '亲,请输入用户名', trigger: 'blur'},
+                        {min: 3, max: 7, message: '亲,长度在 3 到 7 个字符', trigger: 'blur'},
+                        { validator: validatePass3, trigger: 'blur' }
+                    ],
+                    PASSWORD: [
+                        { min: 3, max: 20, message: '亲,密码长度在 3 到 20 个字符', trigger: 'blur' },
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                    checkPass: [
+                        { validator: validatePass2, trigger: 'blur' }
+                    ],
+                    EMPNAME: [
+                        { required: true, message: '亲,请输入您的姓名', trigger: 'blur' },
+                        {pattern: /^[0-9a-zA-Z\u4e00-\u9fa5_]{2,10}$/, message: '请输入正确的姓名！'}
+                    ],
+                    DEPTNO: [
+                        { required: true, message: '请选择部门名', trigger: 'change' }
+                    ],
+                    ROLEID: [
+                        { required: true, message: '请选择职位名', trigger: 'change' }
+                    ],
+                    HIREDATE: [
+                        { type: 'string', required: true, message: '亲,请选择日期', trigger: 'change' }
+                    ],
+                    SAL: [
+                        { required: true, message: '亲,请输入工资' ,trigger: 'blur'},
+                        { min: 3, max: 15, message: '亲,长度在 3 到 15 个字符'}
+                    ],
+                    COMM: [
+                        { required: true, message: '亲,请输入奖金' ,trigger: 'blur'},
+                        { min: 0, max: 15, message: '亲,长度在 0 到 15 个字符'}
+                    ],
+                    IDCARD: [
+                        { required: true, message: '亲,请输入身份证号', trigger: 'blur' },
+                        {pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '身份证号码为15位时全为数字，18位前17位为数字，最后一位是校验位，可能为数字或字符X!'}
+
+                    ],
+                    TEL: [
+                        { required: true, message: '亲,请输入手机号', trigger: 'blur' },
+                        {pattern: /^1[34578]\d{9}$/, message: '目前只支持中国大陆的手机号码!'}
+                    ]
+
+                }
+            };
+        },
+        created: function () {
+            //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
+            var self = this;
+            var start = (this.currentPage - 1) * this.pageSize;
+            var end = this.currentPage * this.pageSize + 1;
+
+            axios.post('/sb/emp/page', {'start': start, 'end': end}).then(function (response) {
                 //alert(JSON.stringify(response.data.pageData));
-                self.total=response.data.total;
+                //usernames用户名数数组
+                for (let obj of response.data.userNameData) {
+                    self.usernames.push(obj.USERNAME);
+                }
+                //alert(JSON.stringify(self.usernames));
+                //alert(JSON.stringify(response.data.pageData.USERNAME));
+                //table分页查询
+                self.total = response.data.total;
                 self.tableData = response.data.pageData;
-                //用户名是否重复事件
-
-                /*for(var i = 0;i<response.data.pageData.length;i++){
-
-                    self.names = response.data.pageData[i].USERNAME;
-                }*/
 
             });
 
-            /*var validatePass3 = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error('请输入用户名'));
-                  }
-                  for(var i = 0;i<self.names.length;i++){
-                      if (value !== self.names[i].value) {
-                          callback(new Error('用户名重复'));
-                      } else {
-                          callback();
-                      }
-                  }
-
-
-            };*/
             //select 部门
-            axios.post('/sb/dept/list').then(function(response){
-
+            axios.post('/sb/dept/list').then(function (response) {
+                //alert(JSON.stringify(response.data));
                 self.options = response.data;
 
             });
             //select 角色
-            axios.post('/sb/role/list').then(function(response){
+            axios.post('/sb/role/list').then(function (response) {
 
                 self.roles = response.data;
 
             })
         },
-        methods:{
+        methods: {
             //表格重新加载数据
-            loadingData:function() {
+            loadingData() {
                 var _self = this;
                 _self.loading = true;
 
-                var start =(this.currentPage-1)*this.pageSize;
-                var end =this.currentPage*this.pageSize+1;
-                var searchForm={'start':start,'end':end,'empname':this.searchForm.empname,'deptno':this.searchForm.deptno};
+                var start = (this.currentPage - 1) * this.pageSize;
+                var end = this.currentPage * this.pageSize + 1;
+                var searchForm = {
+                    'start': start,
+                    'end': end,
+                    'empname': this.searchForm.empname,
+                    'deptno': this.searchForm.deptno
+                };
 
-                axios.post('/sb/emp/page',searchForm).then(function(response){
-                    _self.total=response.data.total;
+                axios.post('/sb/emp/page', searchForm).then(function (response) {
+                    _self.total = response.data.total;
                     _self.tableData = response.data.pageData;
-                })
+                });
                 //打印当前页
                 console.log(_self.currentPage);
-                setTimeout(function(){
+                setTimeout(function () {
                     console.info("加载数据成功");
                     _self.loading = false;
-                },300);
+                }, 300);
+            },
+            //隐藏列
+            showTable(){
+              this.show=false;
+            },
+            //性别排序
+            filterTag(value, row) {
+                return row.SEX === value;
+            },
+            //table合计
+            getSummaries(param) {
+                const { columns, data } = param;
+                const sums = [];
+                columns.forEach((column, index) => {
+                    if (index === 4) {
+                        sums[index] = '合计';
+                        return;
+                    }else if(index===8||index===9) {
+                        const values = data.map(item => Number(item[column.property]));
+                        if (!values.every(value => isNaN(value))) {
+                            sums[index] = values.reduce((prev, curr) => {
+                                const value = Number(curr);
+                                    if (!isNaN(value)) {
+                                        return (Number(prev) + Number(curr)).toFixed(2);
+                                    } else {
+                                        return Number(prev).toFixed(2);
+                                }
+                            }, 0);
+                            sums[index] += ' 元';
+                        } else {
+                            sums[index] = '';
+                        }
+                    }
+                });
+
+                return sums;
+            },
+            //表格颜色
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex%2 === 0) {
+                    return 'warning-row';
+                } else if (!(rowIndex%2 === 0)) {
+                    return 'success-row';
+                }
+                return '';
             },
             //表格编辑事件
-            editClick:function(row) {
-                this.goUrl="/sb/emp/upd";
+            editClick(row) {
+
+                this.goUrl = "/sb/emp/upd";
                 //alert(JSON.stringify(Object.assign({}, row)));
                 this.editFormVisible = true;
                 this.editForm = Object.assign({}, row);
 
             },
             //表格删除事件
-            deleteClick:function(row) {
+            deleteClick(row) {
                 var _self = this;
-                this.$confirm('确认删除' + row.ID +'吗?', '提示', {
+                this.$confirm('确认删除编号为' + row.ID + '的，姓名是' + row.EMPNAME +'员工吗?', '提示', {
                     type: 'warning'
-                }).then(function(){
-                    var  url="/sb/emp/del/?id="+row.ID;
+                }).then(function () {
+                    var url = "/sb/emp/del/?id=" + row.ID;
                     axios.post(url).then(function (response) {
-                        //alert(response.data);
-                        if(response.data>0){
+                        if (response.data > 0) {
+
                             /*_self.$message({
                                 message: row.ID + '删除成功',
                                 type: 'success'
                             });*/
-
+                            _self.loadingData();//重新加载数据
                             _self.$notify({
                                 title: '成功',
                                 type: 'success',
-                                message: row.ID+'删除成功',
+                                message: '姓名是' + row.EMPNAME + '的员工删除成功！',
                                 position: 'bottom-right'
                             });
 
+
+                        } else {
                             _self.loadingData();//重新加载数据
-                        }else{
                             _self.$notify.error({
                                 title: '失败',
-                                message: row.ID+'删除成功',
+                                message: row.EMPNAME + '删除失败',
                                 position: 'bottom-right'
                             });
+
                         }
                     });
-                }).catch(function(e){
-                    if(e != "cancel")
+                }).catch(function (e) {
+                    if (e != "cancel")
                         console.log("出现错误：" + e);
                 });
+
+                _self.loadingData();//重新加载数据
             },
             //新建事件
-            addClick:function() {
+            addClick() {
                 //alert(111);
-                this.goUrl="/sb/emp/add";
+                this.goUrl = "/sb/emp/add";
                 var _self = this;
-                this. editForm={
-                    ID:0,
-                    USERNAME:'',
-                    PASSWORD:'',
-                    ROLEID:0,
-                    EMPNAME:'',
-                    DEPTNO:'',
-                    SEX:'',
-                    HIREDATE:'',
-                    SAL:0,
-                    COMM:0,
-                    IDCARD:'',
-                    TEL:''
+                this.editForm = {
+                    USERNAME: '',
+                    PASSWORD: '',
+                    checkPass: '',
+                    ROLEID: '',
+                    EMPNAME: '',
+                    DEPTNO: '',
+                    SEX: '',
+                    HIREDATE: '',
+                    SAL: '',
+                    COMM: '',
+                    IDCARD: '',
+                    TEL: ''
                 };
+                //如果要给下拉框加初始值
+                //_self.options.push({ID:12,DNAME:'哈哈'});
                 this.editFormVisible = true;
+
                 _self.loadingData();//重新加载数据
             },
             //表格查询事件
-            searchClick:function() {
+            searchClick: function () {
                 var self = this;
-                /* var start =(this.currentPage-1)*this.pageSize;
-                 var end =this.currentPage*this.pageSize+1;
-                 //var searchForm =this.searchForm;
-
-                 var searchForm={'start':start,'end':end,'id':this.id,'name':this.name,'deptNo':this.deptNo};
-                 alert(searchForm);
-                 //formData.push({'start':start}).push({'end':end})
-                 axios.post('/emp/list',searchForm).then(function(response){
-                     // console.log(response.data);
-                     //alert(response.data.total);
-                     self.total=response.data.total;
-                     self.tableData = response.data.data;
-                     // self.multipleSelection=response.data.data;
-                 })*/
                 self.loadingData();//重新加载数据
             },
             //表格勾选事件
-            selectionChange:function(val) {
-                for(var i=0;i<val.length;i++) {
+            selectionChange(val) {
+                for (var i = 0; i < val.length; i++) {
                     var row = val[i];
                 }
                 this.multipleSelection = val;
                 console.info(val);
             },
             //删除所选，批量删除
-            removeSelection:function() {
+            removeSelection() {
                 var _self = this;
                 var multipleSelection = this.multipleSelection;
-                if(multipleSelection.length < 1) {
+                if (multipleSelection.length < 1) {
                     /*_self.$message({
                         message: '请至少选中一条记录',
                         type: 'error'
                     });*/
-                    _self.$notify({
+                    /*_self.$notify({
                         title: '消息提示',
                         message: "<b>请至少选中一条记录</b>",
                         position: 'bottom-right',
                         type: 'warning',
                         dangerouslyUseHTMLString: true
+                    });*/
+                    Swal({
+                        title: '请至少选择一项！！！',
+                        width: 600,
+                        padding: '3em',
+                        background: '#fff url(../image/trees.png)',
+                        backdrop: `rgba(0,0,123,0.4)
+                                    url("../image/nyan-cat.gif")
+                                    center left
+                                    no-repeat
+                                   `
                     });
                     return;
                 }
                 var ids = "";
-                for(var i=0;i<multipleSelection.length;i++) {
+                for (var i = 0; i < multipleSelection.length; i++) {
                     var row = multipleSelection[i];
                     ids += row.ID + ","
                 }
-                alert(ids);
-                this.$confirm('确认删除' + ids +'吗?', '提示', {
+                //alert(ids);
+
+                _self.$confirm('确认删除' + ids + '吗?', '提示', {
                     type: 'warning'
-                }).then(function(){
-                    var  url="/sb/emp/batchDel/?ids="+ids;
+                }).then(function () {
+                    var url = "/sb/emp/batchDel/?ids=" + ids;
                     axios.post(url).then(function (response) {
                         //alert(response.data);
-                        if(response.data>0){
+                        if (response.data > 0) {
                             _self.$notify({
                                 title: '成功',
                                 type: 'success',
@@ -589,6 +773,7 @@
                                 position: 'bottom-right',
                                 dangerouslyUseHTMLString: true
                             });
+
                         }else {
                             _self.$notify.error({
                                 title: '失败',
@@ -597,6 +782,7 @@
                                 dangerouslyUseHTMLString: true
 
                             });
+
                         }
                         /*_self.$message({
                             message: ids + temp,
@@ -605,70 +791,128 @@
                         _self.loadingData();//重新加载数据
                     });
 
-                }).catch(function(e){
-                    if(e != "cancel")
+                }).catch(function (e) {
+                    if (e != "cancel")
                         console.log("出现错误：" + e);
                 });
             },
             //分页大小修改事件
-            pageSizeChange:function(val) {
-                console.log('每页 ' + val +' 条');
+            pageSizeChange(val) {
+                console.log('每页 ' + val + ' 条');
                 this.pageSize = val;
                 var _self = this;
                 _self.loadingData();//重新加载数据
             },
             //当前页修改事件
-            currentPageChange:function(val) {
+            currentPageChange (val) {
                 this.currentPage = val;
                 console.log('当前页: ' + val);
                 var _self = this;
                 _self.loadingData();//重新加载数据
             },
             //保存点击事件
-            editSubmit:function(){
+            editSubmit(editForm){
                 var _self = this;
-                _self.loading = true;
-                var formData =this.editForm;
-                //alert(formData);
-                var goUrl=this.goUrl;
-                //alert(goUrl);
-                //alert(JSON.stringify(formData));
-                axios.post(goUrl,formData).then(function(response){
-                    // console.log(response.data);
-                    // alert(222);
-                    // self.total=response.data.total;
-                    if(response.data>0){
-                        _self.editFormVisible = false;
-                        _self.$notify({
-                            title: '成功',
-                            type: 'success',
-                            message: "<b>请至少选中一条记录</b>",
-                            position: 'bottom-right',
-                            dangerouslyUseHTMLString: true
-                        });
-                    }else {
-                        _self.$notify.error({
-                            title: '失败',
-                            message: "<b>操作失败</b>",
-                            position: 'bottom-right',
-                            dangerouslyUseHTMLString: true
+                //_self.loading = true;
+                var formData = this.editForm;
+                var goUrl = this.goUrl;
 
-                        });
-                    }
-                    /*_self.$message({
-                        message: temp,
-                        type: 'success'
-                    });*/
+                this.$refs[editForm].validate((valid) => {
 
+                        if (valid) {
+                            axios.post(goUrl, formData).then(function (response) {
+                                //alert(JSON.stringify(response.data));
+                                if (response.data > 0) {
+                                    _self.editFormVisible = false;
+                                    _self.$notify({
+                                        title: '成功',
+                                        type: 'success',
+                                        message: "<b>操作成功！</b>",
+                                        position: 'bottom-right',
+                                        dangerouslyUseHTMLString: true
+                                    });
 
-                    _self.loadingData();//重新加载数据
-                })
-                console.info(this.editForm);
+                                }else {
+                                    _self.editFormVisible = false;
+                                    _self.$notify.error({
+                                        title: '失败',
+                                        message: "<b>操作失败</b>",
+                                        position: 'bottom-right',
+                                        d0angerouslyUseHTMLString: true
+
+                                    });
+                                }
+
+                                    _self.loadingData();//重新加载数据
+
+                            });
+
+                            /*_self.$message({
+                                message: temp,
+                                type: 'success'
+                            });*/
+                        }else{
+                            _self.editFormVisible = false;
+                            _self.$notify.error({
+                                title: '失败',
+                                message: "<b>操作失败</b>",
+                                position: 'bottom-right',
+                                dangerouslyUseHTMLString: true
+                            });
+                            _self.loadingData();//重新加载数据
+                            return false;
+                        }
+                });
+
+                        console.info(this.editForm);
+
+            },
+                resetForm(){
+                    this.editForm = {
+                        USERNAME: '',
+                        PASSWORD: '',
+                        checkPass: '',
+                        ROLEID: '',
+                        EMPNAME: '',
+                        DEPTNO: '',
+                        SEX: '',
+                        HIREDATE: '',
+                        SAL: '',
+                        COMM: '',
+                        IDCARD: '',
+                        TEL: ''
+                    };
+                }
+
             }
-        }
 
-    })
+
+        })
+
+
 </script>
+
+<style>
+    .demo-table-expand {
+        font-size: 0;
+    }
+    .demo-table-expand label {
+        width: 200px;
+        color: #99a9bf;
+    }
+    .demo-table-expand .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: 50%;
+    }
+    .el-table .warning-row {
+        background: oldlace;
+    }
+
+    .el-table .success-row {
+        background: #f0f9eb;
+    }
+</style>
 
 </body>
 </html>

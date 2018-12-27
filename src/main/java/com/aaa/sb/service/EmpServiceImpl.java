@@ -2,9 +2,17 @@ package com.aaa.sb.service;
 
 import com.aaa.sb.dao.EmpDao;
 import com.aaa.sb.entity.Emp;
+import com.aaa.sb.util.AESUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,12 +96,11 @@ public class EmpServiceImpl implements EmpService{
     @Override
     public int batchDelete(String ids) {
         String[] idsArray = ids.split(",");
-        boolean isDel = true;
         List list = new ArrayList();
-
         for(String s : idsArray){
             list.add(s);
         }
+        //System.out.println(list);
         return empDao.batchDelete(list);
     }
 
@@ -103,8 +110,18 @@ public class EmpServiceImpl implements EmpService{
      * @return
      */
     @Override
-    public int add(Map map) {
-        return empDao.add(map);
+    public int add(Map map)throws NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+
+
+            String password = AESUtil.getInstance().encrypt((map.get("PASSWORD") + ""));
+            System.out.println(password);
+            map.put("PASSWORD", password);
+
+            return  empDao.add(map);
+
+
+
+
     }
 
     /**
@@ -113,7 +130,10 @@ public class EmpServiceImpl implements EmpService{
      * @return
      */
     @Override
-    public int upd(Map map) {
+    public int upd(Map map)throws NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException  {
+        String password = AESUtil.getInstance().encrypt((map.get("PASSWORD") + ""));
+        System.out.println(password);
+        map.put("PASSWORD", password);
         return empDao.upd(map);
     }
 
@@ -125,5 +145,15 @@ public class EmpServiceImpl implements EmpService{
     @Override
     public int del(Integer id) {
         return empDao.del(id);
+    }
+
+
+    /**
+     * 用户名数组
+     * @return
+     */
+    @Override
+    public List<Map> selUsernameOfList() {
+        return empDao.selUsernameOfList();
     }
 }

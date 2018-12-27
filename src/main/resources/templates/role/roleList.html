@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>部门列表</title>
+    <!-- 引入样式 -->
+    <!--<script type="text/javascript" src="../js/vue.js"></script>-->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <!--<script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+    <!--sweet alert2-->
+    <link rel="stylesheet" href="../css/sweetalert2.min.css">
+    <script src="../js/sweetalert2.all.min.js"></script>
+    <script src="../js/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
+    <!--jquery-->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+</head>
+<body>
+<center>
+    <div id="app">
+        <h2>{{ message }}</h2>
+    </div>
+</center>
+<center>
+    <div id="tableView">
+        <el-row>
+            <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                <el-form-item label="角色名称">
+                    <el-input v-model="searchForm.role" placeholder="角色名称"></el-input>
+                </el-form-item>
+
+                <!-- searchClick 查询方法 -->
+                <!-- addClick    新增方法 -->
+                <el-form-item>
+                    <el-button type="primary" icon="search" @click="searchClick">查询</el-button>
+                    <el-button type="success" icon="plus" @click="addClick">新增</el-button>
+                </el-form-item>
+            </el-form>
+        </el-row>
+        <!--列表-->
+        <el-row>
+            <!--
+                当el-table元素中注入data对象数组后，
+                在el-table-column中用prop属性来对应对象中的键名即可填入数据，
+                用label属性来定义表格的列名。可以使用width属性来定义列宽。
+            -->
+            <!-- 1 tableData 数组 2 border属性，它接受一个Boolean，设置为true即可启用 具有竖直方向的边框的 -->
+            <!-- 3 selection-change 当选择项发生变化时会触发该事件 -->
+            <el-table
+                    :data="tableData"
+                    v-loading.body="loading"
+                    border
+                    style="width: 100%">
+                <el-table-column
+                        type="selection"
+                        width="55">
+                </el-table-column>
+                <el-table-column
+                        label="序号"
+                        type="index"
+                        width="50">
+                </el-table-column>
+                <el-table-column
+                        prop="ID"
+                        label="编号"
+                        width="55">
+                </el-table-column>
+                <el-table-column
+                        prop="ROLE"
+                        label="角色名称"
+                        width="150">
+                </el-table-column>
+                <el-table-column
+                        label="操作">
+                    <template scope="scope">
+
+                        <el-button :plain="true" type="primary" size="small" icon="edit" @click="setCheckedNodes(scope.row)">授权</el-button>
+                        <el-button :plain="true" type="success" size="small" icon="edit" @click="editClick(scope.row)">编辑</el-button>
+                        <el-button :plain="true" type="danger"  size="small" icon="delete" @click="deleteClick(scope.row)">删除</el-button>
+
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-row>
+
+        <!--列表底部工具条和分页符-->
+        <el-row style="margin-top: 20px" type="flex" justify="end">
+            <el-col :span="18">
+                <el-pagination
+                        style="float: right"
+                        @size-change="pageSizeChange"
+                        @current-change="currentPageChange"
+                        :current-page="currentPage"
+                        :page-sizes="[5,10, 20, 30, 50]"
+                        :page-size="pageSize"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total">
+                </el-pagination>
+            </el-col>
+        </el-row>
+
+        <!--操作界面-->
+        <el-dialog title="操作" :visible.sync="editFormVisible" :close-on-click-modal="false">
+            <el-form :model="editForm" class="demo-ruleForm" label-width="80px" ref="editForm">
+                <el-form-item label="角色名称" prop="ROLE">
+                    <el-input v-model="editForm.ROLE" auto-complete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click.native="editFormVisible = false">取消</el-button>
+                <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+            </div>
+        </el-dialog>
+
+        <el-dialog title="授权" :visible.sync="roleFormVisible" :close-on-click-modal="false">
+
+            <el-tree
+                    :data="data2"
+                    show-checkbox
+                    default-expand-all
+                    node-key="id"
+                    ref="tree"
+                    :props="defaultProps">
+            </el-tree>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button @click.native="roleFormVisible = false">取消</el-button>
+                <el-button @click.native="resetChecked">清空</el-button>
+                <el-button type="primary" @click.native="roleSubmit">保存</el-button>
+            </div>
+        </el-dialog>
+
+    </div>
+</center>
+
+
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: '角色列表'
+        }
+    });
+
+    var tableView = new Vue({
+        el: '#tableView',
+        data(){
+            return{
+                //弹出框的树
+                data2:[],
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                },
+                //列表数据
+                tableData: [],
+                //显示加载中样式
+                loading:false,
+                //搜索表单
+                searchForm: {
+                    role:''
+                },
+                //多选值
+                multipleSelection: [],
+                //当前页
+                currentPage:1,
+                //分页大小
+                pageSize:5,
+                //总记录数
+                total:800,
+                //删除的弹出框
+                deleteVisible:false,
+                //编辑界面是否显示
+                editFormVisible: false,
+                //授权界面是否显示
+                roleFormVisible: false,
+                editLoading: false,
+                goUrl:'',
+                //编辑界面数据
+                editForm: {
+                    ROLE:''
+
+                },
+                //默认选中数组
+                checkedArr:[],
+                //当前roleid
+                nowRoleId:0
+            };
+        },
+
+        created:function(){
+
+            var self = this;
+            axios.post('/sb/role/myPage',{'pageNo':this.currentPage,'pageSize':this.pageSize}).then(function(response){
+                self.total=response.data.pageTotal;
+                self.tableData = response.data.pageData;
+            });
+            axios.post('/sb/power/allTree').then(function(response){
+                alert(JSON.stringify(response.data));
+                self.data2=response.data;
+            });
+
+
+        },
+        methods:{
+            //表格重新加载数据
+            loadingData(){
+
+                var _self = this;
+                _self.loading = true;
+                var searchForm={'pageNo':this.currentPage,'pageSize':this.pageSize,'role':this.searchForm.role};
+                axios.post('/sb/role/myPage',searchForm).then(function(response){
+                    _self.total=response.data.pageTotal;
+                    _self.tableData = response.data.pageData;
+                });
+                //打印当前页
+                console.log(_self.currentPage);
+                setTimeout(function(){
+                    console.info("加载数据成功");
+                    _self.loading = false;
+                },300);
+            },
+            //将对象属性名 有大写变小写
+            nameTo(object) {
+                let regObj = new RegExp("([A-Z]+)", "g");
+                for (let i in object) {
+                    if (object.hasOwnProperty(i)) {
+                        let temp = object[i];
+                        if (regObj.test(i.toString())) {
+                            temp = object[i.replace(regObj, function (result) {
+                                return result.toLowerCase();
+                            })] = object[i];
+                            delete object[i];
+                            }
+                        if (typeof temp === 'object' || Object.prototype.toString.call(temp) === '[object Array]') {
+                            this.nameTo(temp);
+                        }
+                    }
+                }
+                    return object;
+            },
+            //清空
+            resetChecked() {
+                this.$refs.tree.setCheckedKeys([]);
+            },
+            //授权 默认选中
+            setCheckedNodes(row){
+                //1 点击授权按钮
+                //2 axios.post 请求 拿到该行的角色id roleid 三表联查 得到下方数组 id lable
+                //3 this.$refs.tree.setCheckedNodes([数组]);
+                //4 弹框 显示默认选中的权限
+                this.checkedArr = [];
+                //alert(JSON.stringify(this.checkedArr));
+                var _self = this;
+                //得到该行数据
+                //alert(JSON.stringify(row));
+                //得到该行的id
+                //alert(JSON.stringify(row.ID));
+                this.nowRoleId = row.ID;
+                //alert(JSON.stringify(this.nowRoleId));
+                axios.post('/sb/role/selRoleIdAndPowerId',{id:row.ID}).then(function(response){
+                    //alert(JSON.stringify(response.data));
+
+                    for(var i = 0;i<response.data.length;i++){
+                        response.data[i] = _self.nameTo(response.data[i]);
+                    }
+                    _self.checkedArr = response.data;
+                    //alert(JSON.stringify(_self.checkedArr));
+                    _self.$refs.tree.setCheckedNodes(_self.checkedArr);
+
+                });
+
+                //弹框显示
+                _self.roleFormVisible = true;
+
+            },
+            //保存
+            roleSubmit(){
+                //5 得到选中的数据this.$refs.tree.getCheckedNodes()是个数组 从中得到id也就是powerid
+                //6 遍历数组得到所有id,放到一个poweridArr的数组
+                //7 传到后台 得到的数据到服务层得到一个一个id批量增加到tb_role_power表 有 powerid roleid 插入权限角色表
+                var _self = this;
+                //得到roleid alert(this.$refs.tree.getCheckedNodes());
+                var nowRoleId = this.nowRoleId;
+                alert(JSON.stringify(nowRoleId));
+                //得到powerid数组 id,id,id... -> powerid
+                var poweridArr = this.$refs.tree.getCheckedNodes();
+                //alert(JSON.stringify(poweridArr));
+                //alert(poweridArr.length);
+                //授权对象数组
+                var rolePowerArr = [];
+                for(var i = 0;i < poweridArr.length; i++){
+                    rolePowerArr.push({roleid:nowRoleId,powerid:poweridArr[i].id});
+                }
+                    alert(JSON.stringify(rolePowerArr));
+                axios.post('/sb/role/addRoleIdAndPowerId',{roleList:rolePowerArr}).then(function(response){
+                    alert(JSON.stringify(response.data));
+                    if(response.data>0){
+                        alert("关闭弹框11111");
+                        _self.roleFormVisible = false;
+                        _self.$message({
+                            message: '授权成功',
+                            type: 'success'
+                        });
+                    }else{
+                        alert("关闭弹框22222");
+                        _self.roleFormVisible = false;
+                        _self.$message({
+                            message: '授权失败',
+                            type: 'warning'
+                        });
+                    }
+                        _self.loadingData();//重新加载数据
+
+                });
+
+            },
+            //表格编辑事件
+            editClick(row){
+                alert(JSON.stringify(row));
+                this.goUrl="/sb/role/upd";
+                this.editFormVisible = true;
+                this.editForm = Object.assign({}, row);
+                alert(JSON.stringify(this.editForm));
+            },
+            //表格删除事件
+            deleteClick(row){
+                var _self = this;
+                alert(row.ID);
+                this.$confirm('确认删除' + row.ROLE +'吗?', '提示', {
+                    type: 'warning'
+                }).then(function(){
+                    var url="/sb/role/del/?id="+row.ID;
+                    axios.post(url).then(function (response) {
+
+                        alert(response.data);
+
+                        if(response.data==1){
+                            _self.$message({
+                                message: row.ROLE + '删除成功',
+                                type: 'success'
+                            });
+                        }else if(response.data==0){
+                            _self.$message({
+                                message: row.ROLE + '删除失败',
+                                type: 'warning'
+                            });
+                        }else if(response.data==3){
+                            _self.$message({
+                                message: '不能删除老板',
+                                type: 'error'
+                            });
+                        }
+                        _self.loadingData();//重新加载数据
+                    });
+                }).catch(function(e){
+                    if(e != "cancel")
+                        console.log("出现错误：" + e);
+                });
+            },
+            //新建事件
+            addClick(){
+                //alert(111);
+                this.goUrl="/sb/role/add";
+                var _self = this;
+                this.editForm= {
+                    ROLE:''
+
+                };
+                this.editFormVisible = true;
+                _self.loadingData();//重新加载数据
+            },
+            //表格查询事件
+            searchClick(){
+                var self = this;
+                self.loadingData();//重新加载数据
+            },
+            //分页大小修改事件
+            pageSizeChange(val){
+
+                console.log('每页 ' + val +' 条');
+                this.pageSize = val;
+                var _self = this;
+                _self.loadingData();//重新加载数据
+            },
+            //当前页修改事件
+            currentPageChange(val){
+                this.currentPage = val;
+                console.log('当前页: ' + val);
+                var _self = this;
+                _self.loadingData();//重新加载数据
+            },
+            //保存点击事件
+            editSubmit(){
+                var _self = this;
+                _self.loading = true;
+                var formData =this.editForm;
+                var goUrl=this.goUrl;
+                alert(goUrl);
+                alert(JSON.stringify(formData));
+                axios.post(goUrl,formData).then(function(response){
+                    if(response.data>0){
+                        _self.editFormVisible = false;
+                        temp="操作成功";
+                        stat='success';
+                    }else {
+                        _self.editFormVisible = false;
+                        temp="操作失败";
+                        stat='warning';
+                    }
+                    _self.$message({
+                        message: temp,
+                        type: stat
+                    });
+                    _self.loadingData();//重新加载数据
+                });
+                console.info(this.editForm);
+            }
+        }
+
+    })
+</script>
+
+</body>
+</html>

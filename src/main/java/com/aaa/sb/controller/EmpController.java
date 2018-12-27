@@ -24,6 +24,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,6 +64,7 @@ public class EmpController {
         Map resultMap = new HashMap();
         resultMap.put("pageData",empService.getPageByParam(map));
         resultMap.put("total",empService.getPageCount(map));
+        resultMap.put("userNameData",empService.selUsernameOfList());
         return resultMap;
     }
 
@@ -84,7 +86,7 @@ public class EmpController {
      */
     @ResponseBody
     @RequestMapping("/upd")
-    public Object upd(@RequestBody Map map){
+    public Object upd(@RequestBody Map map) throws NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         return empService.upd(map);
     }
 
@@ -93,7 +95,6 @@ public class EmpController {
      * @param
      * @return
      */
-
     @ResponseBody
     @RequestMapping("/del")
     //RequestMapping("/del/{id}")
@@ -109,7 +110,7 @@ public class EmpController {
     @ResponseBody
     @RequestMapping("/batchDel")
     public Object batchDel(String ids){
-
+        //System.out.println(ids);
         return empService.batchDelete(ids);
 
     }
@@ -123,7 +124,10 @@ public class EmpController {
      */
     @ResponseBody
     @RequestMapping("/add")
-    public Object add(@RequestBody Map map){
+    public Object add(@RequestBody Map map)throws NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException  {
+
+        //System.out.println(map);
+
         return empService.add(map);
     }
 
@@ -147,7 +151,7 @@ public class EmpController {
         /**
          * 使用shiro编写认证操作
          */
-        System.out.println(username+"...1111..."+password1);
+        //System.out.println(username+"...1111..."+password1);
         //加密
         String password = AESUtil.getInstance().encrypt(password1);
         //1 获取Subject
@@ -159,6 +163,8 @@ public class EmpController {
             //执行过程中把token传递给shiro，然后shiro执行登录操作,根据有无异常判断登录成功还是失败
             subject.login(token);
             session.setAttribute("username",username);
+            //List<Map> userName = empService.selByUserName(username);
+
             //model.addAttribute("name",username);
             //model.addAttribute("msg","登录成功！");
             map.put("msg","登录成功！");

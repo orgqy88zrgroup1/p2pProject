@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"  type="application/pdf" >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>excel导出</title>
+
+</head>
+<body>
+   <!-- <h1>新闻列表</h1>-->
+    <!--<a href="/sb/news/toAdd">添加</a><br>-->
+    <!--<span style="color: blue" th:text="${message}"></span><br>-->
+    <table border="1">
+            <tr>
+                <td>标</td><td>用户名</td><td>月盈利</td>
+            </tr>
+
+            <tr th:each="mon : ${monExcelList}">
+                <td th:text="${mon.BID}"></td>
+                <td th:text="${mon.USERNAME}"></td>
+                <td th:text="${mon.MONPROFIT}"></td>
+            </tr>
+
+        </table>
+
+
+</body>
+</html>
+

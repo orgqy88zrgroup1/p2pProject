@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <style>
+        @import url("https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css");
+
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app" style="margin-top:30px;">
+    <el-steps :active="active" finish-status="success">
+        <el-step title="基本信息认证"></el-step>
+        <el-step title="实名认证"></el-step>
+        <el-step title="视频认证"></el-step>
+        <el-step title="认证完成"></el-step>
+    </el-steps>
+    <!-- 00000000000000000000 -->
+    <div id="form1" v-if='active===0&&this.state===0' style="margin-top:30px;">
+    <template>
+        <el-table :data="tableData0" style="width: 100% " align="center" >
+
+            <el-table-column prop="user" label="用户信息" width="400" align="center">
+            </el-table-column>
+            <el-table-column prop="info" label="内容详情" width="400" align="center">
+            </el-table-column>
+        </el-table>
+    </template>
+</div>
+    <div id="form11" v-if='active===0&&this.state===1' style="margin-top:30px;">
+        <div style="float: left;margin-left: 100px">
+            <span style="color:#ff9143;font-weight: 300;font-family: Algerian">欢迎您：</span><br><br>
+                &nbsp;&nbsp;&nbsp;<span style="color: #3391ff;font-weight: 500;font-family: Algerian" id="welcome">{{userInfo.USERNAME}}</span><br><br>
+            <span style="color: #ff9143;font-weight: 300;font-family: Algerian">您的头像：</span><br><br>
+            <img :src="path+userInfo.HEADIMAGE" width="270" height="170"/><br><br>
+            <div v-if="pointShow==1||pointShow==0||pointShow==-3||pointShow==-4">
+                <span id="pointShow2" style="color: #ff9143;font-weight: 300;font-family: Algerian"></span><br><br>
+                <span id="pointShow1" style="color: #3391ff;font-weight: 500;font-family: Algerian"></span><br><br>
+                <span id="pointShow3" style="color: #3391ff;font-weight: 500;font-family: Algerian"></span>
+            </div>
+        </div>
+        <div style="float: left;margin-left: 100px">
+            <template>
+                <el-table :data="tableData1" style="width: 100% " align="center" >
+                    <el-table-column prop="user" label="用户信息1" width="400" align="center">
+                    </el-table-column>
+                    <el-table-column prop="info" label="内容详情1" width="400" align="center">
+                    </el-table-column>
+                </el-table>
+            </template>
+        </div><br>
+
+    </div>
+    <!-- 1111111111111111111111111 -->
+    <div id="form2" v-if='active===1' style="margin-top:30px;">
+        <form>
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="姓名" prop="realname" required>
+                    <el-input v-model="ruleForm.realname" style="width:300px;" placeholder="请输入姓名"></el-input>
+                </el-form-item>
+                <el-form-item label="性别" prop="sex" required>
+                    <el-radio-group v-model="ruleForm.sex">
+                        <el-radio label="男"></el-radio>
+                        <el-radio label="女"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="婚姻状况" prop="marriage" required>
+                    <el-radio-group v-model="ruleForm.marriage">
+                        <el-radio label="是"></el-radio>
+                        <el-radio label="否"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="身份证号" prop="idcard" required>
+                    <el-input  id="idca" v-model="ruleForm.idcard" style="width:300px;" placeholder="请输入身份证号码" @blur="checkId()"></el-input>
+                    <br><span style="color: #ffa526;" id="idc" value=""></span>
+                </el-form-item>
+                <el-form-item label="电话号码" prop="phone">
+                    <el-input id="telp" v-model="ruleForm.phone" style="width:300px;" required placeholder="请输入电话号码" @blur="checktel()"></el-input>
+                    <br><span style="color: #ffa526;" id="tel" value=""></span>
+                </el-form-item>
+                <el-form-item label="家庭住址" required>
+                    <el-select v-model="ruleForm.province" placeholder="请选择省" @change="getCity()" id="province">
+                        <el-option v-for="item in options" :key="item.ID" :label="item.NAME" :value="item.CODE">
+                        </el-option>
+                    </el-select>
+                    <el-select v-model="ruleForm.city" placeholder="请选择市" @change="getArea()" id="city">
+                        <el-option v-for="item in cityOptions" :key="item.ID" :label="item.NAME" :value="item.CODE">
+                        </el-option>
+                    </el-select>
+                    <el-select v-model="ruleForm.area" placeholder="请选择县" id="area">
+                        <el-option v-for="item in areaOptions" :key="item.ID" :label="item.NAME" :value="item.CODE">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="详细地址" required>
+                    <el-input style="width:300px;" v-model="ruleForm.detail" prop="detArr" id="detailAddr" placeholder="请填写县的详细地址"
+                              required></el-input>
+                </el-form-item>
+                <el-form-item label="学历" prop="study" required>
+                    <el-select v-model="ruleForm.study" placeholder="学历">
+                        <el-option label="高中及以下" value="高中及以下"></el-option>
+                        <el-option label="大学" value="大学"></el-option>
+                        <el-option label="研究生" value="研究生"></el-option>
+                        <el-option label="博士及以上" value="博士及以上"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="收入" prop="income" required>
+                    <el-select v-model="ruleForm.income" placeholder="请选择收入">
+                        <el-option label="0-5000" value="0-5000"></el-option>
+                        <el-option label="5000-10000" value="5000-10000"></el-option>
+                        <el-option label="10000-15000" value="10000-15000"></el-option>
+                        <el-option label="15000-20000" value="15000-20000"></el-option>
+                        <el-option label="20000以上" value="20000以上"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="住房" prop="housed" required>
+                    <el-select v-model="ruleForm.housed" placeholder="请选择住房">
+                        <el-option label="高档别墅" value="高档别墅"></el-option>
+                        <el-option label="居民小区" value="居民小区"></el-option>
+                        <el-option label="廉价租房" value="廉价租房"></el-option>
+                        <el-option label="职工宿舍" value="职工宿舍"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+        </form>
+    </div>
+    <div id="form3" v-if='active===2' style="overflow: auto;">
+        <div style="text-align:center;margin-top:20px;"><span id="info" style="color: #ff1318;font-weight: 300;font-size:16px" align="center"></span></div>
+            <table border="0" style="margin-top:60px;margin-bottom: 50px;margin-left: 80px;float: left" align="center">
+                <tr>
+                    <td align="center">
+                        身份证正面正确示范<br/><br/>
+                        <img src="../image/forwardidcard.png" width="220px" height="150px"/></td>
+                    <td width="30px"></td>
+                    <td align="center">
+                        请上传身份证正面照片<br><br/>
+                        <el-upload
+                                action="/sb/baseInfo/upLoadPic"
+                                list-type="picture-card"
+                                auto-upload="true"
+                                limit="1"
+                                multiple="false"
+                                :on-success="uploadSuc1">
+                            <i class="el-icon-plus"></i>
+                        </el-upload>
+                    </td>
+                </tr>
+                <tr >
+                    <td height="30px"></td>
+                    <td height="30px"></td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        身份证反面正确示范<br/><br/>
+                        <img src="../image/backidcard.png"  width="220px" height="150px"/></td>
+                    <td width="30px"></td>
+                    <td align="center" v-model="ruleForm.backImg">
+                        请上传身份证反面照片<br><br/>
+                        <el-upload
+                                action="/sb/baseInfo/upLoadPic"
+                                list-type="picture-card"
+                                auto-upload="true"
+                                limit="1"
+                                multiple="false"
+                                :on-success="uploadSuc2">
+                            <i class="el-icon-plus"></i>
+                        </el-upload>
+                    </td>
+                </tr>
+            </table>
+        <div style="float: right;margin: 60px 320px 40px 40px;">
+        <div style="color:#12b2ff;font-weight: 300;font-size:16px;" align="center">请预约视频认证的时间</div>
+            <br><br>
+        <el-form ref="orderForm" :model="orderForm" label-width="80px">
+            <el-form-item label="预约日期" style="font-weight: 300;font-size:16px;">
+                <br>
+               <!-- <el-col :span="11">
+                    <el-date-picker type="date" placeholder="选择日期" v-model="orderForm.date1" style="width: 200px;"></el-date-picker>
+                </el-col>-->
+                <el-col :span="11">
+                    <el-date-picker type="date"
+                                    placeholder="选择日期"
+                                    v-model="orderForm.date1"
+                                    value-format="yyyy-MM-dd"
+                                    format="yyyy-MM-dd"
+                                    @change="chooseDateRange"
+                                    style="width: 200px;">
+                    </el-date-picker>
+                </el-col>
+            </el-form-item>
+            <br>
+            <el-form-item label="预约时间" style="font-weight: 300;font-size:16px;">
+                <br>
+                <el-col :span="11">
+                    <el-time-picker type="fixed-time" placeholder="选择时间"  value-format="hh:mm:ss" @change="chooseTimeRange" v-model="orderForm.date2" style="width: 200px;"></el-time-picker>
+                </el-col>
+            </el-form-item><br>
+            <span style="color: #ff1318;font-weight: 300;font-size:16px" align="center" id="timePoint"></span>
+        </el-form>
+
+        </div>
+    </div>
+    <div id="form4" v-if='active===3'>
+        <div id="" align="center" style="margin-top:70px;margin-bottom: 50px;">
+            <img src="../image/dui.PNG" height="179" width="200"/>
+            <p>恭喜认证完成，我们将尽快为您审核，请耐心等待</p>
+        </div>
+    </div>
+    <el-dialog title="完善信息" :visible.sync="dialogVisible" width="40%" :before-close="handleClose" >
+        <el-form ref="userInfo" :model="userInfo" label-width="80px">
+            <el-form-item label="昵称" prop="name">
+                <el-input id="na" v-model="userInfo.USERNAME" style="width: 340px;" @blur="onblureven()"></el-input>
+                <br><span style="color: #ffa526;" id="msg" value=""></span>
+            </el-form-item>
+            <el-form-item label="密码" prop="password" >
+                <el-input id="ps" v-model="userInfo.PASSWORD" style="width: 340px;" @blur="checkPwd()"></el-input>
+                <br><span style="color: #ffa526;" id="pwd" value=""></span>
+            </el-form-item>
+            <el-form-item label="手机号" prop="phone">
+                <el-input id="ph" v-model="userInfo.TELEPHONE" style="width: 340px;" @blur="checkPhone()"></el-input>
+                <br><span style="color: #ffa526;" id="pho" value=""></span>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+                <el-input id="em" v-model="userInfo.EMAIL" style="width: 340px;" @blur="checkemail()"></el-input>
+                <br><span style="color: #ffa526;" id="ema" value=""></span>
+            </el-form-item>
+            <el-form-item label="头像" prop="pic">
+                <!--<el-input v-model="userInfo.HEADIMAGE" style="width: 340px;"></el-input>-->
+                <template v-if="userInfo.HEADIMAGE!=null&&this.status==0" style="float: left">
+                     <img :src="path+userInfo.HEADIMAGE" width="270" height="170"/>
+                </template>
+                <el-upload
+                     action="/sb/baseInfo/upLoadPic"
+                     list-type="picture-card"
+                     auto-upload="true"
+                     :before-upload="beforeAvatarUpload"
+                     limit="1"
+                     multiple="false"
+                     :on-success="uploadSuc">
+                     <i class="el-icon-plus"></i>
+                </el-upload>
+            </el-form-item>
+            <el-form-item label="银行卡" prop="bankcard">
+                <el-input id="ba"  v-model="userInfo.BANKCARD" style="width: 340px;" @blur="checkbank()"></el-input>
+                <br><span style="color: #ffa526;" id="bank" value=""></span>
+            </el-form-item>
+            <el-form-item label="支付密码" prop="paypwd">
+                <el-input id="pd" v-model="userInfo.PAYPWD" style="width: 340px;" @blur="checkppd()"></el-input>
+                <br><span style="color: #ffa526;" id="ppd" value=""></span>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+					<el-button @click="dialogVisible = false">取 消</el-button>
+					<el-button type="primary" @click="saveInfo()">保 存</el-button>
+				</span>
+    </el-dialog>
+    <div style="text-align: center;">
+        <el-button @click="dialogVisible = true" type="primary" plain v-if='active===0'>完善信息</el-button>
+        <el-button type="primary" plain @click="pre()" id="btn1" v-if='active!=0&&active!=3'>上一步</el-button>
+        <el-button type="primary" plain @click="next" id="btn2" v-if='active!=3'>下一步</el-button>
+    </div>
+</div>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            timeFlag:0,//判断时间的flag
+            date:'',//接收预约日期 进行比较
+            time:'',//接收预约时间 进行比较
+            reason1:'',//实名认证审核失败原因
+            reason2:'',// 视频认证审核失败原因
+            pointShow:0,//如果返回1 说明都审核通过 如果返回0 说明未审核 如果返回-1 说明审核失败 如果是-2 说明还未提交
+            backImg:'', //身份证反面
+            foundImg:'', //身份证正面
+            checkRealNameAdd:0,//实名信息上传的状态 0为失败
+            path:'/sb/baseInfo/show?fileName=',
+            active: 0,//进行页面切换相关的属性
+            sta1:0,//上传过身份证正面后状态为1
+            sta2:0,//上传过身份证反面后状态为1
+            sta3:0,//预约了视频认证时间后状态为1
+            isShow: true,
+            flag: 1, //能否进行页面切换
+            state:0,
+            status:0,
+            options: [],//所有省
+            loading:false,
+            cityOptions: [],//所有市
+            areaOptions: [],//所有县
+            dialogVisible: false,//完善信息的form表单是否能看到
+            ruleForm: {
+                realname: '',
+                sex: '',
+                idcard: '',
+                phone: '',
+                marriage: '',
+                region: '',
+                province: '',
+                city: '',
+                area: '',
+                study: '',
+                dialogImageUrl: '',
+                dialogVisible: false,
+                detail: '',
+                income: '',
+                arr: ''
+            },
+            userInfo:{
+                name:'',
+                password:'',
+                phone:'',
+                email:'',
+                pic:'',
+                bankcard:'',
+                paypwd:''
+            },
+            tableData0: [{
+                user: '手机号码',
+                info: ''
+            }, {
+                user: '密码',
+                info: ''
+            }, {
+                user: '用户名',
+                info: ''
+            }, {
+                user: '支付密码',
+                info: '',
+            }, {
+                user: '用户名',
+                info: ''
+            }, {
+                user: '邮箱',
+                info: ''
+            }, {
+                user: '头像',
+                info: ''
+            }],
+            tableData1: [{
+                user: '银行卡号',
+                info: ''
+            }, {
+                user: '手机号',
+                info: ''
+            }, {
+                user: '登录密码',
+                info: ''
+            }, {
+                user: '支付密码',
+                info: '',
+            }, {
+                user: '用户名',
+                info: ''
+            }, {
+                user: '邮箱',
+                info: ''
+            }, {
+                user: '头像',
+                info: ''
+            }],
+            form: {
+                name: '',
+                region: '',
+                date1: '',
+                date2: '',
+                delivery: false,
+                type: [],
+                resource: '',
+                desc: ''
+            },
+            orderForm: {
+                date1:'',//预约时间的日期
+                date2:''//预约时间的时间
+            },
+            rules: {
+                realname: [{
+                    required: true,
+                    message: '请输入真实姓名',
+                    trigger: 'blur'
+                },
+                    {
+                        min: 2,
+                        message: '请输入合法姓名',
+                        trigger: 'blur'
+                    }
+                ],
+                sex: [{
+                    required: true,
+                    message: '请选择性别',
+                    trigger: 'blur'
+                }],
+                marriage: [{
+                    required: true,
+                    message: '请选择婚姻状况',
+                    trigger: 'blur'
+                }],
+                idcard: [{
+                    required: true,
+                    message: '请输入身份证号',
+                    trigger: 'blur'
+                },
+                    {
+                        max: 18,
+                        min: 18,
+                        message: '请输入18位身份证号',
+                        trigger: 'blur'
+                    }
+                ],
+                phone: [{
+                    required: true,
+                    message: '请输入可用电话号码',
+                    trigger: 'blur'
+                },
+                    {
+                        min: 11,
+                        max: 11,
+                        message: '请输入11位电话号码',
+                        trigger: 'blur'
+                    }
+                ],
+                region: [{
+                    required: true,
+                    message: '请选择家庭地址',
+                    trigger: 'blur'
+                }],
+                detArr: [{
+                    required: true,
+                    message: '请输入县的详细地址',
+                    trigger: 'blur'
+                }],
+                study: [{
+                    required: true,
+                    message: '请选择学历',
+                    trigger: 'blur'
+                }],
+                income: [{
+                    required: true,
+                    message: '请填写合法收入',
+                    trigger: 'blur'
+                }],
+                housed: [{
+                    required: true,
+                    message: '请填写住房信息',
+                    trigger: 'blur'
+                }]
+            }
+        },
+        methods: {
+            next() {
+                var self = this;
+                if (this.active === 0) {
+                    //对基本信息进行校验
+                    this.checkActive0();
+                    //alert(this.flag);
+                    if (this.flag == 1) {
+                        if (this.active++ > 3) this.active = 3;
+                        if (this.active === 3) {
+                            isShow = false;
+                        }
+                    } else {
+                        //如果验证不成功 让按钮失效两秒
+                        $("#btn2").attr("disabled", true);
+                        setTimeout(function() {
+                            $("#btn2").attr("disabled", false);
+                        }, 2000);
+                    }
+                } else if (this.active === 1) {
+                    console.log("开始验证1");
+                    this.checkActive1();
+                    if (this.flag == 1) {
+                        if (this.active++ > 3) this.active = 3;
+                    } else {
+                        //如果验证不成功 让按钮失效两秒
+                        $("#btn2").attr("disabled", true);
+                        setTimeout(function() {
+                            $("#btn2").attr("disabled", false);
+                        }, 2000);
+                    }
+                } else if (this.active === 2) {
+                    var a=0;//如果身份证正反两面,时间都预约了 就为1
+                    //alert("开始验证2");
+                    //如果没有上传就不能校验提示上传身份证
+                    if(this.sta1==1&&this.sta2==1){
+                        //已上传身份证 现在判断有没有预约时间 并且预约时间大于现在的时间
+                        if(this.orderForm.date1!=''&&this.orderForm.date2!=''&&this.orderForm.date1!=null&&this.orderForm.date2!=null&&this.timeFlag==1){
+                            $("#timePoint").html("");
+                            a=1;
+                            this.checkActive2();
+                            //alert("已校验，flag："+this.flag);
+                        }else {
+                            //alert("信息还未完成")
+                            a=0;
+                            $("#info").html("请预约视频认证时间");
+                            return;
+                        }
+                    }else{
+                        $("#info").html("请上传身份证正反面");
+                        return;
+                    }
+                    if (this.flag == 1&&a==1) {
+                        //清空提示
+                        $("#info").html("");
+                        if (this.active++ > 3) this.active = 3;
+                    } else {
+                        //alert("按钮失效");
+                        //如果验证不成功 让按钮失效两秒
+                        $("#btn2").attr("disabled", true);
+                        setTimeout(function() {
+                            $("#btn2").attr("disabled", false);
+                        }, 2000);
+                    }
+                } else {
+                    //alert(this.active);
+                    $("#btn1").attr("disabled", true);
+                    $("#btn2").attr("disabled", true);
+                }
+            },
+            chooseTimeRange(t) {
+                //获得选中的日期
+                this.time = t ;
+                //console.log(t);//结果为一个数组，如：["2018-08-04", "2018-08-06"]
+                var dateTime=this.date+" "+this.time;
+                //获取当前时间的毫秒数
+                let currTime = new Date().getTime();
+                alert("当前时间："+currTime);
+                //获得选择时间的毫秒数
+                let chooseTime = new Date(dateTime).getTime();
+                if(chooseTime-currTime>0){
+                    $("#timePoint").html("");
+                    this.timeFlag = 1;
+                }else{
+                    $("#timePoint").html("选择时间不能小于当前时间");
+                    this.timeFlag = 0;
+                }
+            },
+            chooseDateRange(val) {
+                //获得选中的时间
+                this.date = val ;
+                //console.log(t);//结果为一个数组，如：["2018-08-04", "2018-08-06"]
+
+            },
+            pre() {
+                --this.active;
+                if (this.active < 0) this.active = 0;
+            },
+            checkActive0: function() {
+                //alert("银行卡号长度："+this.userInfo.BANKCARD);
+                if(this.userInfo.BANKCARD!=null){
+                    //alert("已完善信息");
+                    this.flag = 1;
+                }else{
+                    alert("请完善信息");
+                    this.flag = 0;
+                }
+            },
+            checkActive2: function() {
+                //如果后台也提交成功了 下一步这个按钮就可以点了
+                //alert("进入验证");
+                this.checkAdd();
+                //alert(this.checkRealNameAdd);
+                if(this.checkRealNameAdd==1){
+                    this.flag = 1;
+                }else {
+                    this.flag = 0;
+                }
+            },
+            checkActive1: function() {
+                if (this.ruleForm.realname == '' || this.ruleForm.sex == '' || this.ruleForm.idcard == '' || this.ruleForm.phone ==
+                    '' ||
+                    this.ruleForm.province == '' || this.ruleForm.city == '' || this.ruleForm.area == '' || this.ruleForm.detail ==
+                    '' ||
+                    this.ruleForm.study == '' || this.ruleForm.income == '' || this.ruleForm.housed == '' || this.ruleForm.marriage ==
+                    '') {
+                    alert("请将信息填写完整");
+                    this.flag = 0;
+                } else {
+                    this.flag = 1;
+                }
+            },
+            checkAdd: function () {
+                //alert("进入checkAdd");
+                var self = this;
+                //alert(self.ruleForm.realname);
+                //要插入到实名认证表中的数据
+                /*var addRealName = {
+                    'name': self.ruleForm.realname,'sex': self.ruleForm.sex,'marriage': self.ruleForm.marriage,
+                    'idcard': self.ruleForm.idcard,'phone': self.ruleForm.phone,'province':self.ruleForm.province,
+                    'city':self.ruleForm.city,'area':self.ruleForm.area,'detail': self.ruleForm.detail,
+                    'study': self.ruleForm.study,'income':self.ruleForm.income,'housed':self.ruleForm.housed,
+                    'fountImg':self.foundImg,'backImg':self.backImg
+                };
+                alert(JSON.stringify(addRealName));*/
+                //使用ajax同步
+                $.ajax({
+                    url:"/sb/baseInfo/addRealName",
+                    data:{'name': self.ruleForm.realname,'sex': self.ruleForm.sex,'marriage': self.ruleForm.marriage,
+                        'idcard': self.ruleForm.idcard,'phone': self.ruleForm.phone,'province':self.ruleForm.province,
+                        'city':self.ruleForm.city,'area':self.ruleForm.area,'detail': self.ruleForm.detail,
+                        'study': self.ruleForm.study,'income':self.ruleForm.income,'housed':self.ruleForm.housed,
+                        'fountImg':self.foundImg,'backImg':self.backImg,'date':self.orderForm.date1,'time':self.orderForm.date2},
+                    type:"post",
+                    dataType:"json",
+                    async:false,
+                    success: function (data) {
+                        alert("response:"+data);
+                        self.checkRealNameAdd=data;
+                    },
+                    error:function (data) {
+                        //alert("回调函数发生错误");
+                    }
+                });
+            },
+            getCity: function() {
+                var self = this;
+                self.ruleForm.city = '';
+                self.ruleForm.area = '';
+                //alert(this.ruleForm.province);
+                //alert(JSON.stringify(this.options.CODE));
+                var city = {
+                    'pcode': this.ruleForm.province
+                };
+                axios.post('/sb/baseInfo/getCity', city).then(function(response) {
+                    self.cityOptions = response.data; //得到所有的部门信息json数据
+                    //alert(JSON.stringify(self.cityOptions));
+                    self.ruleForm.city=self.cityOptions[0].CODE;
+                });
+            },
+            getArea: function() {
+                var self = this;
+                self.ruleForm.area = '';
+                //alert(this.ruleForm.city);
+                var area = {
+                    'ccode': this.ruleForm.city
+                };
+                axios.post('/sb/baseInfo/getArea', area).then(function(response) {
+                    self.areaOptions = response.data; //得到所有的部门信息json数据
+                    //alert(JSON.stringify(self.areaOptions));
+                    self.ruleForm.area=self.areaOptions[0].CODE;
+                });
+            },
+            beforeAvatarUpload(file) {
+                //alert("进入校验")
+                this.status=1;
+                this.userInfo.HEADIMAGE=null;
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.dialogVisible = true;
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
+            },
+            onSubmit() {
+                console.log('submit!');
+            },
+            saveInfo:function () {
+                alert($("#na").val()==null);
+                alert(this.userInfo.HEADIMAGE);
+                //只要有空 就直接按钮不能用
+                if($("#na").val()==null||$("#ps").val()==null||$("#ph").val()==null||$("#em").val()==null||this.userInfo.HEADIMAGE==null||
+                   $("#ba").val()==null||$("#pd").val()==null){
+                    alert("请将信息填写完整");
+                    //让按钮失效两秒
+                    $("#btn2").attr("disabled", true);
+                    setTimeout(function() {
+                        $("#btn2").attr("disabled", false);
+                    }, 2000);
+                    return;
+                }
+                var _self = this;
+                _self.loading = true;//加载样式
+               // alert("开始保存值")
+                //得到修改后的值
+                var formData =_self.userInfo;//保存该对象里的值
+                //alert("修改后的userInfo为："+JSON.stringify(_self.userInfo))
+                //alert(formData.USERNAME);
+                //alert(formData.PASSWORD);
+                //alert(formData.pic);
+                var goUrl="/sb/baseInfo/update";
+                axios.post(goUrl,formData).then(function(response){
+                    //alert("进入回调函数");
+                    //alert(response.data);
+                    if(response.data>0){
+                        _self.dialogVisible = false;
+                        _self.loadingData();//重新加载数据
+                        return location.href = location.href;
+                    }
+                })
+                //页面刷新
+                return location.href = location.href;
+            },
+            loadingData:function () {
+                var self = this;
+                axios.post('/sb/baseInfo/userBaseInfo').then(function(response) {
+                    //alert("开始刷新数据");
+                    //alert(JSON.stringify(response.data));
+                    self.userInfo = response.data; //得到用户的基本信息，给userinfo赋值
+                    var i=0;
+                    /!* 得到userinfo里的所有属性 *!/
+                    for(var obj in self.userInfo){
+                        //alert(JSON.stringify(userinfo[obj]));
+                        //通过属性的名字来依次取值 obj是 name password phone email*!/
+                        //userinfo[obj]是sdf 123 1478536889 sdfsdsdfsd i是得到每一个大括号里的值{user: '昵称',info: ''}
+                        //alert("进入循环");
+                        if(self.tableData1[i].user!='头像') {
+                            self.tableData1[i].info = self.userInfo[obj];
+                        }else{
+                            /*self.tableData1[i].info = '<img :src="self.path+self.userInfo[obj];" width="170" height="100"/>'*/
+                            self.tableData1[i].info = ' <template >\n' +
+                                '    <img :src="self.path+self.userInfo[obj]" width="270" height="170"/>\n' +
+                                '    </template>'
+                        }
+                        i++;
+                    }
+
+                    //alert("赋值后的userInfo为："+JSON.stringify(self.userInfo.BANKCARD));
+                });
+            },
+            //上传成功后的方法
+            uploadSuc:function(response, file, fileList){
+                //alert("新文件的名称为："+response);
+                this.userInfo.HEADIMAGE=response;
+            },
+            //上传身份证正面成功的方法
+            uploadSuc1:function(response, file, fileList){
+                //alert("身份证正面为："+response);
+                this.foundImg=response;
+                this.sta1=1;
+            },
+            //上传身份证反面成功的方法
+            uploadSuc2:function(response, file, fileList){
+                //alert("身份证反面为："+response);
+                this.backImg=response;
+                this.sta2=1;
+            },
+            //当失焦时判断用户名
+             onblureven:function() {
+                 alert("当失焦时判断用户名");
+                var a = $("#na").val();
+                if(a ===""){
+                    $("#msg").html("用户名不能为空");
+                    return false;
+                }else {
+                    $("#msg").html("");
+                }
+            },
+
+         //检验密码的合法性
+        checkPwd:function() {
+            var reg = new RegExp("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,10}$");
+            var a = $("#ps").val();
+            if (!reg.test(a)) {
+                $("#pwd").html("输入长度在6-10之间的英文字母和数字");
+                return false;
+            } else {
+                $("#pwd").html("");
+            }
+        },
+
+            //检验手机号合法
+             checkPhone:function() {
+                var reg = new RegExp("^1[3-9][0-9]{9}$");
+                var phone = $("#ph").val();
+                if (!reg.test(phone)) {
+                    $("#pho").html("请输入正确的手机号码");
+                    return false;
+                } else {
+                    $("#pho").html("");
+                    return true;
+                }
+            },
+            //检验邮箱合法
+             checkemail:function() {
+                var reg = new RegExp("^[A-Za-z0-9]+([-_.][A-Za-z0-9]+)*@([A-Za-z0-9]+[-.])+[A-Za-z0-9]{2,4}$");
+                var email = $("#em").val();
+                if (!reg.test(email)) {
+                    $("#ema").html("请输入正确的邮箱");
+                    return false;
+                } else {
+                    $("#ema").html("");
+                    return true;
+                }
+            },
+            //检验银行卡合法
+             checkbank:function() {
+                var reg = new RegExp("^([1-9]{1})([0-9]{14}|[0-9]{18})$");
+                var bankcard = $("#ba").val();
+                if (!reg.test(bankcard)) {
+                    $("#bank").html("请输入正确的银行卡号");
+                    return false;
+                } else {
+                    $("#bank").html("");
+                    return true;
+                }
+            },
+            //检验支付密码合法
+             checkppd:function() {
+                var reg = new RegExp("^[0-9]{6}$");
+                var paypwd = $("#pd").val();
+                if (!reg.test(paypwd)) {
+                    $("#ppd").html("请输入正确的支付密码");
+                    return false;
+                } else {
+                    $("#ppd").html("");
+                    return true;
+                }
+            },
+
+            //检验身份证号合法
+             checkId:function() {
+                var reg = new RegExp("(^[0-9]{15}$)|(^[0-9]{18}$)|(^[0-9]{17}([0-9]|X|x)$)");
+                var paypwd = $("#idca").val();
+                if (!reg.test(paypwd)) {
+                    $("#idc").html("请输入正确的身份证号");
+                    return false;
+                } else {
+                    $("#idc").html("");
+                    return true;
+                }
+            },
+            //检验手机号合法
+             checktel:function() {
+                var reg = new RegExp("^1[3-9][0-9]{9}$");
+                var phone = $("#telp").val();
+                if (!reg.test(phone)) {
+                    $("#tel").html("请输入正确的手机号码");
+                    return false;
+                } else {
+                    $("#tel").html("");
+                    return true;
+                }
+            }
+        },
+        created: function() {
+            //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
+            var self = this;
+            axios.post('/sb/baseInfo/provinceList').then(function(response) {
+                //alert(JSON.stringify(response.data));
+                self.options = response.data; //得到所有的部门信息json数据
+                // alert(JSON.stringify(self.options.CODE));
+            });
+            axios.post('/sb/baseInfo/userBaseInfo').then(function(response) {
+                //alert("进入查找基本信息的axios");
+                self.userInfo = response.data; //得到用户的基本信息，给userinfo赋值
+                //alert(JSON.stringify(self.userInfo));
+                var i=0;
+                /* 得到userinfo里的所有属性 */
+                for(var obj in self.userInfo){
+                    /* 通过属性的名字来依次取值 obj是 name password phone email*/
+                    /* userinfo[obj]是sdf 123 1478536889 sdfsdsdfsd i是得到每一个大括号里的值{user: '昵称',info: ''}*/
+                    if(self.userInfo.BANKCARD==null) {
+                        //alert("还未完善信息");
+                        self.tableData0[i].info = self.userInfo[obj];
+                        i++;
+                    }else{
+                        //alert("已完善信息");
+                        //alert(self.tableData1[i].info);
+                        self.tableData1[i].info = self.userInfo[obj];
+                        //说明信息完善过了
+                        self.state=1;
+                        i++;
+                    }
+                }
+//                alert(self.userInfo.USERNAME);
+//                $("#welcome").html(self.userInfo.USERNAME);
+            });
+            //系统提示是否显示 只有未提交信息的时候才会显示
+            axios.post('/sb/baseInfo/showPoint').then(function(response) {
+                alert("是否审核通过"+response.data.pointId);
+                self.pointShow=response.data.pointId;
+                //如果返回1 说明都审核通过 如果返回0 说明未审核 返回-4 说明实名失败 -3视频失败 -2尚未填写信息
+                if(self.pointShow==1){
+                    $("#pointShow2").html("基本信息")
+                    $("#pointShow1").html("真实姓名："+response.data.realname+"            性别："+response.data.sex)
+                    $("#pointShow3").html("住址："+response.data.address)
+                    $("#btn2").attr("disabled", true);
+                }else if(self.pointShow==0){
+                    $("#pointShow2").html("系统提示")
+                    $("#pointShow1").html("您的信息还未审核请耐心等待")
+                    $("#btn2").attr("disabled", true);
+                }else if(self.pointShow==-4){
+                    $("#pointShow2").html("系统提示")
+                    $("#pointShow1").html("您的实名认证审核失败，原因："+response.data.errorInfo)
+                    $("#btn2").attr("disabled", false);
+                }else if(self.pointShow==-3){
+                    $("#pointShow2").html("系统提示")
+                    $("#pointShow1").html("您的视频认证审核失败，原因："+response.data.errorInfo)
+                    $("#btn2").attr("disabled", false);
+                }
+            });
+        }
+    })
+</script>
+
+
+</body>
+
+</html>

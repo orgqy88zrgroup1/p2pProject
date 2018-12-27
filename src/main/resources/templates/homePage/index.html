@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css">
+
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js">
+    </script>
+    <style type="text/css">
+
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+
+
+
+    </style>
+</head>
+<body height="1500px">
+
+<div id="top" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)" >
+
+    <el-menu
+            :default-active="activeIndex2"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b"
+    >
+        <!-- _blank -- 在新窗口中打开链接 _parent -- 在父窗体中打开链接 _self -- 在当前窗体打开链接,此为默认值 _top -- 在当前窗体打开链接，并替换当前的整个窗体(框架页)  -->
+        <el-menu-item index="1" >首页</el-menu-item>
+        <!--<a th:text="${message} " style="text-decoration: none;" target="_blank" v-for='(ud,index) in userData'></a>-->
+
+        <el-submenu index="2">
+            <template slot="title">员工中心</template>
+            <el-menu-item index="2-1">修改姓名</el-menu-item>
+            <el-menu-item index="2-2">修改密码</el-menu-item>
+            <!-- <el-submenu index="2-4">
+                <template slot="title">选项4</template>
+                <el-menu-item index="2-4-1">选项1</el-menu-item>
+                <el-menu-item index="2-4-2">选项2</el-menu-item>
+                <el-menu-item index="2-4-3">选项3</el-menu-item>
+            </el-submenu> -->
+        </el-submenu>
+
+        <!-- <el-menu-item index="3" disabled>消息中心</el-menu-item> -->
+        <el-menu-item index="4"><span style="color: rosybrown" th:text="${username}"></span></el-menu-item>
+    </el-menu>
+
+
+</div>
+
+
+<!--element-loading-spinner="el-icon-loading"-->
+<div id="app" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)" element-loading-text="拼命加载中"   >
+  <el-container style="border: 1px solid #eee">
+
+    <!-- <el-header style="text-align: right; width: auto; font-size: 12px"> -->
+    <!--<el-dropdown>
+        <i class="el-icon-setting" style="margin-right: 15px"></i>
+        <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>查看</el-dropdown-item>
+            <el-dropdown-item>新增</el-dropdown-item>
+            <el-dropdown-item>删除</el-dropdown-item>
+        </el-dropdown-menu>
+    </el-dropdown>
+    <span>王小虎</span>
+
+ </el-header> -->
+
+
+
+    <el-container width="890px"  >
+
+        <!--style="background-color: rgb(238, 241, 246)"-->
+        <el-aside width="200px"  style="background-color: rgb(238, 241, 246)">
+                    <!--<el-tree :data="treeData" icon-class="el-icon-menu" :props="defaultProps" @node-click="handleNodeClick">
+                        </el-tree>-->
+                    <!--{node.icon} class="custom-tree-node"-->
+                    <el-tree :data="treeData" :expand-on-click-node="false" :render-content="editSpan"  default-expand-all highlight-current :props="defaultProps" @node-click="handleNodeClick">
+                        <!--<span slot-scope="{{node,data}}">-->
+                            <!-- data-th-class="el-icon-menu" -->
+                            <!--<span> <i :class="node.icon" ></i>{{ node.label }} </span>-->
+                        <!--
+                        </span>-->
+                    </el-tree>
+        </el-aside>
+
+
+        <el-main>
+            <el-tabs v-model="editableTabsValue2" closable addable type="card" @tab-add="addTab" @tab-remove="removeTab">
+                <el-tab-pane
+                        v-for="(item, index) in editableTabs2"
+                        :key="item.name"
+                        :label="item.title"
+                        :name="item.name"
+                    >
+                    <!--<div class="iframe-container">
+                        <span v-html = "item.content"></span>
+                    </div>-->
+                    <div class="iframe-container" >
+                        <span v-html = "item.content"></span>
+                    </div>
+                   <!--{{index}} {{editableTabs2.length}}{{index==(editableTabs2.length-1)}}-->
+                  <!--<iframe v-pre :key="index" :src="item.content" v-if="index==(editableTabs2.length-1)"></iframe>-->
+                </el-tab-pane>
+
+            </el-tabs>
+        </el-main>
+    </el-container>
+
+           <!-- <div class="iframe-container">-->
+                <!--<iframe :src="src" width="100%" height="600" scrolling="auto" frameborder="0" class="frame">
+                </iframe>-->
+            <!--</div>-->
+
+</div>
+
+<script>
+
+
+    var top = new Vue({
+        el:'#top',
+        data:{
+            activeIndex: '1',
+            activeIndex2: '1',
+            tables:[{a:'a',b:'b'}],
+            loading1:true
+
+        },
+        created:function(){
+            var self = this;
+            setTimeout(() => {
+                console.info("加载数据成功");
+                self.loading1 = false;
+            }, 2000);
+        },
+        methods:{
+
+            handleSelect:function(key, keyPath) {
+                if (key === '1') {
+                    //alert('你点击了 处理中心') // 实际修改为跳转到 处理中心
+                    console.log("你点击了首页");
+                    location.href = "/sb/emp/toIndex";
+                }
+                if (key === '2-1') {
+                    //alert('你点击了 我的工作台 | 选项一') // 实际修改为跳转到 选项一
+                    console.log("2-1");
+                }
+            }
+
+        }
+
+    });
+
+
+    var app = new Vue({
+        el:'#app',
+        data:{
+            treeData:[],
+            defaultProps: {
+                children: 'children',
+                label: 'label'
+
+            },
+            editableTabsValue2: '2',
+            editableTabs2:[{title:'首页', name:'2', content:"<iframe src='https://www.baidu.com' frameborder='no' scrolling='no'  style='width:100%;height:550px'> </iframe>"}],
+            tabIndex: 2,
+            tables:[{a:'a',b:'b'}],
+            loading1:true,
+            icons:''
+
+
+        },
+        created:function(){
+
+        //<span> <i :class="node.icon" ></i>{{ node.label }} </span>
+
+            //this.src = "https://www.baidu.com/";
+            var self = this;
+            axios.post("/sb/power/tree").then(function (response) {
+                //alert(JSON.stringify(response.data));
+                //alert(JSON.stringify(response.data.CHILDREN));
+                self.treeData = response.data;
+                //self.treeData.CHILDREN.addProp(icon-class,el-icon-menu);
+            });
+
+
+            setTimeout(() => {
+                console.info("加载数据成功");
+                self.loading1 = false;
+            }, 2000);
+
+            //this.editableTabs3=this.editableTabs2[this.editableTabs2.length-1]
+        },
+        methods:{
+
+            addTab:function(content,title,targetName) {
+                let newTabName = ++this.tabIndex + '';
+                //alert(content);
+                if (JSON.stringify(this.editableTabs2).indexOf(title) == -1) {
+                    this.editableTabs2.push({
+                        title: title,
+                        name: newTabName,
+                        content: content
+
+                    });
+
+                    /* this.editableTabs2=[{
+                    title: title,
+                    name: newTabName,
+                    content: content
+                }];*/
+                    this.editableTabsValue2 = newTabName;
+                }
+            },
+            editSpan:function(createElement,{node,data,store}){
+                //alert(JSON.stringify(node.icon));
+                var t ="{\""+data.icon+"\":\"true\"}";
+                //转义 t = "{ "el-icon-menu" : "true" }"
+                //JSON字符串转对象
+                var t1 = JSON.parse(t);
+                return createElement('span',[
+                    //createElement('i', {'class':{(self.editableTabsValue2.icon): true}}),
+                    createElement('i', {'class':t1}),
+                    createElement('span', node.label),
+
+                ]);
+            },
+
+
+
+            removeTab:function(targetName) {
+                let tabs = this.editableTabs2;
+                let activeName = this.editableTabsValue2;
+                if (activeName === targetName) {
+                    tabs.forEach((tab, index) => {
+                        if (tab.name === targetName) {
+                            let nextTab = tabs[index + 1] || tabs[index - 1];
+                            if (nextTab) {
+                                activeName = nextTab.name;
+                            }
+                        }
+                    });
+                }
+
+                this.editableTabsValue2 = activeName;
+                this.editableTabs2 = tabs.filter(tab => tab.name !== targetName);
+            },
+            handleNodeClick:function(data,editableTabsValue2) {
+               // alert(this.nodeValue);
+                //this.editableTabs2=[];
+
+                var url = data.url;
+                var title = data.label;
+                //alert(url); width='100%' height='700' scrolling='auto'
+                var content = "<iframe src='"+url+"' width='100%' height='550px'   frameborder='0' class='frame'> </iframe>";
+                //var targetName = this.editableTabsValue2;
+                var targetName = editableTabsValue2;
+                this.addTab(content,title,targetName);
+
+            },
+            handleOpen:function(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose:function(key, keyPath) {
+                console.log(key, keyPath);
+            }
+
+
+
+
+
+
+        }
+
+
+
+    })
+
+
+</script>
+
+
+</body>
+</html>

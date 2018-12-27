@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../css/layui.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="../css/login.css" />
+</head>
+<body class="beg-login-bg">
+<div class="beg-login-box">
+    <header>
+        <h1>P2P后台管理系统</h1>
+    </header>
+    <div class="beg-login-main">
+        <form action="" class="layui-form" method="post"  id="form1">
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe612;</i>
+                </label>
+                <input type="text" lay-verify="required" name="username" id="name" autocomplete="off" placeholder="这里输入账号" class="layui-input" lay-verType="tips">
+                <span style="color: red;" id="errorUnm"></span>
+            </div>
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe642;</i>
+                </label>
+                <input type="password" lay-verify="required" name="password1" id="pass" autocomplete="off" placeholder="这里输入密码" class="layui-input" lay-verType="tips">
+                <span style="color: red;" id="errorPwd"></span>
+            </div>
+            <div class="layui-form-item">
+                <div class="beg-pull">
+                    <button type="button" class="layui-btn layui-btn-normal" style="width:100%;" onclick="checkAll()">
+                        登　　录
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <footer>
+        <p>power by dw © </p>
+    </footer>
+</div>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/layui.js"></script>
+<script type="text/javascript" src="../js/login.js"></script>
+<script type="text/javascript">
+
+
+
+    function checkuser(){
+        var user=document.getElementById("name")
+        if(user.value.length>0){
+            return true;
+        }
+        alert("用户名不能为空");
+        user.focus();
+        return false;
+    }
+    function checkpass(){
+        var pass=document.getElementById("pass")
+        if(pass.value.length>0){
+            return true;
+        }
+        alert("密码不能为空");
+        pass.focus();
+        return false;
+    }
+
+
+
+    function checkAll(){
+
+        var name = $("#name").val();
+        var pass = $("#pass").val();
+        var data = "username="+name+"&password1="+pass;
+
+        $.ajax({
+            url:"/sb/emp/login",//请求地址
+            type:"POST",
+            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+            data:data,
+            dataType:"json",//返回值格式
+            success:function(obj){
+
+                if(obj!=''){
+                    //alert(222222222)
+                   //alert(JSON.stringify(obj));
+                   if(obj.errorUnm!=null){
+                       $("#errorPwd").empty();
+                        $("#errorUnm").html(obj.errorUnm);
+                       //document.getElementById("errorUnm").innerText = obj.errorUnm;
+                   }else if(obj.errorPwd!=null){
+                       $("#errorUnm").empty();
+                       $("#errorPwd").html(obj.errorPwd);
+                      // document.getElementById("errorPwd").innerText = obj.errorPwd;
+                   }else if(obj.msg!=null){
+                        location.href = "/sb/emp/toIndex";
+                   }
+
+
+                }
+            }/*,
+            error:function(data){
+                if(data!=''){
+                    alert(11111111)
+                    alert(JSON.stringify(data))
+                    if(data.errorUnm!=null){
+                        document.getElementById("errorUnm").innerText = data.errorUnm;
+                    }else if(data.errorPwd!=null){
+                        document.getElementById("errorPwd").innerText = data.errorPwd;
+                    }
+
+                }
+            }*/
+        })
+
+
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <base href="<%=basePath%>">
+
+    <title>零点p2p注册</title>
+
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="This is my page">
+    <!--
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    -->
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../layui/layui.js"></script>
+
+
+</head>
+
+<body class="beg-login-bg">
+<div class="beg-login-box">
+    <header>
+        <h1>零点p2p注册</h1>
+    </header>
+    <div class="beg-login-main">
+        <form action="/sb/user/add" class="layui-form" method="post"  id="form1">
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe612;</i>
+                </label>
+                <input type="text"  name="username" id="name" autocomplete="off" placeholder="输入长度为3-6之间的用户名" lay-verify="title" class="layui-input"  onblur="onblureven()"><br><span style="color: #ffa526;" id="msg" value="" ></span>
+            </div>
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe612;</i>
+                </label>
+                <input type="password"  name="password" id="pass" autocomplete="off" placeholder="输入长度6-10之间的英文字母和数字" class="layui-input" lay-verType="tips" onblur="checkPwd()"><br><span style="color: #ffa526;" id="pwd" value="" ></span>
+                <!--<span style="color: red;">${errorInfo}</span>-->
+            </div>
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe642;</i>
+                </label>
+                <input type="text"  name="phone" id="phone" autocomplete="off" placeholder="这里输入手机号" class="layui-input" lay-verType="tips" onblur="checkPhone()"><br><span style="color: #ffa526;" id="pho" value="" ></span>
+                <!--<span style="color: red;">${errorInfo}</span>-->
+            </div>
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe642;</i>
+                </label>
+                <input type="text"  name="checkNum" id="check" autocomplete="off" placeholder="这里输入验证码" class="layui-input" lay-verType="tips" th:width="60px" onblur="compareCode()"><br><span style="color: #ffa526;" id="checkC" value="" ></span>
+                <!--<input type="button" th:value="发送验证码" onclick="getCheckNum()">-->
+                <input type="button" id="btn" value="获取验证码" onclick="getCheckNum()"></input><span style="color: #ffa526;" id="btnC" value="" ></span>
+                <!--<span style="color: red;">${errorInfo}</span>-->
+            </div>
+            <div class="layui-form-item">
+                <div class="beg-pull">
+                    <button type="button" class="layui-btn layui-btn-normal" style="width:100%;" id="registe" onclick="registeButton()">
+                        注　　册
+                    </button>
+                    <!--<input type="button" id="registe" value="获取验证码" onclick="registe()" class="layui-btn layui-btn-normal" style="width:100%;"></input>-->
+                </div>
+            </div>
+        </form>
+    </div>
+    <footer>
+        <!--<p>power by dw © </p>-->
+    </footer>
+</div>
+<script type="text/javascript">
+    var countdown=60;
+    var dataCode=0;
+    //当失焦时判断用户名是否重复
+    function onblureven(){
+        var userName=$('#name').val();
+        //alert(userName);
+        $.ajax({
+            url:"/sb/user/checkUser",
+            data:{userName:userName},
+            type:"post",
+            dataType:"json",
+            success: function (data) {
+                //alert(data);
+                if(data==0){
+                    //alert("用户名已存在")
+                    $("#msg").html("用户名已存在")
+                    $("#name").focus();
+                }else if (!(userName.length>2&&userName.length<7)){
+                    //alert("长度不符合要求");
+                    $("#msg").html("请输入长度为3-6之间的用户名")
+                    $("#name").focus();
+                }else {
+                    //alert("用户名符合要求");
+                    $("#msg").html("")
+                }
+            },
+            error:function (data) {
+                alert("判断用户名是否重复回调函数发生错误");
+                //alert(JSON.stringify(data));
+            }
+        });
+    }
+
+    //检验密码的合法性
+    function checkPwd(){
+        var reg = new RegExp("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,10}$");
+        var a=$("#pass").val();
+        if (!reg.test(a)) {
+            $("#pwd").html("输入长度在6-10之间的英文字母和数字");
+            return false;
+        }else{
+            $("#pwd").html("");
+        }
+    }
+
+    //倒计时 检验验证码
+    function getCheckNum() {
+        if (countdown == 0) {
+            $("#btn").attr("disabled", false);//等于0时可以点击 即还没有获取验证码 或者已超时重新获取
+            $("#btn").val("获取验证码");
+            return false;
+        } else {
+            //alert(countdown);
+            var phone = $('#phone').val();//获取电话号码
+            //alert(phone);
+            //ajax方法返回数据的验证码
+            $.ajax({
+                url: "/sb/login/check",
+                data: {phone: $('#phone').val()},
+                type:"post",
+                async: true,//同步
+                dataType: "json",
+                success: function (data) {
+                    alert('进入成功回调函数，data是：' + data);
+                    dataCode=data;
+                    //alert(dataCode);
+                },
+                error: function () {
+                    alert("回调函数发生错误");
+                }
+            });
+            $("#btn").attr("disabled", true);//让获取验证码按钮失效
+            $("#btn").val(countdown + "s");
+            //倒计时
+            //countdown--;
+            //一秒后执行getCheckNum方法
+            setTimeout(function () {
+                getTime(countdown);
+            }, 1000);
+        }
+    }
+    function compareCode(){
+        //alert("dataCode:"+dataCode);
+        //alert("输入框的值："+$('#check').val());
+        var a=$('#check').val();
+        if (dataCode==a) {
+            //alert("验证码正确");
+            $("#btnC").html("");
+            $("#registe").attr("disabled", false);
+            return true;
+        } else {
+            //alert("验证码错误");
+            $("#checkC").html("验证码错误");
+            var b=$("#check").is(":focus");
+            if(b){
+                $("#checkC").html("");
+            }
+            //$("#registe").attr("disabled", true);
+            return false;
+        }
+    }
+    function getTime(countdown) {
+        if (countdown == 0) {
+            $("#btn").attr("disabled", false);//等于0时可以点击 即还没有获取验证码 或者已超时重新获取
+            $("#btn").val("获取验证码");
+            return false;
+        } else {
+            //alert(countdown);
+            //倒计时
+            countdown--;
+            //$("#btn").attr("disabled", true);
+            $("#btn").val(countdown + "s");
+            setTimeout(function () {
+                getTime(countdown);
+            }, 1000);
+        }
+    }
+    //检查用户名
+    function checkuser(){
+        var user=document.getElementById("name")
+        if(user.value.length>0){
+            return true;
+        }
+        //alert("用户名不能为空");
+        $("#msg").html("用户名不能为空");
+        user.focus();
+        return false;
+    }
+    //检查密码
+    function checkpass(){
+        var pass=document.getElementById("pass")
+        if(pass.value.length>0){
+            return true;
+        }
+        //alert("密码不能为空");
+        $("#pwd").html("密码不能为空");
+        pass.focus();
+        return false;
+    }
+    //检查电话号
+    function checkphone(){
+        var user=document.getElementById("phone")
+        if(user.value.length>0){
+            return true;
+        }
+        //alert("用户名不能为空");
+        $("#pho").html("电话号码不能为空");
+        user.focus();
+        return false;
+    }
+    //判断验证码
+    function checkcode(){
+        var user=document.getElementById("check")
+        if(user.value.length>0){
+            return true;
+        }
+        //alert("用户名不能为空");
+        $("#checkC").html("验证码不能为空");
+        user.focus();
+        return false;
+    }
+    function registeButton(){
+        var info=$("#btn").val();
+        //alert(info);
+            if(checkuser()&&checkpass()&&checkphone()&&checkcode()){
+                //alert("获取验证码"===info);
+                if("获取验证码"===info){//验证码失效
+                    $("#checkC").html("验证码失效，请重新获取");
+                    $("#check").html("");
+                    //$("#registe").attr("disabled", true);
+                }else {
+                    //alert("校对校验码："+compareCode());
+                    if(compareCode()) {
+                        var form = document.getElementById("form1");
+                        form.submit();
+                    }else {
+                        $("#checkC").html("验证码错误");
+                    }
+                }
+        }
+    }
+    //检验手机号
+    function checkPhone(){
+        var phone = document.getElementById('phone').value;
+        if(!(/^1(3|4|5|7|8)\d{9}$/.test(phone))){
+            $("#pho").html("请输入正确的手机号码");
+            return false;
+        }else {
+            $("#pho").html("");
+            return true;
+        }
+    }
+</script>
+</body>
+</html>

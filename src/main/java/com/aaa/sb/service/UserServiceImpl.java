@@ -17,9 +17,39 @@ import java.util.Map;
 public class UserServiceImpl implements UserService{
 
     @Autowired
-    UserDao userdao;
+    UserDao userDao;
 
+    @Override
+    public List<Map> getList(Map map) {
+        return userDao.getList(map);
     }
 
+    @Override
+    public int getcount(Map map) {
+        userDao.getcount(map);
+        return Integer.valueOf(userDao.getcount(map).get(0).get("CNT")+"");
+    }
+
+    @Override
+    public List<Map> getUserList() {
+        return userDao.getUserList();
+    }
+
+    @Override
+    public int addUser(Map map) {
+        return userDao.addUser(map);
+    }
+
+    @Override
+    public int checkPwd(String userName,String password) {
+        //System.out.println(userName+"password:"+password);
+        Map map = userDao.checkPwd(userName);
+        //System.out.println("根据用户名取的map："+map);
+        if((map.get("PASSWORD")+"").equals(password)){
+            //说明密码正确
+            return 1;
+        }
+        return 0;
+    }
 
 }

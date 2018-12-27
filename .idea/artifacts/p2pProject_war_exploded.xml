@@ -88,6 +88,7 @@
           <element id="library" level="project" name="Maven: com.github.jsqlparser:jsqlparser:0.9.5" />
           <element id="library" level="project" name="Maven: com.github.pagehelper:pagehelper-spring-boot-autoconfigure:1.2.3" />
           <element id="library" level="project" name="Maven: com.github.pagehelper:pagehelper-spring-boot-starter:1.2.3" />
+          <element id="library" level="project" name="Maven: com.github.theborakompanioni:thymeleaf-extras-shiro:2.0.0" />
         </element>
       </element>
       <element id="directory" name="META-INF">

@@ -1,6 +1,7 @@
 package com.aaa.sb.service;
-import java.util.List;
+
 import java.util.Map;
+import java.util.List;
 
 /**
  * className:UserService
@@ -28,4 +29,8 @@ public interface UserService {
      * @return
      */
     int  checkPwd(String userName,String password);
+
+    List<Map> getList(Map map);
+
+    int getcount(Map map);
 }

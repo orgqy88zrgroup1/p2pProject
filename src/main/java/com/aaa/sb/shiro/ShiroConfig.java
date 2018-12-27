@@ -82,6 +82,8 @@ public class ShiroConfig {
         filterMap.put("/power/*","anon");
         filterMap.put("/stat/*","anon");
 
+        filterMap.put("/news/*","anon");
+        filterMap.put("/borrow/*","anon");
 
 
         //授权过滤器(顺序，放在拦截页面下面不生效)

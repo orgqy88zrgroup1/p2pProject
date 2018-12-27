@@ -8,17 +8,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * className:UserSerivceImpl
+ * className:UserServiceImpl
  * discription:
- * author:gwd
- * createTime:2018-12-10 20:38
+ * author:zhangran
+ * createTime:2018-12-24 21:51
  */
 @Service
-public class UserSerivceImpl implements UserService{
+public class UserServiceImpl implements UserService{
 
     @Autowired
-    private UserDao userDao;
+    UserDao userDao;
 
+    @Override
+    public List<Map> getList(Map map) {
+        return userDao.getList(map);
+    }
+
+    @Override
+    public int getcount(Map map) {
+        userDao.getcount(map);
+        return Integer.valueOf(userDao.getcount(map).get(0).get("CNT")+"");
+    }
 
     @Override
     public List<Map> getUserList() {
@@ -41,4 +51,5 @@ public class UserSerivceImpl implements UserService{
         }
         return 0;
     }
+
 }

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+
+</head>
+<body>
+    <div id="app">
+        <el-button type="primary" plain round @click="dialogFormVisible = true">我要招标</el-button>
+        <el-dialog title="请根据要求填写信息" :visible.sync="dialogFormVisible"
+                   :before-close="handleClose">
+            <el-form :model="form"
+                     ref="form"
+                     :rules="rules">
+                <el-form-item label="招标类型" :label-width="formLabelWidth" prop="type">
+                    <el-select v-model="form.type" placeholder="请选择招标类型" @change="datechange()">
+                        <el-option label="车贷" value="1" key="1"></el-option>
+                        <el-option label="房贷" value="2" key="2"></el-option>
+                        <el-option label="置办物品" value="3" key="3"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="还款时间" :label-width="formLabelWidth" prop="date">
+                    <el-select v-model="form.date" placeholder="请选择还款时间">
+                        <el-option label="一月" value="1" key="1"></el-option>
+                        <el-option label="两月" value="2" key="2"></el-option>
+                        <el-option label="三月" value="3" key="3"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="还款方式" :label-width="formLabelWidth" prop="method">
+                    <el-select v-model="form.method" placeholder="请选择还款方式">
+                        <el-option label="定期还款" value="1" key="1"></el-option>
+                        <el-option label="一次还清" value="2" key="2"></el-option>
+                        <el-option label="定期还息，到期还本" value="3" key="3"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="招标数量" :label-width="formLabelWidth" prop="count">
+                    <el-input-number v-model="form.count" :precision="2" :step="1000" :max="2000000" :min="5000"></el-input-number>
+                </el-form-item>
+                <el-form-item label="招标时间" :label-width="formLabelWidth" prop="time">
+                    <el-select v-model="form.time" placeholder="请选择招标时间" @change="timechange()">
+                        <el-option label="三天" value="3" key="1"></el-option>
+                        <el-option label="五天" value="5" key="2"></el-option>
+                        <el-option label="七天" value="7" key="3"></el-option>
+                    </el-select> 大约到 {{form.returntime}} 停止招标
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm('form')">立即创建</el-button>
+                    <el-button @click="resetForm('form')">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el:'#app',
+        data:{
+            dialogFormVisible : false,
+            form:{
+                type: '',
+                date: '',
+                method: '',
+                time: '',
+                returntime: new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate(),
+                count: 5000.00
+            },
+            rules:{
+                type:[
+                    { required: true, message: '请输入招标类型', trigger: 'blur' },
+                    { max: 10, message: '长度在 10 个字符以内', trigger: 'blur' }
+                ],
+                date: [
+                    { required: true, message: '请选择还款时间', trigger: 'change' }
+                ],
+                method:[
+                    { required: true, message: '请选择还款方式', trigger: 'change' }
+                ],
+                time:[
+                    { required: true, message: '请选择招标时间', trigger: 'change' }
+                ]
+            },
+            formLabelWidth: '120px'
+        },
+        methods: {
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                        this.form.type= '';
+                        this.form.date= '';
+                        this.form.method= '';
+                        this.form.time= '';
+                        this.form.returntime= new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate();
+                        this.form.count= 5000.00;
+                    })
+                    .catch(_ => {this.form=this.default;});
+
+            },
+            submitForm(formName) {
+                var self = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        if(confirm("请确认您的信息:\u000d        招标类型："+self.form.type+
+                                                "\u000d        还款类型："+self.form.method+
+                                                "\u000d        招标时间："+self.form.returntime+
+                                                "\u000d        招标数量："+self.form.count)){
+                            axios.post("/sb/borrow/toBorrow",self.form).then(function(response){
+                                location.href="/sb/user/toBorrow"
+                            })
+                        }else {
+                            return false;
+                        }
+
+
+                    }else{
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            timechange(){
+                let self = this;
+                if(self.form.time=='3'){
+                    var target = new Date().getTime()+3600 * 1000 * 24 * 3
+                    self.form.returntime=new Date(target).getFullYear() +"-"+(new Date(target).getMonth()+1) +"-"+new Date(target).getDate();
+                }else if(self.form.time=='5'){
+                    var target = new Date().getTime()+3600 * 1000 * 24 * 5
+                    self.form.returntime=new Date(target).getFullYear() +"-"+(new Date(target).getMonth()+1) +"-"+new Date(target).getDate();
+                }else{
+                    var target = new Date().getTime()+3600 * 1000 * 24 * 7
+                    self.form.returntime=new Date(target).getFullYear() +"-"+(new Date(target).getMonth()+1) +"-"+new Date(target).getDate();
+                }
+            }
+        }
+
+    })
+</script>
+</html>

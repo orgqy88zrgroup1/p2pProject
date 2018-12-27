@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户首页</title>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+
+
+    <style>
+
+        @import url("https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css");
+
+        #app{
+            width:1200px;
+        }
+        .el-header {
+            background-color: #B1E9FC;
+            color: #333;
+            text-align: center;
+            line-height: 60px;
+            margin: 0px 0px 20px 0px;
+        }
+        .el-footer {
+            background-color: #B1E9FC;
+            color: #333;
+            text-align: center;
+            line-height: 60px;
+            margin: 0px 0px 20px 0px;
+        }
+        .el-main {
+            background-color: #FFE3C7;
+            color: #333;
+            text-align: center;
+            height: 800px;
+            padding: 0px 0px 50px 0px;
+        }
+        .tip {
+            display: table;
+            float: left;
+            text-decoration: none;
+            color: black;
+            margin: 0px 15px;
+        }
+        iframe{
+            width: 100%;
+            height: 100%;
+            border: 0px black solid;
+        }
+    </style>
+
+
+
+</head>
+<body>
+<center>
+    <div id="app">
+        <el-container>
+            <el-header>Header</el-header>
+            <el-header>
+
+                    <div width="600px">
+                        <a href="/sb/user/toIndex" target="main" class="tip"><div style="width: 35px">首页</div></a>
+                        <a href="/sb/user/toBorrow" target="main" class="tip"><div style="width: 70px">我要招标</div></a>
+                        <a href="/sb/user/toLend" target="main" class="tip"><div style="width: 70px">我要投标</div></a>
+                        <a href="/sb/user/toPersonalcenter" target="main" class="tip"><div style="width: 70px">个人中心</div></a>
+                    </div>
+
+            </el-header>
+            <el-main><iframe id="main" name="main" src="/sb/user/toIndex"></iframe></el-main>
+            <el-footer>Footer</el-footer>
+        </el-container>
+    </div>
+</center>
+</body>
+<script>
+    var app = new Vue({
+        el:'#app',
+        data:{
+        }
+
+    })
+</script>
+</html>

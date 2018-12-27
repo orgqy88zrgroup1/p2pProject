@@ -19,16 +19,6 @@ public class UserServiceImpl implements UserService{
     @Autowired
     UserDao userdao;
 
-    @Override
-    public List<Map> getList(Map map) {
-        return userdao.getList(map);
-    }
-
-    @Override
-    public int getcount(Map map) {
-        userdao.getcount(map);
-        System.out.println(userdao.getcount(map).get(0).get("CNT")+"");
-        return Integer.valueOf(userdao.getcount(map).get(0).get("CNT")+"");
     }
 
 

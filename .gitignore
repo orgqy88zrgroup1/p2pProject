@@ -13,7 +13,7 @@
 ### IntelliJ IDEA ###
 *.iws
 *.iml
-
+.idea
 *.ipr
 
 
@@ -25,3 +25,5 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+.idea/dataSources.local.xml
+.idea/workspace.xml

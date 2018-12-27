@@ -5,19 +5,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * className:SpringbootMainApplication
+ * className:SpringBootMainApplication
  * discription:
- * author:wzb
- * createTime:2018-12-08 19:19
+ * author:ZXL
  */
 @SpringBootApplication
-@MapperScan("com.aaa.sb.dao") //扫描dao层接口
-public class SpringbootMainApplication {
+@MapperScan("com.aaa.sb.dao")//启动类进行扫描
+public class SpringBootMainApplication {
     /**
      * 主函数
      * @param args
      */
     public static void main(String[] args) {
-        SpringApplication.run(SpringbootMainApplication.class);
+        //获取一个类的class对象
+        SpringApplication.run(SpringBootMainApplication.class);
     }
 }

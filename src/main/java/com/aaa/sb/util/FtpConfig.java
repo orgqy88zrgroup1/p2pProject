@@ -1,15 +1,22 @@
 package com.aaa.sb.util;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * className:FtpConfig
  * discription:
- * author:gwd
- * createTime:2018-12-13 09:26
+ * author:zhangran
+ * createTime:2018-12-13 09:28
  */
+
 @Component
 @PropertySource("classpath:ftp.properties")
 @ConfigurationProperties(prefix = "ftp")
@@ -78,41 +85,21 @@ public class FtpConfig {
         this.uploadPath = uploadPath;
     }
 
-    /*public static void main(String[] args) {
-        //自己写方法读取配置文件
-        InputStream inputStream = FtpConfig.class.getResourceAsStream("/application.properties");
-        //Map properties = new Properties();//map 接口的一个实现类 多态向上转型
-        Properties properties = new Properties();
-        try {
-            properties.load(inputStream);
-            Set<Object> objects = properties.keySet();//返回所有key的集合
-            if(objects!=null&&objects.size()>0){
-                //objects.iterator(); 遍历map集合 至少知道两个方法 得到所有key 再interator
-                for (Object object : objects) {
-                    System.out.println("key:"+object+",value:"+properties.get(object));
-                }
-            }else {
-                System.out.println("为空");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
-    /*public static void main(String[] args) {
-        //自己编写的读取配置文件的方法
-        InputStream inputStream = FtpConfig.class.getResourceAsStream("/ftp.properties");
-        Properties properties =new Properties();//Map接口的实现类
-        try {
-            properties.load(inputStream);
-            //System.out.println(properties.get("mybatis.typeAliasesPackage")+"............");
-            Set<Object> objects = properties.keySet();//返回map的所有key
-            //objects.iterator(); 遍历map至少要知道2种方法
-            for (Object object : objects) {
-                System.out.println("key:"+object+",value:"+properties.get(object));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
+    //    public static void main(String[] args) {
+//        //自己编写的读取配置文件的方法
+//        InputStream inputStream = FtpConfig.class.getResourceAsStream("/ftp.properties");
+//        Properties properties =new Properties();//Map接口的实现类
+//        try {
+//            properties.load(inputStream);
+//            //System.out.println(properties.get("mybatis.typeAliasesPackage")+"............");
+//            Set<Object> objects = properties.keySet();//返回map的所有key
+//            //objects.iterator(); 遍历map至少要知道2种方法
+//            for (Object object : objects) {
+//                System.out.println("key:"+object+",value:"+properties.get(object));
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }

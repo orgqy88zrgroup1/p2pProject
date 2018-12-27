@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户首页</title>
+    <script src="../js/axios.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+    <style>
+        .el-carousel__item h3 {
+            color: #475669;
+            font-size: 14px;
+            opacity: 0.75;
+            line-height: 300px;
+            margin: 0;
+        }
+
+        .block{
+            width: 550px;
+            float: left;
+            margin: 0px;
+        }
+        #app{
+            width:1100px;
+        }
+        .right{
+            width: 550px;
+            background: #cfcfcf;
+            height: 300px;
+            overflow: auto;
+            margin: 20px;
+        }
+
+        .el-carousel__item:nth-child(2n) {
+            background-color: #99a9bf;
+        }
+
+        .el-carousel__item:nth-child(2n+1) {
+            background-color: #d3dce6;
+        }
+        .el-button{
+            padding: 0px;
+            height: 20px;
+        }
+        li{
+            text-align: left;
+            border-bottom: 1px #b2b2b2 dashed;
+            padding: 0px;
+        }
+        #newstip{
+            font-size: 19px;
+            text-decoration: none;
+
+        }
+        #newstime{
+            float: right;
+            font-size: 12px;
+            padding-top: 6px;
+        }
+    </style>
+</head>
+<body>
+<center>
+    <div id="app">
+        <div class="block">
+            <el-carousel height="300px">
+                <el-carousel-item v-for="item in 2" :key="item">
+                    <h3></h3>
+                </el-carousel-item>
+            </el-carousel>
+        </div>
+        <div class="right">
+            <ul v-for="info in infos" :key="info">
+                <li>
+                    <a id="newstip" href="#">{{info.TIP}}</a>
+                    <div id="newstime">{{info.CREATEDATE}}</div>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <el-collapse v-model="activeName" style="background-color: #FFE3C7" accordion>
+                <el-collapse-item title="一致性 Consistency" name="1">
+                    <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
+                    <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
+                </el-collapse-item>
+                <el-collapse-item title="反馈 Feedback" name="2">
+                    <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
+                    <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
+                </el-collapse-item>
+                <el-collapse-item title="效率 Efficiency" name="3">
+                    <div>简化流程：设计简洁直观的操作流程；</div>
+                    <div>清晰明确：语言表达清晰且表意明确，让用户快速理解进而作出决策；</div>
+                    <div>帮助用户识别：界面简单直白，让用户快速识别而非回忆，减少用户记忆负担。</div>
+                </el-collapse-item>
+                <el-collapse-item title="可控 Controllability" name="4">
+                    <div>用户决策：根据场景可给予用户操作建议或安全提示，但不能代替用户进行决策；</div>
+                    <div>结果可控：用户可以自由的进行操作，包括撤销、回退和终止当前操作等。</div>
+                </el-collapse-item>
+            </el-collapse>
+        </div>
+    </div>
+</center>
+</body>
+<script>
+    var app = new Vue({
+        el:'#app',
+        data:{
+            infos:[],
+            dialogVisible: false,
+            activeName: '1'
+        },
+        created:function (){
+            var self = this;
+            axios.post('/sb/news/page').then(function (response) {
+                self.infos = response.data;
+            });
+        },
+        methods: {
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
+            }
+        }
+
+
+    })
+</script>
+</html>

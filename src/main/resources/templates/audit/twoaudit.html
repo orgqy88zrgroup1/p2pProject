@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>满标二审</title>
+    <!-- 引入样式 -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+</head>
+<body>
+<div id="app">
+    <h2>{{ message }}</h2>
+</div>
+<div id="tableView">
+    <el-row>
+
+        <el-table
+                :data="tableData"
+                style="width: 100%">
+            <el-table-column
+                    v-if="show"
+                    prop="ID"
+                    label="ID"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="USERNAME"
+                    label="招标人"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDAMOUNT"
+                    label="招标金额"
+                    width="70">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDCURRENTAMOUNT"
+                    label="已投标金额"
+                    width="70">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDREPAYMENTMETHOD"
+                    label="还款方式"
+                    width="70z">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDRATE"
+                    label="还款利率"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDDEADLINE"
+                    label="还款期限"
+                    width="70">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDDEADDAY"
+                    label="招标天数"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDDESC"
+                    label="借款描述"
+                    width="80">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDTYPE"
+                    label="标类型"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="NAME"
+                    label="标的状态"
+                    width="50">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDISSUEDATE"
+                    label="开始招标时间"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDDEADDATE"
+                    label="招标结束时间"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="BIDAPPLYDATE"
+                    label="申请时间"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    label="操作"
+                    width="">
+                <template scope="scope">
+                    <el-button :plain="true" type="success" size="small" icon="edit" @click="agree(scope.row)">通过</el-button>
+                    <el-button :plain="true" type="danger" size="small" icon="delete" @click="deleteClick(scope.row)">驳回</el-button>
+
+                </template>
+            </el-table-column>
+        </el-table>
+    </el-row>
+    <!--列表底部工具条和分页符-->
+    <el-row style="margin-top: 20px" type="flex" justify="end">
+        <el-col :span="6" >
+        </el-col>
+        <el-col :span="18" >
+            <el-pagination
+                    style="float: right"
+                    @size-change="pageSizeChange"
+                    @current-change="currentPageChange"
+                    :current-page="currentPage"
+                    :page-sizes="[10, 20, 30, 50]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
+        </el-col>
+    </el-row>
+</div>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: '满标二审'
+        }
+    });
+    var tableView = new Vue({
+        el: '#tableView',
+        data: {
+            show:false,
+            //权限下拉菜单
+            options:[],
+            //列表数据
+            tableData: [],
+            //显示加载中样式
+            loading:false,
+            //搜索表单
+            searchForm: {
+                REALNAME: ''
+            },
+            //多选值
+            multipleSelection: [],
+            //当前页
+            currentPage:1,
+            //分页大小
+            pageSize:10,
+            //总记录数
+            total:800,
+            //删除的弹出框
+            deleteVisible:false,
+            //编辑界面是否显示
+            editFormVisible: false,
+            editLoading: false,
+            goUrl:'',
+            editFormRules: {
+                name: [
+                    { required: true, message: '请输入姓名', trigger: 'blur' }
+                ]
+            },
+            dataone:''
+        },
+        created:function(){
+            //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
+            var self = this;
+            var start =(this.currentPage-1)*this.pageSize;
+            var end =this.currentPage*this.pageSize+1;
+
+            axios.post('/sb/twoaudit/list',{'start':start,'end':end}).then(function(response){
+                self.total=response.data.total;
+                self.tableData = response.data.pageData;
+            });
+        },
+        methods:{
+            //表格重新加载数据‭
+            loadingData:function() {
+                var _self = this;
+                _self.loading = true;
+                var start =(this.currentPage-1)*this.pageSize;
+                var end =this.currentPage*this.pageSize+1;
+                axios.post('/sb/twoaudit/list',{'start':start,'end':end}).then(function(response){
+                    _self.total=response.data.total;
+                    _self .tableData = response.data.pageData;
+                });
+                console.log(_self.currentPage);
+                setTimeout(function(){
+                    _self.loading = false;
+                },300);
+            },
+            //表格编辑事件
+            editClick:function(row) {
+                this.goUrl="/af/post/update";
+                this.editFormVisible = true;
+                this.editForm = Object.assign({}, row);
+            },
+            //驳回事件
+            deleteClick:function(row) {
+                var _self = this;
+                this.$confirm('确认驳回吗?', '提示', {
+                    type: 'warning'
+                }).then(function(){
+                    var  url="/sb/twoaudit/toUpdate";
+                    axios.post(url,{id:row.ID}).then(function (response) {
+                        if(response.data>0){
+                            _self.$message({
+                                message: '驳回成功',
+                                type: 'success'
+                            });
+                        }
+                    });
+                }).catch(function(e){
+                    if(e != "cancel")
+                        console.log("出现错误：" + e);
+                });
+                _self.loadingData();//重新加载数据
+
+            },
+            //通过事件
+            agree:function(row) {
+                this.dataone={ID:row.ID,USERID:row.USERID,bidState:row.NAME,bidCurrentAmount:row.BIDCURRENTAMOUNT,biddeadline:row.BIDDEADLINE,bidrate:row.BIDRATE};
+              //  alert(JSON.stringify(row));
+                var _self = this;
+                this.$confirm('确认通过吗?', '提示', {
+                    type: 'warning'
+                }).then(function(){
+                    var  url="/sb/twoaudit/update";
+                    axios.post(url,_self.dataone).then(function (response) {
+                        if(response.data>0){
+                            _self.dataone = [];
+                            _self.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+                        }else{
+                            _self.dataone = [];
+                            _self.$message({
+                                message: '操作失败',
+                                type: 'error'
+                            });
+                        }
+                        _self.loadingData();
+                    });
+                }).catch(function(e){
+                    if(e != "cancel")
+                        console.log("出现错误：" + e);
+                });
+
+            },
+            //新建事件
+            addClick:function() {
+                this.goUrl="/af/post/add";
+                var _self = this;
+                this.editForm={
+                    NAME: '',
+                    COMPANY: '',
+                    REALNAME: '',
+                    PHONE:'',
+                    SEX:'',
+                    ROLENAME:''
+                };
+                this.editFormVisible = true;
+                _self.loadingData();//重新加载数据
+            },
+            //表格查询事件
+            searchClick:function() {
+                var self = this;
+                self.loadingData();//重新加载数据
+            },
+            //表格勾选事件
+            selectionChange:function(val) {
+                for(var i=0;i<val.length;i++) {
+                    var row = val[i];
+                }
+                this.multipleSelection = val;
+                console.info(val);
+            },
+            //分页大小修改事件
+            pageSizeChange:function(val) {
+                console.log('每页 ' + val +' 条');
+                this.pageSize = val;
+                var _self = this;
+                _self.loadingData();//重新加载数据
+            },
+            //当前页修改事件
+            currentPageChange:function(val) {
+                this.currentPage = val;
+                console.log('当前页: ' + val);
+                var _self = this;
+                _self.loadingData();//重新加载数据
+            },
+            //保存点击事件
+            editSubmit:function(){
+                var _self = this;
+                _self.loading = true;
+                var formData =this.editForm;
+                var goUrl=this.goUrl;
+                axios.post(goUrl,formData).then(function(response){
+                    if(response.data>0){
+                        _self.editFormVisible = false;
+                        _self.loadingData();//重新加载数据
+                    }else{
+                        _self.$message({
+                            message:'失败',
+                            type:'error'
+                        })
+                    }
+                    _self.editFormVisible = false;
+                    _self.loadingData();
+                })
+                console.info(this.editForm);
+            }
+        }
+    })
+</script>
+</body>
+</html>

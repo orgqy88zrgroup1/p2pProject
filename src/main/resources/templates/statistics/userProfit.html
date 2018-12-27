@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户分布</title>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+
+</head>
+<body>
+
+<div id="main" style="width: 1000px; height: 600px;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts图表
+    var myChart = echarts.init(document.getElementById('main'));
+    option = {
+        title : {
+            text : "各地区用户数量统计",
+            x : 'center'
+        },
+        tooltip : { //tooltip提示框，鼠标悬浮交互时的信息提示
+            trigger : 'item'
+        },
+        legend : { //legend图例
+            orient : 'vertical', //布局方式，默认为水平布局，可选为：'horizontal' | 'vertical'
+            x : 'left',
+            data : []
+        },
+        dataRange : { //dataRange值域选择
+            min : 0,
+            max : 15,
+            x : 'left',
+            y : 'bottom',
+            text : [ '高', '低' ],
+            calculable : true
+            //是否启用值域漫游，启用后无视splitNumber和splitList，值域显示为线性渐变
+        },
+        toolbox : {
+            show : true,
+            feature : {
+                mark : {
+                    show : true
+                },
+                dataView : {
+                    show : true,
+                    readOnly : false
+                },
+                restore : {
+                    show : true
+                },
+                saveAsImage : {
+                    show : true
+                }
+            }
+        },
+        roamController : {
+            show : true,
+            x : 'right',
+            mapTypeControl : {
+                'china' : true
+            }
+        },
+        series : [
+            {
+                name : '用户所在地人数',
+                type : 'map',
+                mapType : 'china',
+                itemStyle : {
+                    normal : {
+                        label : {
+                            show : true
+                        }
+                    },
+                    emphasis : {
+                        label : {
+                            show : true
+                        }
+                    }
+                },
+                data : []
+            } ]
+    };
+    myChart.showLoading();
+
+    var Address = [];
+    var nums = [];
+
+    $.ajax({
+        type : "post",
+        async : true,
+        url : "/sb/stat/selAddress",
+        dataType : "json",
+        success : function(data) {
+            //请求成功时执行该函数内容，result即为服务器返回的json对象
+            if (data!=null) {
+                $.each(data, function(k, v) {       //遍历返回的JSON数据
+                    Address.push(v.ADDRESS);
+                    nums.push({
+                        name : v.ADDRESS,
+                        value : v.NUM
+                    });
+                });
+                myChart.hideLoading(); //隐藏加载动画
+                myChart.setOption({ //加载数据图表
+                    legend : {
+                        data : Address
+                    },
+                    series : [ {
+                        data : nums
+                    } ]
+                });
+            }else{
+                alert("没有用户数据!");
+            }
+        },
+        error : function(errorMsg) {
+            //请求失败时执行该函数
+            alert("图表请求数据失败!");
+            myChart.hideLoading();
+        }
+    });
+
+    // 为echarts对象加载数据
+    myChart.setOption(option);
+</script>
+</body>
+</html>

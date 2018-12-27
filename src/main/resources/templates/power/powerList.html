@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>权限列表</title>
+    <!-- 引入样式 -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+
+    <!--sweet alert2-->
+    <link rel="stylesheet" href="../css/sweetalert2.min.css">
+    <script src="../js/sweetalert2.all.min.js"></script>
+    <script src="../js/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
+</head>
+<body>
+    <div id="app">
+         <el-tree
+                :data="data4"
+                node-key="id"
+                default-expand-all
+                :expand-on-click-node="false">
+              <span class="custom-tree-node" slot-scope="{ node, data }">
+              <span>{{ node.label }}</span>
+                <span>
+                    <!-- @click="() => append(data)"-->
+                    <!--@click="() => update(data)"-->
+                    <!--@click="() => remove(node, data)"-->
+                    <i></i>
+                  <el-button
+                          icon="el-icon-plus"
+                          plain
+                          type="primary"
+                          size="mini"
+                          @click="append(data)">
+                  </el-button>
+
+                    <el-button
+                            icon="el-icon-edit"
+                            type="warning"
+                            plain
+                            size="mini"
+                            @click="update(data)">
+                  </el-button>
+                  <el-button
+                          icon="el-icon-delete"
+                          plain
+                          type="danger"
+                          size="mini"
+                          @click="remove(node, data)">
+                  </el-button>
+
+                </span>
+              </span>
+        </el-tree>
+
+        <!--编辑界面-->
+        <el-dialog title="操作" size="mini" :visible.sync="editFormVisible" :close-on-click-modal="false">
+            <el-form :model="editForm" class="demo-ruleForm"  status-icon  label-width="80px" ref="editForm">
+                <!--autocomplete 就是第一次输入内容后，第二次输入会出现以前输入过的内容。就像百度搜索的历史搜索关键词 -->
+                <el-row>
+                    <el-col :span="11">
+                        <el-form-item label="菜单" prop="label">
+                            <el-input v-model="editForm.label" clearable ></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="11">
+                        <el-form-item label="图标" prop="icon">
+                            <el-input v-model="editForm.icon" clearable ></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="11">
+                        <el-form-item label="URL" prop="url">
+                            <el-input v-model="editForm.url" autocomplete="off" clearable ></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="11">
+                        <el-form-item label="父节点ID" prop="parentId">
+                            <div class="block">
+                                <el-cascader v-model="editForm.parentId"  change-on-select clearable expand-trigger="hover" filterable :options="options" :props="defaultProps" @change="handleItemChange"></el-cascader>
+                            </div>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :push="6">
+                <!--:props="props"-->
+                <!--<div slot="footer" class="dialog-footer">-->
+                <el-form-item>
+                    <el-button type="danger" @click.native="closeEditForm()">取消</el-button>
+                    <!-- :loading="editLoading" -->
+                    <el-button type="primary" @click.native="editSubmit()" >提交</el-button>
+                </el-form-item>
+                <!--</div>-->
+                    </el-col>
+                </el-row>
+            </el-form>
+        </el-dialog>
+
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    data4: [],
+                    options: [],
+                    //编辑界面
+                    editForm:{
+                        label:'',
+                        icon:'',
+                        url:'',
+                        parentId:''
+
+                    },
+                    /*defaultOptions:[],*/
+                    defaultProps:{
+                        value:'id',
+                        label:'label',
+                        children:'children'
+                    },
+                    //跳转地址
+                    goUrl:'',
+                    //编辑界面是否显示
+                    editFormVisible:false
+
+                };
+            },
+            created:function(){
+                this.loadingData();
+            },
+            methods: {
+                closeEditForm(){
+                    var self = this;
+                    self.options = [];
+                    self.editForm = {};
+                    self.editForm = {
+                        label: '',
+                        icon: '',
+                        parentId:'',
+                        url: ''
+                    };
+                    self.loadingData();
+                    self.editFormVisible = false;
+                },
+                //表格重新加载数据
+                loadingData() {
+
+
+                    var self = this;
+
+                    axios.post('/sb/power/allTree').then(function (response) {
+                        //所有树节点
+                        self.data4 = response.data;
+                        //alert(JSON.stringify(self.data4))
+                    });
+                    axios.post('/sb/power/allTree').then(function (response) {
+                        //级联选择器
+                        self.options = [];
+                        self.options = response.data;
+                        self.options.push({id: '0',label: '一级节点',children:null});
+                       // alert(JSON.stringify(self.options));
+                    });
+
+
+                    /*setTimeout(function () {
+                        self.options.push({id: '0',label: '一级节点',children:null});
+                        alert(JSON.stringify(self.options))
+                    }, 300);*/
+                    //var arr = response.data;
+                    /*var bbb = response.data;
+                    var arr = JSON.parse(JSON.stringify(bbb).replace(/parentId/g,"value"));*/
+
+                },
+                handleItemChange(value) {
+                    console.log(value);
+                },
+                //新增
+                append(data) {
+                    alert(JSON.stringify(data));
+                    this.goUrl = "/sb/power/add";
+                    //清空数据,重新加载,弹出编辑框
+                    this.editForm = {
+                        label: '',
+                        icon: '',
+                        parentId:'',
+                        url: ''
+                    };
+                    this.loadingData();
+                    this.editFormVisible = true;
+                },
+                //编辑
+                update(data) {
+                    //alert(JSON.stringify(data));
+
+                    //var id = data.id;
+                    //alert(id);
+                    /*axios.post('/sb/power/idTree', {'id': id}).then(function (response) {
+                        alert(JSON.stringify(response.data));
+                        self.editForm = Object.assign({}, response.data);
+                        alert(JSON.stringify(self.editForm));
+                    });*/
+
+                   /* this.loadingData();
+                    this.editFormVisible = true;*/
+                    var self = this;
+                    this.goUrl = "/sb/power/upd";
+                    alert(JSON.stringify(this.editForm));
+                    /*this.editForm = {
+                        label: '',
+                        icon: '',
+                        parentId:'',
+                        url: ''
+                    };*/
+                    data.parentId='';
+                    alert(JSON.stringify(this.editForm));
+                    this.editForm = Object.assign({}, data);
+                    alert(JSON.stringify(this.editForm));
+                    /*axios.post('/sb/power/allTree').then(function (response) {
+                        //级联选择器
+                        self.options=[];
+                        self.options = response.data;
+                        self.options.push({id: '0',label: '一级节点',children:null});
+                    });*/
+
+                        /*this.defaultOptions = [];
+                        if(data.parentId!=null){
+                            this.defaultOptions.push(data.parentId);
+                        }
+                        if(data.id!=null){
+                            this.defaultOptions.push(data.id);
+                        }*/
+
+                        //alert(this.defaultOptions);
+                        this.loadingData();
+                        this.editFormVisible = true;
+
+
+                },
+                remove(node, data) {
+                    //alert(JSON.stringify(node));
+                    //alert(JSON.stringify(data));
+
+                    var _self = this;
+                    this.$confirm('确认删除节点ID为' + data.id + '的，菜单是' + data.label + '的节点吗?', '提示', {
+                        type: 'warning'
+                    }).then(function () {
+                        var url = "/sb/power/del/?id=" + data.id;
+                        axios.post(url).then(function (response) {
+                            if (response.data > 0) {
+
+                                _self.loadingData();//重新加载数据
+                                _self.$notify({
+                                    title: '成功',
+                                    type: 'success',
+                                    message: '删除成功！',
+                                    position: 'bottom-right'
+                                });
+
+
+                            } else {
+                                _self.loadingData();//重新加载数据
+                                _self.$notify.error({
+                                    title: '失败',
+                                    message: '删除失败',
+                                    position: 'bottom-right'
+                                });
+
+                            }
+                        });
+                    }).catch(function (e) {
+                        if (e != "cancel")
+                            console.log("出现错误：" + e);
+                    });
+
+                    _self.loadingData();//重新加载数据
+                },
+
+            //保存点击事件
+            editSubmit() {
+                alert(1111);
+                var _self = this;
+                var formData = this.editForm;
+
+                //取数组里最后一个值
+                formData.parentId = formData.parentId.pop();
+                var goUrl = this.goUrl;
+
+                alert(JSON.stringify(formData));
+                alert(goUrl);
+
+                axios.post(goUrl, formData).then(function (response) {
+                    alert(JSON.stringify(response.data));
+                    if (response.data > 0) {
+                        _self.editFormVisible = false;
+                        _self.$notify({
+                            title: '成功',
+                            type: 'success',
+                            message: "<b>操作成功！</b>",
+                            position: 'bottom-right',
+                            dangerouslyUseHTMLString: true
+                        });
+
+                    } else {
+                        _self.editFormVisible = false;
+                        _self.$notify.error({
+                            title: '失败',
+                            message: "<b>操作失败</b>",
+                            position: 'bottom-right',
+                            dangerouslyUseHTMLString: true
+
+                        });
+                    }
+                    this.options = [];
+                    this.editForm = {};
+                    this.editForm = {
+                        label: '',
+                        icon: '',
+                        parentId:'',
+                        url: ''
+                    };
+                    _self.loadingData();//重新加载数据
+                    _self.editFormVisible = false;
+                    alert(JSON.stringify(this.editForm));
+                });
+            }
+
+
+        }
+
+    });
+    </script>
+    <style>
+        .custom-tree-node {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            padding-right: 8px;
+        }
+    </style>
+</body>
+</html>

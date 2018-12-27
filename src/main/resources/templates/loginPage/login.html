@@ -7,6 +7,11 @@
     <title>登录</title>
     <link rel="stylesheet" type="text/css" href="../css/layui.css" media="all" />
     <link rel="stylesheet" type="text/css" href="../css/login.css" />
+    <!--sweet alert2-->
+    <link rel="stylesheet" href="../css/sweetalert2.min.css">
+    <script src="../js/sweetalert2.all.min.js"></script>
+    <script src="../js/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
 </head>
 <body class="beg-login-bg">
 <div class="beg-login-box">
@@ -26,12 +31,23 @@
                 <label class="beg-login-icon">
                     <i class="layui-icon">&#xe642;</i>
                 </label>
-                <input type="password" lay-verify="required" name="password1" id="pass" autocomplete="off" placeholder="这里输入密码" class="layui-input" lay-verType="tips">
+                <input  type="password" lay-verify="required" name="password1" id="pass" autocomplete="off" placeholder="这里输入密码" class="layui-input" lay-verType="tips">
                 <span style="color: red;" id="errorPwd"></span>
             </div>
+
+            <div class="layui-form-item">
+                <label class="beg-login-icon">
+                    <i class="layui-icon">&#xe642;</i>
+                </label>
+                <input type="text" id="code_input" value="" class="layui-input" placeholder="请输入验证码" />
+            </div>
+            <div class="layui-form-item" id="v_container"  style="width: 200px;height: 50px;"></div>
+
+
+
             <div class="layui-form-item">
                 <div class="beg-pull">
-                    <button type="button" class="layui-btn layui-btn-normal" style="width:100%;" onclick="checkAll()">
+                    <button type="button" id="btn" class="layui-btn layui-btn-normal" style="width:100%;" onclick="checkAll()">
                         登　　录
                     </button>
                 </div>
@@ -45,7 +61,9 @@
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../js/layui.js"></script>
 <script type="text/javascript" src="../js/login.js"></script>
+<script src="../js/gVerify.js"></script>
 <script type="text/javascript">
+
 
 
 
@@ -68,6 +86,16 @@
         return false;
     }
 
+    //回车提交事件
+    $("body").keydown(function(e) {
+        if (e.keyCode == "13") {//keyCode=13是回车键
+            $('#btn').click();
+        }
+    });
+
+    var verifyCode = null;
+
+    $(function(){ verifyCode = new GVerify("v_container");})
 
 
     function checkAll(){
@@ -96,7 +124,26 @@
                        $("#errorPwd").html(obj.errorPwd);
                       // document.getElementById("errorPwd").innerText = obj.errorPwd;
                    }else if(obj.msg!=null){
-                        location.href = "/sb/emp/toIndex";
+                       //document.getElementById("btn").onclick = function(){
+                           var res = verifyCode.validate(document.getElementById("code_input").value);
+                           if(res){
+                               Swal({
+                                   title: '验证正确',
+                                   animation: false,
+                                   customClass: 'animated tada'
+                               });
+                               location.href = "/sb/emp/toIndex";
+                           }else if(!res){
+                               Swal({
+                                   title: '验证码错误',
+                                   animation: false,
+                                   customClass: 'animated tada'
+                               });
+                               document.getElementById("code_input").value=null;
+
+                           }
+                       //}
+
                    }
 
 
@@ -118,6 +165,16 @@
 
 
     }
+
+   /* var verifyCode = new GVerify("v_container");
+    document.getElementById("my_button").onclick = function(){
+        var res = verifyCode.validate(document.getElementById("code_input").value);
+        if(res){
+            alert("验证正确");
+        }else{
+            alert("验证码错误");
+        }
+    }*/
 </script>
 </body>
 </html>

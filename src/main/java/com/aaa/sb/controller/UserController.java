@@ -11,8 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,14 +93,64 @@ public class UserController {
         return "user/property";
     }
 
+    @ResponseBody
+    @RequestMapping("toAccountList")
+    public Object toPropertyList(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Integer userID = Integer.valueOf(user.getAttribute("userID")+"");
+        System.out.println(map);
+        System.out.println(userService.getAccountList(map));
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("toRepayInfo")
+    public Object toRepayInfo(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Integer userID = Integer.valueOf(user.getAttribute("userID")+"");
+        System.out.println(map);
+        System.out.println(userService.getRepayInfo(map));
+        return userService.getRepayInfo(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("torepayment")
+    public Object toRepayment(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Integer userID = Integer.valueOf(user.getAttribute("userID")+"");
+        System.out.println(map);
+        userService.getRepayment(map);
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("tocash")
+    public Object toCash(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Integer userID = Integer.valueOf(user.getAttribute("userID")+"");
+        System.out.println(map);
+        userService.getCash(map);
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("torecharge")
+    public Object toRecharge(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Integer userID = Integer.valueOf(user.getAttribute("userID")+"");
+        System.out.println(map);
+        userService.getRecharge(map);
+        return userService.getAccountList(map);
+    }
+
     @RequestMapping("toInfo")
     public String toInfo(){
         return "user/info";
     }
 
-    @RequestMapping("toPerson")
+    @RequestMapping("toUserInfo")
     public String toPerson(){
-        return "user/person";
+        return "userInfo/userInfo";
     }
 
     @RequestMapping("toLogin")

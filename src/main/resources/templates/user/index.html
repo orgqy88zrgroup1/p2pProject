@@ -65,8 +65,8 @@
     <div id="app">
         <div class="block">
             <el-carousel height="300px">
-                <el-carousel-item v-for="item in 2" :key="item">
-                    <h3></h3>
+                <el-carousel-item v-for="item in info" :key="item">
+                    <img width="550" height="300" :src="item">
                 </el-carousel-item>
             </el-carousel>
         </div>
@@ -106,9 +106,10 @@
     var app = new Vue({
         el:'#app',
         data:{
-            infos:[],
+            info:["../image/8696f538e6f08729f09bddadf1c562ee.jpg", "../image/36317d8497c3e8164e2ed94bb36b5875.jpeg"],
             dialogVisible: false,
-            activeName: '1'
+            activeName: '1',
+            infos:[]
         },
         created:function (){
             var self = this;

@@ -2,6 +2,7 @@ package com.aaa.sb.dao;
 
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.mybatis.caches.redis.RedisCache;
 import org.apache.ibatis.annotations.Insert;
 
@@ -51,4 +52,28 @@ public interface UserDao {
      */
     @Select(value = "select password from user_login_info where username=#{userName}")
     Map checkPwd(String userName);
+
+    @Select(value = "select * from user_login_info l,user_account a where l.ID=#{userID} and a.userID=#{userID}")
+    List<Map> getAccountList(Map map);
+
+    @Update(value="update user_account set availableBalance = #{availableBalance} where userId=#{userID}")
+    int getRecharge(Map map);
+
+    @Select(value="select id,userid,availableBalance from user_account where userID=#{userID}")
+    Map getAvailableBalance(Map map);
+
+    @Insert(value="insert into user_account_flow values (seq_user_account_flow_id.nextval,#{USERID},#{ID},#{changeCount},#{availableBalance},sysdate,#{state})")
+    int getAccountFlow(Map map);
+
+    @Update(value="update user_account set availableBalance = #{availableBalance} where userId=#{userID}")
+    int getCash(Map map);
+
+    @Update(value="update user_account set availableBalance = #{availableBalance} where userId=#{userID}")
+    int getRepayment(Map map);
+
+    @Select(value="select id,bidRepayAmount from bid_repay_info where bidRepayUserID=#{userID} and bidRepayState=4 and bidRepayDate<sysdate and bidRepayDeadDate>sysdate")
+    Map getRepayInfo(Map map);
+
+    @Update(value="update bid_repay_info set bidRepayState = 2 where id=#{bidRepayState}")
+    int getRepay(Map map);
 }

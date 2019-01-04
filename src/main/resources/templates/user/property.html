@@ -4,7 +4,210 @@
     <meta charset="UTF-8">
     <title>个人资产</title>
 </head>
+<script type="text/javascript" src="../js/axios.min.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+
 <body>
-个人资产
+<div id="app">
+    <el-table
+            :data="userAccount"
+            style="width: 360px">
+        <el-table-column
+                prop="tap"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="info"
+                width="180">
+        </el-table-column>
+    </el-table><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <el-button id="primary" type="primary" @click="repayment()"> 还款 </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+    <el-button id="primary" type="primary" @click="cash()"> 提现 </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+    <el-button id="primary" type="primary" @click="rechargeVisible=true"> 充值 </el-button>
+    <el-dialog title="提现数量" :visible.sync="cashVisible">
+        <el-form :model="form">
+            <el-form-item label="" :label-width="formLabelWidth" prop="count">
+                <el-input-number v-model="form.cashCount" :precision="2" :step="100" :max="2000000" :min="100"></el-input-number>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="cashVisible = false">取 消</el-button>
+            <el-button type="primary" @click="cashFinish()">确 定</el-button>
+        </div>
+    </el-dialog>
+    <el-dialog title="还款数量" :visible.sync="repaymentVisible" prop="form">
+        <span>确认还歀{{form.repaymentCount}}元</span>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="repaymentVisible = false">取 消</el-button>
+            <el-button type="primary" @click="repaymentFinish()">确 定</el-button>
+        </div>
+    </el-dialog>
+    <el-dialog title="充值数量" :visible.sync="rechargeVisible">
+        <el-form :model="form">
+            <el-form-item label="" :label-width="formLabelWidth" prop="count">
+                <el-input-number v-model="form.rechargeCount" :precision="2" :step="100" :max="2000000" :min="100"></el-input-number>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="rechargeVisible = false">取 消</el-button>
+            <el-button type="primary" @click="rechargeFinish()">确 定</el-button>
+        </div>
+    </el-dialog>
+</div>
 </body>
+<script>
+    var app = new Vue({
+        el:'#app',
+        data:{
+            userAccount:[{
+                tap:'账户名称',
+                info:''
+            },{
+                tap:'可用余额',
+                info:''
+            },{
+                tap:'待收利息',
+                info:''
+            },{
+                tap:'待收本金',
+                info:''
+            },{
+                tap:'待还金额',
+                info:''
+            },{
+                tap:'冻结金额',
+                info:''
+            },{
+                tap:'信用额度',
+                info:''
+            },{
+                tap:'剩余信用额度',
+                info:''
+            }],
+            cashVisible:false,
+            repaymentVisible:false,
+            rechargeVisible:false,
+            form: {
+                cashCount:100,
+                rechargeCount:100,
+                repaymentCount:0
+            },
+            formLabelWidth: '120px',
+            bidrepayid:0
+        },
+        methods:{
+            cash:function(){
+                var self = this;
+                if(self.userAccount[1].info<=0){
+                    alert("剩余可用余额不足，请重新选择");
+                }else{
+                    self.cashVisible=true;
+                }
+            },
+            repayment:function(){
+                var self = this;
+                if(self.form.repaymentCount<=0){
+                    alert("没有待还金额或本期已还，请重新选择");
+                }else{
+                    self.repaymentVisible=true;
+                }
+            },
+            cashFinish:function(){
+                var self = this;
+                var cash = self.form.cashCount;
+                if(self.userAccount[1].info<=cash){
+                    alert("剩余可用余额不足，请重新选择");
+                }else {
+                    var userID = {'userID': 2, 'cashCount': cash};
+                    axios.post("/sb/user/tocash", userID).then(function () {
+                        axios.post("/sb/user/toAccountList", userID).then(function (response) {
+                            self.userAccount[0].info = response.data[0].USERNAME;
+                            self.userAccount[1].info = response.data[0].AVAILABLEBALANCE;
+                            self.userAccount[2].info = response.data[0].RECEIVEINTEREST;
+                            self.userAccount[3].info = response.data[0].RECEIVEPRINCIPAL;
+                            self.userAccount[4].info = response.data[0].RETURNAMOUNT;
+                            self.userAccount[5].info = response.data[0].FREEZINGAMOUNT;
+                            self.userAccount[6].info = response.data[0].CREDITLINE;
+                            self.userAccount[7].info = response.data[0].SURPLUSCREDITLINE;
+                            alert("提现成功");
+                            self.cashVisible=false;
+                            self.form.cashCount=100;
+                        })
+                    })
+                }
+            },
+            repaymentFinish:function(){
+                var self = this;
+                var repayment = self.form.repaymentCount;
+                var bidrepayid = self.bidrepayid;
+                var userID={'userID':2,'repaymentCount':repayment,'bidrepayid':bidrepayid};
+                axios.post("/sb/user/torepayment",userID).then(function(){
+                    axios.post("/sb/user/toAccountList",userID).then(function(response){
+                        self.userAccount[0].info=response.data[0].USERNAME;
+                        self.userAccount[1].info=response.data[0].AVAILABLEBALANCE;
+                        self.userAccount[2].info=response.data[0].RECEIVEINTEREST;
+                        self.userAccount[3].info=response.data[0].RECEIVEPRINCIPAL;
+                        self.userAccount[4].info=response.data[0].RETURNAMOUNT;
+                        self.userAccount[5].info=response.data[0].FREEZINGAMOUNT;
+                        self.userAccount[6].info=response.data[0].CREDITLINE;
+                        self.userAccount[7].info=response.data[0].SURPLUSCREDITLINE;
+                        alert("还款成功");
+                        self.repaymentVisible=false;
+                    })
+                })
+            },
+            rechargeFinish:function(){
+                var self = this;
+                var recharge = self.form.rechargeCount;
+                var userID={'userID':2,'rechargeCount':recharge};
+                axios.post("/sb/user/torecharge",userID).then(function(){
+                    axios.post("/sb/user/toAccountList",userID).then(function(response){
+                        self.userAccount[0].info=response.data[0].USERNAME;
+                        self.userAccount[1].info=response.data[0].AVAILABLEBALANCE;
+                        self.userAccount[2].info=response.data[0].RECEIVEINTEREST;
+                        self.userAccount[3].info=response.data[0].RECEIVEPRINCIPAL;
+                        self.userAccount[4].info=response.data[0].RETURNAMOUNT;
+                        self.userAccount[5].info=response.data[0].FREEZINGAMOUNT;
+                        self.userAccount[6].info=response.data[0].CREDITLINE;
+                        self.userAccount[7].info=response.data[0].SURPLUSCREDITLINE;
+                        alert("充值成功");
+                        self.rechargeVisible=false;
+                        self.form.rechargeCount=100;
+                    })
+                })
+            }
+        },
+        created:
+            function(){
+                var self=this;
+                var userID={'userID':2}
+                axios.post("/sb/user/toAccountList",userID).then(function(response){
+                        self.userAccount[0].info=response.data[0].USERNAME;
+                        self.userAccount[1].info=response.data[0].AVAILABLEBALANCE;
+                        self.userAccount[2].info=response.data[0].RECEIVEINTEREST;
+                        self.userAccount[3].info=response.data[0].RECEIVEPRINCIPAL;
+                        self.userAccount[4].info=response.data[0].RETURNAMOUNT;
+                        self.userAccount[5].info=response.data[0].FREEZINGAMOUNT;
+                        self.userAccount[6].info=response.data[0].CREDITLINE;
+                        self.userAccount[7].info=response.data[0].SURPLUSCREDITLINE;
+                })
+                axios.post("/sb/user/toRepayInfo",userID).then(function(response){
+                    var self = this;
+                    if(response.data.BIDREPAYAMOUNT==""||response.data.BIDREPAYAMOUNT==null){
+                        alert(JSON.stringify(response))
+                        self.form.repaymentCount=0;
+                    }else{
+                        self.form.repaymentCount=response.data.BIDREPAYAMOUNT
+                        response.data.ID=self.bidrepayid;
+                    }
+                })
+            }
+
+
+
+    })
+</script>
 </html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>实名认证列表</title>
+    <!-- 引入样式 -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+<div id="app">
+    <h2>{{ message }}</h2>
+</div>
+
+<div id="tableView">
+    <!--列表顶部搜索和工具条-->
+    <el-row>
+        <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+            <el-form-item label="姓名">
+                <el-input v-model="searchForm.realname" placeholder="姓名"></el-input>
+            </el-form-item>
+            <el-form-item label="审核状态">
+                <el-select v-model="searchForm.auditresult" placeholder="审核状态">
+                    <el-option label="全部" value=""></el-option>
+                    <el-option label="未审核" value="未审核"></el-option>
+                    <el-option label="审核通过" value="审核通过"></el-option>
+                    <el-option label="审核失败" value="审核失败"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" icon="search" @click="searchClick">查询</el-button>
+            </el-form-item>
+        </el-form>
+    </el-row>
+    <!--列表  里面的值必须跟json字符串里的数据一样  -->
+    <el-row>
+        <el-table
+                :data="tableData"
+                v-loading.body="loading"
+                border
+                style="width: 100%">
+            <el-table-column
+                    prop="REALNAME"
+                    label="姓名"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="SEX"
+                    label="性别"
+                    width="150">
+            </el-table-column>
+            <el-table-column
+                    prop="ACADEMIC"
+                    label="学历"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="HOUSED"
+                    label="住房"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="MARRIAGE"
+                    label="婚姻"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="INCOME"
+                    label="收入"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="AUDITTIME"
+                    label="审核时间"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="AUDITRESULT"
+                    label="审核结果"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    label="操作"
+                    width="200">
+                <template scope="scope">
+                    <el-button :plain="true"  type="success" size="small" icon="edit" @click="editClick(scope.row)">审核</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </el-row>
+
+    <!--列表底部工具条和分页符-->
+    <el-row style="margin-top: 20px" type="flex" justify="end">
+        <el-col :span="18" >
+            <el-pagination
+                    style="float: right"
+                    @size-change="pageSizeChange"
+                    @current-change="currentPageChange"
+                    :current-page="currentPage"
+                    :page-sizes="[5,10,15,20,25,30]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
+        </el-col>
+    </el-row>
+
+    <!--添加界面 :visible.sync 同步-->
+    <el-dialog title="审核" :visible.sync="editFormVisible" :close-on-click-modal="false">
+        <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+            <el-form-item label="姓名" prop="REALNAME">
+                <el-input :disabled="true" v-model="editForm.REALNAME" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="性别" prop="SEX">
+                 <el-input :disabled="true" v-model="editForm.SEX" width="50px"></el-input>
+            </el-form-item>
+            <el-form-item label="现住地址" prop="ADDRESS">
+                <el-input :disabled="true" v-model="editForm.ADDRESS" ></el-input>
+            </el-form-item>
+            <el-form-item label="身份证号" prop="IDNUMBER">
+                <el-input :disabled="true" v-model="editForm.IDNUMBER" ></el-input>
+            </el-form-item>
+            <el-form-item label="身份证正面" prop="IDIMAGEFOUNTVAR">
+                <img :src="forwardPic" class="image" width="270px" height="200px">
+            </el-form-item>
+            <el-form-item label="身份证反面" prop="IDIMAGEBACKVAR">
+                <img :src="backPic" class="image" width="270px" height="200px">
+            </el-form-item>
+            <el-form-item label="审核状态"  prop="AUDITRESULT">
+                <el-radio-group v-model="editForm.AUDITRESULT">
+                    <el-radio class="radio" label="审核通过" >审核通过</el-radio>
+                    <el-radio class="radio" label="审核失败" >审核失败</el-radio>
+                </el-radio-group>
+            </el-form-item>
+            <el-form-item label="审核备注" prop="AUDITREMARKS">
+            <el-input
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入内容"
+                    v-model="editForm.AUDITREMARKS">
+            </el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click.native="editFormVisible = false">取消</el-button>
+            <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+        </div>
+    </el-dialog>
+</div>
+
+
+<script type="text/javascript">
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: '审核列表'
+        }
+    });
+
+    var tableView = new Vue({
+        el: '#tableView',
+        data: {
+            //列表数据 数组
+            tableData: [],
+            //显示加载中样式
+            loading:false,
+            //搜索表单
+            searchForm: {
+                realname: '',
+                auditresult: ''
+            },
+            //多选值
+            multipleSelection: [],
+            //当前页
+            currentPage:1,
+            //分页大小
+            pageSize:5,
+            //总记录数
+            total:800,
+            //删除的弹出框
+            deleteVisible:false,
+            //编辑界面是否显示 是否同步：false 不同步 看不到
+            editFormVisible: false,
+            editLoading: false,
+            goUrl:'',
+            editFormRules: {
+                name: [
+                    { required: true, message: '请输入姓名', trigger: 'blur' }
+                ]
+            },
+            //编辑界面数据
+            editForm: {
+                ID: 0,
+                REALNAME: '',
+                SEX: '',
+                ADDRESS:'',
+                IDNUMBER: '',
+                AUDITTIME:'',
+                AUDITRESULT: '',
+                AUDITREMARKS:''
+            },
+                forwardPic: '',
+                backPic: '',
+        },
+        created:function(){
+            //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
+            var self = this;
+            var start =(this.currentPage-1)*this.pageSize;
+            var end =this.currentPage*this.pageSize+1;
+            //请求地址url  携带参数是json格式  回调函数
+            axios.post('/sb/realname/page',{'start':start,'end':end}).then(function(response){
+                // console.log(response.data);
+                //alert(response.data.total);
+                //response.data 固定用法得到数据 pageData 是后台map里的键
+                self.total=response.data.total;
+                self.tableData = response.data.pageData;
+                alert(JSON.stringify(response.data.pageData));//转成json字符串查看
+                // self.multipleSelection=response.data.data;
+            });
+        },
+        methods:{
+            //表格重新加载数据
+            loadingData:function() {
+                var _self = this;
+                _self.loading = true;
+                var self = this;
+                var start =(this.currentPage-1)*this.pageSize;
+                var end =this.currentPage*this.pageSize+1;
+                var searchForm={'start':start,'end':end,'realname':this.searchForm.realname,'auditresult':this.searchForm.auditresult};
+                //   alert(JSON.stringify(searchForm));
+                axios.post('/sb/realname/page',searchForm).then(function(response){
+                    //console.log(response.data);
+                    // alert(222);
+                    _self.total=response.data.total;
+                    _self.tableData = response.data.pageData;
+                    //_self.multipleSelection=response.data.data;
+                })
+                console.log(_self.currentPage);
+                setTimeout(function(){
+                    console.info("加载数据成功");
+                    _self.loading = false;
+                },300);
+            },
+            //表格审核事件
+
+            editClick:function(row) {
+                alert(row.ID);
+                //根据这一行的某个字段去查询对应的你想要的信息
+                /*var _self=this;
+                axios.post('/sb/realname/lists'+row.ID).then(function(response){
+                    //得到信息后放入弹框的数组里
+                    _self.editForm=response.data;//得到所有的信息json数据
+                    alert(response.data);
+
+                    this.editForm = Object.assign({}, response.data);
+                });*/
+                //提交的路径 这里执行修改方法
+                alert(row.IDIMAGEFOUNTVAR);
+                this.forwardPic = '/sb/realname/show?fileName='+row.IDIMAGEFOUNTVAR;
+                this.backPic = '/sb/realname/show?fileName='+row.IDIMAGEBACKVAR;
+                this.goUrl="/sb/realname/update";
+                this.editFormVisible = true;
+                this.editForm = Object.assign({}, row);
+            },
+
+            //表格查询事件
+            searchClick:function() {
+                var self = this;
+                self.loadingData();//重新加载数据
+            },
+            //表格勾选事件
+            /*selectionChange:function(val) {
+                for(var i=0;i<val.length;i++) {
+                    var row = val[i];
+                }
+                this.multipleSelection = val;
+                console.info(val);
+            },*/
+            //分页大小修改事件 val每页条数
+            pageSizeChange:function(val) {
+                console.log('每页 ' + val +' 条');
+                //变化后的每页数量
+                this.pageSize = val;
+                var _self = this;
+                _self.loadingData();//当前对象 重新加载数据
+            },
+            //当前页修改事件
+            currentPageChange:function(val) {
+                this.currentPage = val;
+                console.log('当前页: ' + val);
+                var _self = this;
+                _self.loadingData();//重新加载数据
+            },
+            //保存点击事件
+            editSubmit:function(){
+                var _self = this;
+                _self.loading = true;
+                var formData =this.editForm;//保存该对象里的值
+                //alert(formData);
+                var goUrl=this.goUrl;
+                alert(goUrl);
+                alert(JSON.stringify(formData));
+                axios.post(goUrl,formData).then(function(response){
+                    console.log(response.data);
+                    // alert(222);
+                    // self.total=response.data.total;
+                    if(response.data>0){
+                        _self.editFormVisible = false;
+                        _self.loadingData();//重新加载数据
+                    }
+
+                })
+                console.info(this.editForm);
+            }
+        },
+
+    })
+</script>
+</body>
+</html>

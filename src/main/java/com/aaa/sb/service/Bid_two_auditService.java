@@ -2,6 +2,7 @@ package com.aaa.sb.service;
 
 
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,4 +51,18 @@ public interface Bid_two_auditService {
      * @return
      */
    Map getaudit(Map map);
+
+    /**
+     * 还款计划封装 定期还款 一次付清
+     * @return
+     */
+    //int getLoopBack(double benXi,int bid,Date date22,double monMoney,int bidRepayState,int biddeadline, int bidRepayMethod,int userid);
+
+    /**
+     * 还款计划封装 定期还息 到期还本
+     * @return
+     */
+    //int getLoopBack2(double benXi,int bid,Date date22,double monMoney,int bidRepayState,int biddeadline, int bidRepayMethod,int userid,double monEndBenXi, double monLixi);
+
+
 }

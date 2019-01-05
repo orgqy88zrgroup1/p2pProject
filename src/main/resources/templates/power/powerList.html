@@ -186,7 +186,7 @@
                 },
                 //新增
                 append(data) {
-                    alert(JSON.stringify(data));
+                    //alert(JSON.stringify(data));
                     this.goUrl = "/sb/power/add";
                     //清空数据,重新加载,弹出编辑框
                     this.editForm = {
@@ -214,7 +214,7 @@
                     this.editFormVisible = true;*/
                     var self = this;
                     this.goUrl = "/sb/power/upd";
-                    alert(JSON.stringify(this.editForm));
+                    //alert(JSON.stringify(this.editForm));
                     /*this.editForm = {
                         label: '',
                         icon: '',
@@ -222,9 +222,9 @@
                         url: ''
                     };*/
                     data.parentId='';
-                    alert(JSON.stringify(this.editForm));
+                    //(JSON.stringify(this.editForm));
                     this.editForm = Object.assign({}, data);
-                    alert(JSON.stringify(this.editForm));
+                    //alert(JSON.stringify(this.editForm));
                     /*axios.post('/sb/power/allTree').then(function (response) {
                         //级联选择器
                         self.options=[];
@@ -287,7 +287,7 @@
 
             //保存点击事件
             editSubmit() {
-                alert(1111);
+                //alert(1111);
                 var _self = this;
                 var formData = this.editForm;
 
@@ -295,11 +295,11 @@
                 formData.parentId = formData.parentId.pop();
                 var goUrl = this.goUrl;
 
-                alert(JSON.stringify(formData));
-                alert(goUrl);
+                //alert(JSON.stringify(formData));
+                //alert(goUrl);
 
                 axios.post(goUrl, formData).then(function (response) {
-                    alert(JSON.stringify(response.data));
+                    //alert(JSON.stringify(response.data));
                     if (response.data > 0) {
                         _self.editFormVisible = false;
                         _self.$notify({
@@ -330,7 +330,7 @@
                     };
                     _self.loadingData();//重新加载数据
                     _self.editFormVisible = false;
-                    alert(JSON.stringify(this.editForm));
+                    //alert(JSON.stringify(this.editForm));
                 });
             }
 

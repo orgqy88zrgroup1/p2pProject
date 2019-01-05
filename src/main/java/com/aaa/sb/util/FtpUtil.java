@@ -15,20 +15,25 @@ import java.util.UUID;
 /**
  * className:FtpUtil
  * discription:
- * author:zhangran
- * createTime:2018-12-13 09:51
+ * author:gwd
+ * createTime:2018-12-13 09:49
  */
 @Component
 public class FtpUtil {
     @Autowired
-    private static FtpConfig ftpConfig;
-    //创建客户端对象
+    private FtpConfig ftpConfig;
+
     private static FTPClient ftp = new FTPClient();
+
     /**
-     * 将图片上传到ftp远程服务器
+     * 通用ftp上传方法
+     * @param multipartFile
+     * @return
      */
     public  String  upLoad(MultipartFile multipartFile){
         // System.out.println(remoteIp+"...."+ftpUserName+","+ftpPassWord);
+        //创建客户端对象
+
         InputStream local = null;
         try {
             //  System.out.println(new FileUpAndDown().remoteIp);
@@ -36,34 +41,38 @@ public class FtpUtil {
             ftp.connect(ftpConfig.getRemoteIp(),ftpConfig.getUploadPort());
             //登录
             ftp.login(ftpConfig.getFtpUserName(),ftpConfig.getFtpPassWord());
-            //设置上传路径
-            String path = "/";
-            //检查上传路径是否存在 如果不存在返回false
+            //设置上传路径 到远程
+            String path = ftpConfig.getRemotePath();
+            //检查上传路径是否存在 如果不存在返回false 相当于切换目录 如果目录存在就直接切换 如果不存在就创建
             boolean flag = ftp.changeWorkingDirectory(path);
             if(!flag){
                 //创建上传的路径 该方法只能创建一级目录,在这里如果/home/ftpadmin存在则可以创建image
                 ftp.makeDirectory(path);
             }
-            //指定上传路径
+            //指定上传路径 创建之后将上传目录给他
             ftp.changeWorkingDirectory(path);
             //指定上传文件的类型 二进制文件
             ftp.setFileType(FTP.BINARY_FILE_TYPE);
-            //
+
             // MultipartFile multipartFile=null;
             //获取文件的绝对路径
             //String absolutePath = multipartFile.getResource().getFile().getAbsolutePath();
             //System.out.println(absolutePath+"绝对路径。。。。。。。。。。。");
             //获取原文件名称
             String originalFilename = multipartFile.getOriginalFilename();
+            //组装新的名称 截取后缀名
             String newFileName= UUID.randomUUID()+originalFilename.substring(originalFilename.lastIndexOf("."));
-            //读取本地文件
-            File file =new File("D:/images/"+File.separator+newFileName);
+            //读取本地文件 文件读到本地 D:/uploadpath/ 创建新的文件空文件
+            File file =new File(ftpConfig.getUploadPath()+File.separator+newFileName);
+            //传输文件 本地文件上传到ftpConfig.getUploadPath()   D:/uploadpath/
             multipartFile.transferTo(file);
             // org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),file);
             //  System.out.println(file.length()+"............");
+            //读取刚上传的文件到文件输入流中
             local = new FileInputStream(file);
-            //第一个参数是文件名
+            //第一个参数是文件名 把本地文件输入流传输到远程
             ftp.storeFile(file.getName(),local);
+            //返回新文件名
             return newFileName;
         }catch (SocketException e){
             e.printStackTrace();
@@ -103,12 +112,14 @@ public class FtpUtil {
             // System.out.println("开始下载文件");
             //initFtpClient();
             //切换FTP目录
-            ftp.changeWorkingDirectory(ftpConfig.getLocalPath());
+            ftp.changeWorkingDirectory(ftpConfig.getRemotePath());
+            //返回该目录下所有文件 ftp://127.0.0.1
             FTPFile[] ftpFiles = ftp.listFiles();
-//          ftpFiles  ftp 服务器上该目录下的所有文件 循环遍历
+            // ftpFiles  ftp 服务器上该目录下的所有文件 循环遍历 如果文件与想下载的名称一致就进行下载
             for(FTPFile file : ftpFiles){
                 //找到文件名称等于要下载的文件名称    equalsIgnoreCase  忽略大小写比较
                 if(fileName.equalsIgnoreCase(file.getName())){
+                    //ftpConfig.getLocalPath() + "/" + fileName=D:/localfile/4e844773-a5cd-442e-8565-9bd92223ae70.jpg
                     File localFile = new File(ftpConfig.getLocalPath() + "/" + fileName);
                     //os = response.getOutputStream();
                     os =new FileOutputStream(localFile);
@@ -193,4 +204,5 @@ public class FtpUtil {
         }
         return null;
     }
+
 }

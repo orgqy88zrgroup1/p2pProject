@@ -59,5 +59,31 @@ public interface BaseInfoService {
      */
     Map showPoint();
 
+    /**
+     * 查看用户名是否重复
+     * @param userName
+     * @return
+     */
+    int checkUserName(String userName);
 
+    /**
+     * 后台查看手机号是否重复
+     * @param phone
+     * @return
+     */
+    int checkPhone(String phone);
+
+    /**
+     * 后台查看银行卡号是否重复
+     * @param bankcard
+     * @return
+     */
+    int checkBankCard(String bankcard);
+
+    /**
+     * 后台判断用户名是否重复
+     * @param idcard
+     * @return
+     */
+    int checkIDCard(String idcard);
 }

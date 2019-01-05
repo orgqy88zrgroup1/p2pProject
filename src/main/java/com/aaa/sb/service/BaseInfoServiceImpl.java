@@ -1,15 +1,11 @@
 package com.aaa.sb.service;
 
-import com.aaa.sb.dao.BaseInfoDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +16,7 @@ import java.util.Map;
  * author:gwd
  * createTime:2018-12-17 11:35
  */
+@SuppressWarnings("all")
 @Service
 public class BaseInfoServiceImpl implements BaseInfoService{
 
@@ -107,8 +104,10 @@ public class BaseInfoServiceImpl implements BaseInfoService{
         System.out.println("插入后的map为："+map);
         //根据id查找该用户的信息，如果信息里面有值，就删除该条信息，两个表里的都删除，在插入新的信息
         Map info = baseInfoDao.findInfo(userId);
+        Map video = baseInfoDao.showPoint1(userId);
         System.out.println(info);
-        if(info!=null&&info.size()>0){
+        System.out.println(video);
+        if(info!=null&&info.size()>0&&video!=null&&video.size()>0){
             //说明该用户存在  delete该用户
             int i = baseInfoDao.delReal(userId);
             int j = baseInfoDao.delVideo(userId);
@@ -137,6 +136,7 @@ public class BaseInfoServiceImpl implements BaseInfoService{
         //查询该用户下的所有信息的审核状态 包括实名信息和视频认证信息
         //视频认证信息
         Map videoMap = baseInfoDao.showPoint1(userId);
+        System.out.println("videoMap:"+videoMap);
         //实名信息
         Map realMap = baseInfoDao.showPoint2(userId);
         Map map = new HashMap();
@@ -180,5 +180,97 @@ public class BaseInfoServiceImpl implements BaseInfoService{
             map.put("address",address);
             return map;
         }
+    }
+
+    @Override
+    public int checkUserName(String userName) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attr.getRequest().getSession();
+        Map userInfo = (Map) session.getAttribute("userInfo");
+        System.out.println("现在登录的用户id是：" + (userInfo.get("ID") + ""));
+        String userId = userInfo.get("ID") + "";
+        Map baseInfo = baseInfoDao.getBaseInfo(userId);
+        String username = baseInfo.get("USERNAME") + "";
+        System.out.println("未修改的username是："+username);
+        System.out.println("修改后的username是："+userName);
+        if (userName.equals(username)){
+            System.out.println("两个用户名相同，未修改");
+            return 1;
+        }else{
+            //通过username来查找是否有同名的
+            List<Map> maps = baseInfoDao.checkUsername(userName);
+            if(maps!=null&&maps.size()>0){
+                System.out.println("用户名重复，不可以修改");
+                return 0;
+            }else {
+                System.out.println("用户名不重复，可以修改");
+                return 1;
+            }
+        }
+
+    }
+
+    @Override
+    public int checkPhone(String phone) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attr.getRequest().getSession();
+        Map userInfo = (Map) session.getAttribute("userInfo");
+        System.out.println("现在登录的用户id是：" + (userInfo.get("ID") + ""));
+        String userId = userInfo.get("ID") + "";
+        Map baseInfo = baseInfoDao.getBaseInfo(userId);
+        String telephone = baseInfo.get("TELEPHONE") + "";
+        System.out.println("未修改的telephone是："+telephone);
+        System.out.println("修改后的phone是："+phone);
+        if (telephone.equals(phone)){
+            System.out.println("两个手机号相同，未修改");
+            return 1;
+        }else{
+            //通过phone来查找是否有同名的
+            List<Map> maps = baseInfoDao.checkPhone(phone);
+            if(maps!=null&&maps.size()>0){
+                System.out.println("手机号已被绑定，不可使用");
+                return 0;
+            }else {
+                System.out.println("手机号未被绑定，可以使用");
+                return 1;
+            }
+        }
+    }
+
+    @Override
+    public int checkBankCard(String bankcard) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attr.getRequest().getSession();
+        Map userInfo = (Map) session.getAttribute("userInfo");
+        System.out.println("现在登录的用户id是：" + (userInfo.get("ID") + ""));
+        String userId = userInfo.get("ID") + "";
+        Map baseInfo = baseInfoDao.getBaseInfo(userId);
+        String card = baseInfo.get("BANKCARD") + "";
+        System.out.println("未修改的银行卡号是："+card);
+        System.out.println("修改后的phone是："+bankcard);
+        if (card.equals(bankcard)){
+            System.out.println("两个银行卡号相同，未修改");
+            return 1;
+        }else{
+            //通过phone来查找是否有同名的
+            List<Map> maps = baseInfoDao.checkBankCard(bankcard);
+            if(maps!=null&&maps.size()>0){
+                System.out.println("银行卡已被绑定，不可使用");
+                return 0;
+            }else {
+                System.out.println("银行卡未被绑定，可以使用");
+                return 1;
+            }
+        }
+    }
+
+    @Override
+    public int checkIDCard(String idcard) {
+        List<Map> maps = baseInfoDao.checkIDCard(idcard);
+        if(maps!=null&&maps.size()>0){
+            //说明有重复的
+            return 0;
+        }
+        return 1;
     }
 }

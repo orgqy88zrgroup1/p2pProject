@@ -1,4 +1,3 @@
-import com.aaa.sb.util.HttpUtils;
 import org.apache.http.HttpResponse;
 
 import java.util.HashMap;

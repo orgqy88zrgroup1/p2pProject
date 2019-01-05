@@ -1,7 +1,7 @@
 package com.aaa.sb.service;
 
 import com.aaa.sb.dao.BidDao;
-import com.aaa.sb.util.MontyUtil;
+import com.aaa.sb.util.MoneyUtil;
 import com.alibaba.druid.sql.dialect.odps.ast.OdpsUDTFSQLSelectItem;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.ibatis.annotations.Insert;
@@ -72,7 +72,7 @@ public class BidServiceImpl implements BidService{
         int repayDate = Integer.valueOf(map.get("repayDate") + "");
         //获得投资钱数
         int bidNum = Integer.valueOf(map.get("bidNum") + "");
-        bidRate= MontyUtil.getInterestTotle(repayDate, repayRate, bidNum);
+        bidRate= MoneyUtil.getInterestTotle(repayDate, repayRate, bidNum);
         System.out.println("投资的钱数是："+bidNum+",投资的总利润是："+bidRate);
         map.put("bidRate",bidRate);
         System.out.println("投资的信息map是："+map);

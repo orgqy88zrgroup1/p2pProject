@@ -12,6 +12,7 @@ import java.util.Map;
 
 public interface BorrowService {
 
-    List<Map> toBorrow(Map map);
+    int toBorrow(Map map);
 
+    Map toGetCheck(Map map);
 }

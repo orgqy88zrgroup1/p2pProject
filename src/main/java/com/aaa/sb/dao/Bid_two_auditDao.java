@@ -55,7 +55,7 @@ public interface Bid_two_auditDao {
      * @param map
      * @return
      */
-    @Insert("insert into bid_audit (id,userID,bidID,auditID,auditTime,auditResult)values(SEQ_BIDAUDIT_ID.nextval,#{USERID},#{ID},#{auditID},#{auditTime},#{bidState})")
+    @Insert("insert into bid_audit (id,userID,bidID,auditID,auditTime,auditResult,auditRemarks)values(SEQ_BIDAUDIT_ID.nextval,#{USERID},#{ID},#{auditID},#{auditTime},#{bidState},#{auditRemarks})")
     int insertaudit(Map map);
 
     /**
@@ -97,6 +97,8 @@ public interface Bid_two_auditDao {
 
     /**
      * 借钱的用户流水表记录更新  招标
+     * 4 账户拨款
+     * bidCurrentAmount 变动余额 = 招标金额   availableBalance  变动后可用余额 = 变动前 + 招标金额
      * @param map
      * @return
      */
@@ -105,10 +107,11 @@ public interface Bid_two_auditDao {
 
     /**
      * 投资用户流水表
+     * 8 投资扣款
      * @return
      */
     @Insert("insert into user_account_flow (id,userID,accountID,amount,availableBalance,flowDate,flowType)values(SEQ_SYSTEMACCOUNTFLOW_ID.nextval,#{userid},#{accountid},#{amount},#{availableBalance},#{flowDate},8)")
-    int insertliushui2(@Param("userid") int userid,@Param("accountid") int accountid,@Param("amount") double amount,@Param("availableBalance") double availableBalance,@Param("flowDate") Date flowDate);
+    int insertliushui2(@Param("userid") int userid, @Param("accountid") int accountid, @Param("amount") double amount, @Param("availableBalance") double availableBalance, @Param("flowDate") Date flowDate);
 
     /**
      * 根据用户userid查询标user_account id
@@ -121,11 +124,12 @@ public interface Bid_two_auditDao {
     /**
      * 投资用户
      * 解除冻结金额变为投资扣款 = 冻结金额-投标金额
+     * a 冻结金额 b 代收本金 c 代收利息
      * @param
      * @return
      */
-    @Update("update user_account set freezingAmount=#{a} where userID=#{userid}")
-    int updatedongjie(@Param("a") double a,@Param("userid") int userid);
+    @Update("update user_account set freezingAmount=#{a},receivePrincipal=#{b},receiveInterest=#{c} where userID=#{userid}")
+    int updatedongjie(@Param("a") double a, @Param("b") double b, @Param("c") double c, @Param("userid") int userid);
 
     /**
      * 根据标id和用户id查询投资金额
@@ -138,7 +142,7 @@ public interface Bid_two_auditDao {
 
 
     /**
-     * 满标二审通过1
+     * 满标二审通过
      * @param map
      * @return
      */

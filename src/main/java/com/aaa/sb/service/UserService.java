@@ -42,4 +42,18 @@ public interface UserService {
      * @return
      */
     int checkPhone(String phone);
+
+    List<Map> getList(Map map);
+
+    int getcount(Map map);
+
+    List<Map> getAccountList(Map map);
+
+    int getRepayment(Map map);
+
+    int getCash(Map map);
+
+    int getRecharge(Map map);
+
+    Map getRepayInfo(Map map);
 }

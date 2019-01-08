@@ -14,5 +14,11 @@ public interface BorrowDao {
             "<if test=\"type==2\">'房贷'</if>" +
             "<if test=\"type==3\">'置办物品'</if>" +
             ",#{type},1)</script>")
-    List<Map> toBorrow(Map map);
+    int toBorrow(Map map);
+
+    @Select(value="select * from REALNAME_CERTIFICATION where AUDITRESULT='审核通过' and userid = #{userId}")
+    Map getRealList(Map map);
+
+    @Select(value="select * from VIDEO_AUDIT where AUDITRESULT='审核通过' and userid = #{userId}")
+    Map getVideoList(Map map);
 }

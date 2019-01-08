@@ -34,7 +34,7 @@
     </el-form>
     <el-table
             :data="tableData"
-            height="600px"
+            height="900px"
             style="width: 100%;"
             :default-sort = "{prop: 'date', order: 'descending'}">
         <el-table-column
@@ -108,7 +108,7 @@
                 if(row.percent==100){
                     alert("此标已满");
                 }else{
-                    location.href="/sb/user/toLendTo?ID="+row.ID;
+                    location.href="/sb/bid/getBidInfo?id="+row.ID;
                 }
             },
             handleCurrentChange(val){

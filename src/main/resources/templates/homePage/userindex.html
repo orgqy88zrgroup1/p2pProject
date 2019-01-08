@@ -15,6 +15,7 @@
         @import url("https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css");
 
         #app{
+
             width:1200px;
         }
         .el-header {
@@ -35,8 +36,8 @@
             background-color: #FFE3C7;
             color: #333;
             text-align: center;
-            height: 800px;
-            padding: 0px 0px 50px 0px;
+            height: 1200px;
+            padding:20px 10px 50px 10px;
         }
         .tip {
             display: table;
@@ -45,7 +46,8 @@
             color: black;
             margin: 0px 15px;
         }
-        iframe{
+        #main{
+            background-color: white;
             width: 100%;
             height: 100%;
             border: 0px black solid;
@@ -63,14 +65,14 @@
             <el-header>
 
                     <div width="600px">
-                        <a href="/sb/user/toIndex" target="main" class="tip"><div style="width: 35px">首页</div></a>
+                        <a href="/sb/user/Index" target="main" class="tip"><div style="width: 35px">首页</div></a>
                         <a href="/sb/user/toBorrow" target="main" class="tip"><div style="width: 70px">我要招标</div></a>
                         <a href="/sb/user/toLend" target="main" class="tip"><div style="width: 70px">我要投标</div></a>
                         <a href="/sb/user/toPersonalcenter" target="main" class="tip"><div style="width: 70px">个人中心</div></a>
                     </div>
 
             </el-header>
-            <el-main><iframe id="main" name="main" src="/sb/user/toIndex"></iframe></el-main>
+            <el-main><iframe id="main" name="main" src="/sb/user/Index"></iframe></el-main>
             <el-footer>Footer</el-footer>
         </el-container>
     </div>

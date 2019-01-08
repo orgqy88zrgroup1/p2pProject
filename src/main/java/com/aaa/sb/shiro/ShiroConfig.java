@@ -75,12 +75,19 @@ public class ShiroConfig {
         //不拦截该资源(放行)
         //filterMap.put("/user/test","anon");
         filterMap.put("/css/*", "anon");
+        filterMap.put("/cssL/*", "anon");
+        filterMap.put("/script/*", "anon");
+        filterMap.put("/layui/*", "anon");
         filterMap.put("/js/*", "anon");
         filterMap.put("/image/*", "anon");
         filterMap.put("/emp/login","anon");
         filterMap.put("/user/*","anon");
         filterMap.put("/news/*","anon");
         filterMap.put("/borrow/*","anon");
+        filterMap.put("/login/*","anon");
+        filterMap.put("/getCode/*","anon");
+        filterMap.put("/baseInfo/*","anon");
+        filterMap.put("/bid/*","anon");
 
 
         //授权过滤器(顺序，放在拦截页面下面不生效)

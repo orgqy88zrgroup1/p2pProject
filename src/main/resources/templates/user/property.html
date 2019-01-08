@@ -197,8 +197,7 @@
                 axios.post("/sb/user/toRepayInfo",userID).then(function(response){
                     var self = this;
                     if(response.data.BIDREPAYAMOUNT==""||response.data.BIDREPAYAMOUNT==null){
-                        alert(JSON.stringify(response))
-                        self.form.repaymentCount=0;
+
                     }else{
                         self.form.repaymentCount=response.data.BIDREPAYAMOUNT
                         response.data.ID=self.bidrepayid;

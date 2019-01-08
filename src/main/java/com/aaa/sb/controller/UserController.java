@@ -3,11 +3,15 @@ package com.aaa.sb.controller;
 import com.aaa.sb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +37,7 @@ public class UserController {
     public String toIndex(@RequestParam Map map, HttpSession session){
         System.out.println("map："+map);
         userService.setSession(map,session);
-        return "registe";
+        return "homePage/userindex";
     }
 
     /**
@@ -106,6 +110,124 @@ public class UserController {
             return 1;
         }
         return 0;
+    }
+
+    @ResponseBody
+    @RequestMapping("borrowList")
+    public Object toBorrowList(@RequestBody Map map){
+        Map mmp = new HashMap();
+        mmp.put("data",userService.getList(map));
+        mmp.put("total",userService.getcount(map));
+        System.out.println(userService.getList(map));
+        return mmp;
+    }
+
+    @RequestMapping("toPage")
+    public String toPage(){
+        return "homePage/userindex";
+    }
+
+    @RequestMapping("Index")
+    public String toIndex(){
+        return "user/index";
+    }
+
+    @RequestMapping("toBorrow")
+    public String toBorrow(){
+        return "user/borrow";
+    }
+
+    @RequestMapping("toLend")
+    public String toLend(){
+        return "user/lend";
+    }
+
+    @RequestMapping("toLendTo")
+    public String toLendTo(Model model,@RequestBody Map map){
+        System.out.println(map);
+        model.addAttribute("userlist",map);
+        model.addAttribute("total",userService.getcount(map));
+        return "user/lendto";
+    }
+
+    @RequestMapping("toPersonalcenter")
+    public String toPersonalcenter(){
+        return "user/personalcenter";
+    }
+
+    @RequestMapping("toProperty")
+    public String toProperty(){
+        return "user/property";
+    }
+
+    @ResponseBody
+    @RequestMapping("toAccountList")
+    public Object toPropertyList(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        System.out.println(userService.getAccountList(map));
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("toRepayInfo")
+    public Object toRepayInfo(@RequestBody Map map, HttpServletRequest request) {
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        System.out.println(userService.getRepayInfo(map));
+        return userService.getRepayInfo(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("torepayment")
+    public Object toRepayment(@RequestBody Map map, HttpServletRequest request) {
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        userService.getRepayment(map);
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("tocash")
+    public Object toCash(@RequestBody Map map, HttpServletRequest request) {
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        userService.getCash(map);
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("torecharge")
+    public Object toRecharge(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        userService.getRecharge(map);
+        return userService.getAccountList(map);
+    }
+
+    @RequestMapping("toInfo")
+    public String toInfo(){
+        return "user/info";
+    }
+
+    @RequestMapping("toUserInfo")
+    public String toPerson(){
+        return "userInfo/userInfo";
     }
 
 }

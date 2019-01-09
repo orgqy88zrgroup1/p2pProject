@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
@@ -198,6 +195,70 @@ public class BaseInfoController {
         System.out.println(i);
         //如果返回1 说明都审核通过 如果返回0 说明未审核 如果返回-1 说明审核失败 如果是-2说明还未提交
         return i;
+    }
+
+    /**
+     * 后台判断用户名是否重复
+     * @param name
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkUserName")
+    public int checkUserName(String name){
+        System.out.println("接收的username是："+name);
+        int i = baseInfoService.checkUserName(name);
+        if(i==1){
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 后台判断手机号是否重复
+     * @param phone
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkPhone")
+    public int checkPhone(String phone){
+        System.out.println("接收的电话号是："+phone);
+        int i = baseInfoService.checkPhone(phone);
+        if(i==1){
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 后台判断手机号是否重复
+     * @param bankcard
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkBankCard")
+    public int checkBankCard(String bankcard){
+        System.out.println("接收的银行卡是："+bankcard);
+        int i = baseInfoService.checkBankCard(bankcard);
+        if(i==1){
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 后台检查身份证号是否重复
+     * @param idcard
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkIDCard")
+    public int checkIDCard(String idcard){
+        System.out.println("前台接收的idcard是："+idcard);
+        int i = baseInfoService.checkIDCard(idcard);
+        if(i==1){
+            return 1;
+        }
+        return 0;
     }
 
 }

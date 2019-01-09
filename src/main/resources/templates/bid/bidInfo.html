@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>p2p网贷平台</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="../cssL/common.css">
+    <link rel="stylesheet" href="../cssL/index.css">
+    <link rel="stylesheet" href="../cssL/detail.css">
+    <script src="../script/jquery.min.js"></script>
+    <script src="../script/common.js"></script>
+    <script src="../script/ablumn.js"></script>
+    <script src="../script/plugins.js"></script>
+    <script src="../script/detail.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="//unpkg.com/vue/dist/vue.js"></script>
+    <script src="//unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+    <style>
+        @import url("https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css");
+    </style>
+</head>
+<body>
+<div id="app">
+<!--信息详细-->
+<div class="item-detail wrap">
+    <div class="breadcrumbs"> <a href="index.html">首页</a>&gt; <a href="/sb/bid/toBidList">投资列表</a>&gt; <span class="cur">项目详情</span> </div>
+    <div class="item-detail-head clearfix" data-target="sideMenu">
+        <div class="hd"> <i class="icon icon-che" title="车易贷"></i>
+           <!-- <h2>赵女士长安福特福克斯汽车质押贷款4万元</h2>-->
+            <h2>[[${bidInfo.names}]][[${bidInfo.BIDDESC}]]</h2>
+        </div>
+        <div class="bd clearfix">
+            <div class="data">
+                <ul>
+                    <li> <span class="f16">借款金额</span><br>
+                        <span class="f30 c-333" id="account">[[${bidInfo.BIDAMOUNT}]]</span>元 </li>
+                    <li class="relative"><span class="f16">年利率</span><br>
+                        <span class="f30 c-orange">[[${bidInfo.BIDRATE}]] </span> </li>
+                    <li><span class="f16">借款期限</span><br>
+                        <span class="f30 c-333">[[${bidInfo.BIDDEADLINE}]]</span>个月 </li>
+                    <li> <span class="c-888">投资范围：</span> <span id="account_range"> 50元~不限 </span> </li>
+                    <li><span class="c-888">发标日期：</span>[[${bidInfo.BIDISSUEDATE}]]</li>
+                    <li><span class="c-888">保障方式：</span>100%本息垫付</li>
+                    <li><span class="c-888">还款方式：</span>[[${bidInfo.BIDREPAYMENTMETHOD}]]</li>
+                    <!--<li><span class="c-888">需还本息：</span> [[${bidInfo.BIDAMOUNT}*(1+${bidInfo.BIDRATE})]]元 </li>-->
+                    <li><span class="c-888">借款用途：</span>[[${bidInfo.BIDDESC}]]</li>
+                    <li class="colspan">
+                        <!--<div class="progress-bar fl"> <span style="width:100%"></span> </div>
+                        <span class="c-green">100%</span> </li>-->
+                        <div>投标进度:&nbsp;&nbsp;&nbsp;&nbsp;</div><br/>
+                        <div>
+                            <!--<el-progress :text-inside="true" :stroke-width="18" :percentage="70"></el-progress>-->
+                            <el-progress :text-inside="true" :stroke-width="18" :percentage="percent" status="success"></el-progress>
+                        </div>
+
+                </ul>
+            </div>
+            <div class="mod-right mod-status">
+                <div class="inner">
+                    <div class="text"> 目前投资总额：<span class="f24 c-333"></span>{{this.currTotalMoney}}元<br>
+                        剩余投资金额：<span class="f24 c-333"></span>{{this.currNeedMoney}}元<br>
+                    <i class="icon icon-status icon-status1"></i><br>
+                    <!--<a class="ui-btn btn-gray" onclick="">我要投资</a>-->
+                    <el-button @click="dialogVisible = true" type="primary" plain style="align-content: center">我要投资</el-button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <el-dialog title="投资信息" :visible.sync="dialogVisible"  >
+        <template>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请选择投标金额：<el-input-number v-model="num" :min="50" :max="currNeedMoney" readonly @change="checkMoney"></el-input-number><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="errorInfo" style="color:#ff7800"></span><br><br>
+            <el-form :model="ruleForm" status-icon ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="请输入密码" prop="pass">
+                    <el-input type="password" v-model="ruleForm.pass" autocomplete="off" @blur="checkPwd"></el-input>
+                    <br><span id="errorPwd" style="color:#ff7800"></span>
+                </el-form-item>
+            </el-form>
+        </template>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="saveInfo()" id="saveInfo">提 交</el-button>
+        </span>
+    </el-dialog>
+    <div class="item-detail-body clearfix mrt30 ui-tab">
+        <div class="ui-tab-nav hd"> <i class="icon-cur" style="left: 39px;"></i>
+            <ul>
+                <li class="nav_li active" id="nav_1"><a href="javascript:;">借款信息</a></li>
+                <li class="nav_li" id="nav_2"><a href="javascript:;">投资记录</a> <i class="icon icon-num1" style="margin-left: -15px;"> <span id="tender_times">23</span> <em></em> </i> </li>
+                <li class="nav_li" id="nav_3"><a href="javascript:;">还款列表</a></li>
+            </ul>
+        </div>
+        <div class="bd">
+            <div class="ui-tab-item active" style="display: block;">
+                <div class="borrow-info">
+                    <dl class="item">
+                        <dt>
+                            <h3>借款人介绍</h3>
+                        </dt>
+                        <dd>
+                            <div class="text">
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> 借款人信息介绍：</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> 借款人[[${bidInfo.names}]]，[[${realInfo.ACADEMIC}]]学历，未婚，家庭住址为[[${realInfo.ADDRESS}]]。</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> 借款人工作情况：</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> [[${bidInfo.names}]]月收入[[${realInfo.INCOME}]]，现居住[[${realInfo.HOUSED}]]，收入居住稳定。</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> 借款人资产介绍：</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> [[${bidInfo.names}]]拥有[[${realInfo.HOUSED}]]。</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> 详细资金用途：</p>
+                                <p class="MsoNormal" style="margin-left:0cm;text-indent:0cm;"> [[${bidInfo.names}]]申请，贷款用于[[${bidInfo.BIDDESC}]]。</p>
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl class="item">
+                        <dt>
+                            <h3>审核信息</h3>
+                        </dt>
+                        <dd>
+                            <div class="verify clearfix">
+                                <ul>
+                                    <li><i class="icon icon-4"></i><br>
+                                        身份证</li>
+                                    <li><i class="icon icon-5"></i><br>
+                                        户口本</li>
+                                    <li><i class="icon icon-6"></i><br>
+                                        结婚证</li>
+                                    <li><i class="icon icon-7"></i><br>
+                                        工作证明</li>
+                                    <li><i class="icon icon-8"></i><br>
+                                        工资卡流水</li>
+                                    <li><i class="icon icon-9"></i><br>
+                                        收入证明</li>
+                                    <li><i class="icon icon-10"></i><br>
+                                        征信报告</li>
+                                    <li><i class="icon icon-11"></i><br>
+                                        亲属调查</li>
+                                    <li><i class="icon icon-19"></i><br>
+                                        行驶证</li>
+                                    <li><i class="icon icon-20"></i><br>
+                                        车辆登记证</li>
+                                    <li><i class="icon icon-21"></i><br>
+                                        车辆登记发票</li>
+                                    <li><i class="icon icon-22"></i><br>
+                                        车辆交强险</li>
+                                    <li><i class="icon icon-23"></i><br>
+                                        车辆商业保险</li>
+                                    <li><i class="icon icon-24"></i><br>
+                                        车辆评估认证</li>
+                                </ul>
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl class="item">
+                        <dt>
+                            <h3>评估结果</h3>
+                        </dt>
+                        <dd>
+                            <div class="conclusion f16"> 结论：经风控部综合评估， <span class="c-orange">同意放款[[${bidInfo.BIDAMOUNT}]]元；</span> <i class="icon icon-status icon-status1"></i> </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="ui-tab-item" style="display: none;">
+                <div class="repayment-list"> 目前投标总额：<span class="c-orange">{{this.currTotalMoney}}元</span>&nbsp;&nbsp;
+                    剩余投标金额：<span class="c-orange">{{this.currNeedMoney}}元</span>
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tbody>
+                        <tr>
+                            <th>投标人</th>
+                            <th>投标金额</th>
+                            <th>投标时间</th>
+                            <th>支付方式</th>
+                        </tr>
+                        </tbody>
+                        <tbody id="repayment_content">
+                        <tr th:each="item:${investItem}">
+                            <td th:text="${item.USERNAME}"></td>
+                            <td th:text="${item.BIDAMOUNT}"></td>
+                            <td th:text="${item.BIDDATE}"></td>
+                            <td>自动</td>
+                        </tr>
+                        </tbody>
+                        <!--<tfoot>
+                        <tr class="page-outer">
+                            <td colspan="4" align="center"><div class="pagination clearfix"><span class="page" id="repayment_content_pager"><a class="disabled"> 上一页 </a><a class="curr">1</a><a href="javascript:void(0)">2</a><a href="javascript:void(0)" next="2">下一页</a><em>共2页</em>
+                    <dl class="page-select">
+                      <dt><span>1</span><i class="icon icon-down"></i></dt>
+                      <dd style="display: none;"><a href="javascript:;" total="23" spaninterval="2" content="repayment_content">1</a><a href="javascript:;" total="23" spaninterval="2" content="repayment_content">2</a></dd>
+                    </dl>
+                    </span></div></td>
+                        </tr>
+                        </tfoot>-->
+                    </table>
+                </div>
+            </div>
+            <div class="ui-tab-item" style="display: none;">
+                <div class="repayment-list"> 已还本息：<span class="c-orange">0.00元</span>&nbsp;&nbsp;
+                    待还本息：<span class="c-orange">40,400.00元</span>&nbsp;&nbsp;(待还本息因算法不同可能会存误差，实际金额以到账金额为准！)
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tbody>
+                        <tr>
+                            <th>合约还款日期</th>
+                            <th>还款总期数</th>
+                            <th>下一个还款日期</th>
+                            <th>下一次还款金额</th>
+                            <th>应还本息</th>
+                            <th>还款方式</th>
+                        </tr>
+                        <tr th:each="item:${repayListMap}">
+                            <td th:text="${item.LASTDATE}"></td>
+                            <td th:text="${item.BIDREPAYTOTPMTS}"></td>
+                            <td th:text="${item.BIDNEXTREPAYDATE}"></td>
+                            <td th:text="${item.BIDNEXTREAPYAMOUNT}"></td>
+                            <td th:text="${item.BIDREPAYAMOUNT}"></td>
+                            <!--<td th:if="${item.BIDREPAYMETHOD}==2" th:text="一次还清"></td>-->
+                            <td th:switch="${item.BIDREPAYMETHOD}">
+                                <p th:case="1">定期还款</p>
+                                <p th:case="2">一次还清</p>
+                                <p th:case="3">定期还息，到期还本</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<script>
+   var app = new Vue({
+        el: "#app",
+        data: {
+            percent:0,//招标进度
+            visible: false,
+            dialogVisible: false, //是否能看到该表单
+            readonly: true,
+            num: 1,
+            currTotalMoney:0.00, //该标当前已投金额
+            currNeedMoney:0.00, //该标当前剩余投标金额
+            ruleForm: {
+                pass:''
+            }
+        },
+       methods: {
+            //检验当前投资的钱数是否小于账户总额
+           checkMoney:function () {
+               var self = this;
+               //alert("进入校验钱数事件");
+               var bidmsg = {
+                   'money':self.num
+               };
+               axios.post('/sb/bid/checkMoney', bidmsg).then(function(response){
+                  // alert("回调的值为："+response.data);
+                   if(response.data!=1){
+                     //  alert("账户余额不足，请充值");
+                       $("#errorInfo").html("账户余额不足，请充值");
+                       $("#saveInfo").attr("disabled", true);
+                   }else {
+                      // alert("金额正确");
+                       $("#errorInfo").html("");
+                       $("#saveInfo").attr("disabled", false);
+                   }
+               })
+           },
+           //检验密码是否正确
+           checkPwd:function () {
+               var self = this;
+              // alert("进入失焦事件");
+              // alert(self.ruleForm.pass);
+               var bidmsg = {
+                  'pass':self.ruleForm.pass
+               };
+               axios.post('/sb/bid/checkPayPwd', bidmsg).then(function(response){
+                  // alert("回调的值为："+response.data);
+                   if(response.data!=1){
+                     //  alert("密码错误");
+                       $("#errorPwd").html("支付密码错误");
+                       $("#saveInfo").attr("disabled", true);
+                   }else {
+                     //  alert("密码正确");
+                       $("#errorPwd").html("");
+                       $("#saveInfo").attr("disabled", false);
+                   }
+               })
+           },
+           saveInfo:function () {
+               var self=this;
+              // alert(self.num);
+              // alert([[${bidInfo.ID}]]);
+               var bidmsg = {
+                   'bidNum': self.num ,
+                   'bidid': [[${bidInfo.ID}]],
+                   //年利率
+                   'repayRate':[[${bidInfo.BIDRATE}]] ,
+                   //还款期数
+                   'repayDate':[[${bidInfo.BIDDEADLINE}]]
+               };
+               axios.post('/sb/bid/invest', bidmsg).then(function(response) {
+                 //  alert(response.data);
+                   if(response.data==1){
+                       $("#errorInfo").html("");
+                       self.dialogVisible = false;
+                      // alert(self.dialogVisible);
+                       return location.href=location.href;
+               /*    }else if(response.data==2){
+                       alert("余额不足");
+                       $("#errorInfo").html("您的账户余额不足，请充值");
+                       self.dialogVisible = true;*/
+                   }else{
+                       self.dialogVisible = true;
+                   }
+               });
+           }
+       },
+       created: function() {
+           var self=this;
+          // alert([[${bidInfo.ID}]]);
+           var bidmsg = {
+               'bidid': [[${bidInfo.ID}]]
+           };
+           axios.post('/sb/bid/currTotalMoney', bidmsg).then(function(response) {
+             //  alert(response.data);
+               if(response.data!=-1){
+                   //获得当前该标的投资金额
+                   self.currTotalMoney=response.data;
+                  // alert(self.currTotalMoney);
+                 //  alert([[${bidInfo.BIDAMOUNT}]]);
+                   //获得当前标还需投的金额
+                   self.currNeedMoney=[[${bidInfo.BIDAMOUNT}]]-self.currTotalMoney;
+                  // alert(self.currNeedMoney);
+                   //alert(self.percent);
+                   self.percent=(self.currTotalMoney*100/([[${bidInfo.BIDAMOUNT}]])).toFixed(2);
+                  // alert(self.percent);
+               }
+           });
+       }
+    })
+</script>
+
+</body>
+</html>

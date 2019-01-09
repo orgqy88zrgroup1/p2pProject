@@ -34,7 +34,7 @@
     </el-form>
     <el-table
             :data="tableData"
-            height="600px"
+            height="900px"
             style="width: 100%;"
             :default-sort = "{prop: 'date', order: 'descending'}">
         <el-table-column
@@ -50,9 +50,16 @@
                 width="180">
         </el-table-column>
         <el-table-column
-                prop="BIDSTATE"
-                label="招标状态"
-                :formatter="formatter">
+                prop="BIDAMOUNT"
+                label="招标数量"
+                sortable
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="BIDCURRENTAMOUNT"
+                label="招标数量"
+                sortable
+                width="180">
         </el-table-column>
         <el-table-column
                 label="进度">
@@ -87,7 +94,6 @@
                 BIDDEADLINE:''
             }],
             tableData: [{
-                percent:0
             }],
             currentPage: 1,
             loading:false,
@@ -99,8 +105,11 @@
                 return row.BIDSTATE;
             },
             handleEdit(row){
-                alert(JSON.stringify(row));
-                location.href="/sb/user/toLendTo?row="+row;
+                if(row.percent==100){
+                    alert("此标已满");
+                }else{
+                    location.href="/sb/bid/getBidInfo?id="+row.ID;
+                }
             },
             handleCurrentChange(val){
                 this.currentPage = val;
@@ -152,9 +161,6 @@
             function(){
                 var self = this;
                 self.loadingData();
-                for(var obj in self.tableData){
-                    self.tableData[obj].percent=self.tableData[obj].BIDCURRENTAMOUNT/self.tableData[obj].BIDAMOUNT*100;
-                }
             }
 
     })

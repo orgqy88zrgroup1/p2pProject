@@ -1,7 +1,7 @@
 package com.aaa.sb.service;
-
-import java.util.Map;
+import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 /**
  * className:UserService
@@ -30,7 +30,30 @@ public interface UserService {
      */
     int  checkPwd(String userName,String password);
 
+    /**
+     * 放入session
+     * @param map
+     */
+    void setSession(Map map, HttpSession httpSession);
+
+    /**
+     * 查看电话号码是否重复
+     * @param phone
+     * @return
+     */
+    int checkPhone(String phone);
+
     List<Map> getList(Map map);
 
     int getcount(Map map);
+
+    List<Map> getAccountList(Map map);
+
+    int getRepayment(Map map);
+
+    int getCash(Map map);
+
+    int getRecharge(Map map);
+
+    Map getRepayInfo(Map map);
 }

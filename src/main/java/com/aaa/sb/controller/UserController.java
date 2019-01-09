@@ -1,45 +1,127 @@
 package com.aaa.sb.controller;
 
 import com.aaa.sb.service.UserService;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 
 /**
  * className:UserController
  * discription:
- * author:wzb
- * createTime:2018-11-30 16:17
+ * author:gwd
+ * createTime:2018-12-10 20:39
  */
 @Controller
-@RequestMapping("user")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
-    @RequestMapping("toAdd")
-    public String toAdd(){
-        System.out.println("hello..........");
-        return "user/add";
+    /**
+     * 跳转首页2
+     * @param map
+     * @return
+     */
+    @RequestMapping("/toIndex")
+    public String toIndex(@RequestParam Map map, HttpSession session){
+        System.out.println("map："+map);
+        userService.setSession(map,session);
+        return "homePage/userindex1";
     }
 
-    @RequestMapping("toUpd")
-    public String toUpd(){
-        System.out.println("hello..........");
-        return "user/update";
+    /**
+     * 跳转首页1
+     * @param map
+     * @return
+     */
+    @RequestMapping("/toIndex1")
+    public String toIndex1(@RequestParam Map map, HttpSession session){
+        System.out.println("map："+map);
+        userService.setSession(map,session);
+        return "homePage/userindex";
+    }
+
+    /**
+     * 判断用户名是否重复
+     * @param userName
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkUser")
+    public int checkUser(String userName){
+        System.out.println(userName);
+        List<Map> userList = userService.getUserList();
+        if(userList!=null&&userList.size()>0&&userName!=null&&userName!=""&&userName.length()>0) {
+            for (Map map : userList) {
+                //从数据库里取值 大写
+                if ((map.get("USERNAME") + "").equals(userName)) {
+                    //用户名已存在
+                    return 0;
+                }
+            }
+        }
+        return 1;
+    }
+
+    /**
+     * 判断密码是否正确
+     * @param userName
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkPwd")
+    public int checkPwd(String userName,String password){
+        //System.out.println(userName);
+        int i = userService.checkPwd(userName,password);
+        if(i==1){
+            // 说明密码正确
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 用户注册时添加用户信息
+     * @param map
+     * @return
+     */
+    @RequestMapping("/add")
+    public String  userAdd(@RequestParam Map map){
+        System.out.println(map);
+        int i = userService.addUser(map);
+        if(i>0){
+            return "redirect:/login/login";
+        }
+        return null;
+    }
+
+    /**
+     * 检查电话号是否重复
+     * @param phone
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkPhone")
+    public int checkPhone(String phone){
+        System.out.println("前台接收的电话号是："+phone);
+        //如果电话号存在就返回0 否则就返回1
+        int i = userService.checkPhone(phone);
+        if (i==1){
+            //说明不重复
+            return 1;
+        }
+        return 0;
     }
 
     @ResponseBody
@@ -57,19 +139,27 @@ public class UserController {
         return "homePage/userindex";
     }
 
-    @RequestMapping("toIndex")
+    @RequestMapping("Index")
     public String toIndex(){
         return "user/index";
     }
 
     @RequestMapping("toBorrow")
-    public String toBorrow(){
-        return "user/borrow";
+    public String toBorrow(HttpServletRequest request){
+        if(request.getSession().getAttribute("userInfo")==null){
+            return "redirect:/login/login";
+        }else{
+            return "user/borrow";
+        }
     }
 
     @RequestMapping("toLend")
-    public String toLend(){
-        return "user/lend";
+    public String toLend(HttpServletRequest request){
+        if(request.getSession().getAttribute("userInfo")==null){
+            return "redirect:/login/login";
+        }else{
+            return "user/lend";
+        }
     }
 
     @RequestMapping("toLendTo")
@@ -80,14 +170,78 @@ public class UserController {
         return "user/lendto";
     }
 
-    @RequestMapping("toPersonalcenter")
-    public String toPersonalcenter(){
-        return "user/personalcenter";
-    }
-
     @RequestMapping("toProperty")
     public String toProperty(){
         return "user/property";
+    }
+
+    @RequestMapping("toPersonalcenter")
+    public String toPersonalcenter(HttpServletRequest request) {
+        if(request.getSession().getAttribute("userInfo")==null){
+            return "redirect:/login/login";
+        }else {
+            return "user/personalcenter";
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("toAccountList")
+    public Object toPropertyList(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        System.out.println(userService.getAccountList(map));
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("toRepayInfo")
+    public Object toRepayInfo(@RequestBody Map map, HttpServletRequest request) {
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        System.out.println(userService.getRepayInfo(map));
+        return userService.getRepayInfo(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("torepayment")
+    public Object toRepayment(@RequestBody Map map, HttpServletRequest request) {
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        userService.getRepayment(map);
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("tocash")
+    public Object toCash(@RequestBody Map map, HttpServletRequest request) {
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        userService.getCash(map);
+        return userService.getAccountList(map);
+    }
+
+    @ResponseBody
+    @RequestMapping("torecharge")
+    public Object toRecharge(@RequestBody Map map, HttpServletRequest request){
+        HttpSession user=request.getSession();
+        Map map1 = (Map) user.getAttribute("userInfo");
+        Integer userID = Integer.valueOf(map1.get("ID")+"");
+        map.put("userID",userID);
+        System.out.println(map);
+        userService.getRecharge(map);
+        return userService.getAccountList(map);
     }
 
     @RequestMapping("toInfo")
@@ -95,67 +249,9 @@ public class UserController {
         return "user/info";
     }
 
-    @RequestMapping("toPerson")
+    @RequestMapping("toUserInfo")
     public String toPerson(){
-        return "user/person";
+        return "userInfo/userInfo";
     }
-
-    @RequestMapping("toLogin")
-    public String toLogin(){
-        return "user/login";
-    }
-
-    /*@RequestMapping("test")
-    public String test(Model model){
-        model.addAttribute("name","厉害了！");
-
-        return "user/test";
-    }*/
-
-    @RequestMapping("login")
-    public String login(String username, String password, Model model){
-
-        /**
-         * 使用shiro编写认证操作
-         */
-        System.out.println(username+"...1111..."+password);
-        //1 获取Subject
-        Subject subject = SecurityUtils.getSubject();
-        //2 封装用户数据
-        UsernamePasswordToken token = new UsernamePasswordToken(username,password);
-        //3 执行登录方法
-        try {
-            //执行过程中把token传递给shiro，然后shiro执行登录操作,根据有无异常判断登录成功还是失败
-            subject.login(token);
-            model.addAttribute("name",username);
-            model.addAttribute("msg","登录成功！");
-            return "user/test";
-
-        } catch (UnknownAccountException e) {
-            //e.printStackTrace();
-            //登录失败
-            //返回 UnknownAccountException 此异常，用户名不存在
-            model.addAttribute("msg","用户名不存在！");
-
-            return "user/login";
-        } catch (IncorrectCredentialsException e){
-            //e.printStackTrace();
-            //登录失败
-            //返回 IncorrectCredentialsException 此异常，密码错误
-            model.addAttribute("msg","密码错误！");
-
-            return "user/login";
-        }
-
-
-    }
-
-    @RequestMapping("unAuthorization")
-    public String unAuthorization(){
-
-
-        return "user/unAut";
-    }
-
 
 }

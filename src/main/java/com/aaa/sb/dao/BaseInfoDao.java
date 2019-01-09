@@ -147,6 +147,35 @@ public interface BaseInfoDao {
     @Delete(value = "delete from video_audit where userid=#{userId}")
     int delVideo(int userId);
 
+    /**
+     * 查找用户名是否相同
+     * @param userName
+     * @return
+     */
+    @Select(value = "select id,userName,password,telephone from user_login_info where username=#{userName}")
+    List<Map> checkUsername(String userName);
 
+    /**
+     * 查找手机号是否相同
+     * @param phone
+     * @return
+     */
+    @Select(value = "select id,userName,password,telephone from user_login_info where telephone=#{phone}")
+    List<Map> checkPhone(String phone);
 
+    /**
+     * 查看银行卡号是否被绑定
+     * @param bankcard
+     * @return
+     */
+    @Select(value = "select * from user_info where bankcard=#{bankcard}")
+    List<Map> checkBankCard(String bankcard);
+
+    /**
+     * 查看身份证号是否重复
+     * @param idcard
+     * @return
+     */
+    @Select(value = "select realname from REALNAME_CERTIFICATION where idnumber=#{idcard}")
+    List<Map> checkIDCard(String idcard);
 }

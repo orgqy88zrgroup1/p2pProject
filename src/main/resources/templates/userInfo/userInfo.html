@@ -19,10 +19,13 @@
         .el-aside {
             color: #333;
         }
-    </style>
+        #bodyId {
+            background-image：url(image/5.jpg);
+        }
+       </style>
 
 </head>
-<body>
+<body id = "bodyId">
 <div id="app" style="margin-top:30px;">
     <el-steps :active="active" finish-status="success">
         <el-step title="基本信息认证"></el-step>
@@ -42,8 +45,9 @@
         </el-table>
     </template>
 </div>
-    <div id="form11" v-if='active===0&&this.state===1' style="width:100px;margin-top:30px;">
-        <div style="float: left;margin-left: 100px">
+    <div id="form11" v-if='active===0&&this.state===1' style="margin-top:30px">
+        <div style="overflow:auto">
+        <div style="float: left">
             <span style="color:#ff9143;font-weight: 300;font-family: Algerian">欢迎您：</span><br><br>
                 &nbsp;&nbsp;&nbsp;<span style="color: #3391ff;font-weight: 500;font-family: Algerian" id="welcome">{{userInfo.USERNAME}}</span><br><br>
             <span style="color: #ff9143;font-weight: 300;font-family: Algerian">您的头像：</span><br><br>
@@ -54,7 +58,7 @@
                 <span id="pointShow3" style="color: #3391ff;font-weight: 500;font-family: Algerian"></span>
             </div>
         </div>
-        <div style="float: left;margin-left: 100px">
+        <div style="float: left">
             <template>
                 <el-table :data="tableData1" style="width: 100% " align="center" >
                     <el-table-column prop="user" label="用户信息1" width="400" align="center">
@@ -63,8 +67,8 @@
                     </el-table-column>
                 </el-table>
             </template>
-        </div><br>
-
+        </div>
+        </div>
     </div>
     <!-- 1111111111111111111111111 -->
     <div id="form2" v-if='active===1' style="margin-top:30px;">
@@ -532,6 +536,10 @@
                     }
                 } else {
                     //alert(this.active);
+                    //三秒后跳转到用户首页
+                    setTimeout(function() {
+                        location.href=location.href;
+                    }, 3000);
                     $("#btn1").attr("disabled", true);
                     $("#btn2").attr("disabled", true);
                 }

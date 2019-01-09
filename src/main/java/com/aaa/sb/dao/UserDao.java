@@ -106,7 +106,7 @@ public interface UserDao {
     @Update(value="update user_account set availableBalance = #{availableBalance} where userId=#{userID}")
     int getRepayment(Map map);
 
-    @Select(value="select id,bidNextRepayAmount from bid_repay_info where bidRepayUserID=#{userID} and bidRepayState=1 and bidRepayDate<sysdate and bidRepayDeadDate>sysdate")
+    @Select(value="select id,bidNextReapyaAmount from bid_repay_info where bidRepayUserID=#{userID} and bidRepayState=1 and bidRepayDate<sysdate and bidRepayDeadDate>sysdate")
     Map getRepayInfo(Map map);
 
     @Update(value="update bid_repay_info set bidRepayState=2 where bidRepayUserID=#{userID} and bidRepayDate<sysdate and bidRepayDeadDate>sysdate")

@@ -29,12 +29,24 @@ public class UserController {
     private UserService userService;
 
     /**
-     * 跳转首页
+     * 跳转首页2
      * @param map
      * @return
      */
     @RequestMapping("/toIndex")
     public String toIndex(@RequestParam Map map, HttpSession session){
+        System.out.println("map："+map);
+        userService.setSession(map,session);
+        return "homePage/userindex1";
+    }
+
+    /**
+     * 跳转首页1
+     * @param map
+     * @return
+     */
+    @RequestMapping("/toIndex1")
+    public String toIndex1(@RequestParam Map map, HttpSession session){
         System.out.println("map："+map);
         userService.setSession(map,session);
         return "homePage/userindex";
@@ -133,13 +145,21 @@ public class UserController {
     }
 
     @RequestMapping("toBorrow")
-    public String toBorrow(){
-        return "user/borrow";
+    public String toBorrow(HttpServletRequest request){
+        if(request.getSession().getAttribute("userInfo")==null){
+            return "redirect:/login/login";
+        }else{
+            return "user/borrow";
+        }
     }
 
     @RequestMapping("toLend")
-    public String toLend(){
-        return "user/lend";
+    public String toLend(HttpServletRequest request){
+        if(request.getSession().getAttribute("userInfo")==null){
+            return "redirect:/login/login";
+        }else{
+            return "user/lend";
+        }
     }
 
     @RequestMapping("toLendTo")
@@ -150,14 +170,18 @@ public class UserController {
         return "user/lendto";
     }
 
-    @RequestMapping("toPersonalcenter")
-    public String toPersonalcenter(){
-        return "user/personalcenter";
-    }
-
     @RequestMapping("toProperty")
     public String toProperty(){
         return "user/property";
+    }
+
+    @RequestMapping("toPersonalcenter")
+    public String toPersonalcenter(HttpServletRequest request) {
+        if(request.getSession().getAttribute("userInfo")==null){
+            return "redirect:/login/login";
+        }else {
+            return "user/personalcenter";
+        }
     }
 
     @ResponseBody

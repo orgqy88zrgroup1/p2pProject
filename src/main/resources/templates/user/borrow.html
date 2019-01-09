@@ -159,7 +159,6 @@
         created:function(){
             var self=this;
             axios.post('/sb/borrow/toGetCheck').then(function(response){
-                alert(response.data.check)
                 if(response.data.check!=null){
                     self.check=response.data.check;
                 }

@@ -11,6 +11,7 @@ import java.util.List;
 public class TreeNode {
 
     private int id;
+
     private String label;
     private int parentId;
     private String state;
@@ -41,6 +42,7 @@ public class TreeNode {
         this.url = url;
         this.checked = checked;
     }
+
 
     public String getIcon() {
         return icon;

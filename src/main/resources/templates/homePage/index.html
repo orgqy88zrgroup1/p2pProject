@@ -26,6 +26,7 @@
 
 
 
+
     </style>
 </head>
 <body height="1500px">
@@ -42,13 +43,13 @@
             active-text-color="#ffd04b"
     >
         <!-- _blank -- 在新窗口中打开链接 _parent -- 在父窗体中打开链接 _self -- 在当前窗体打开链接,此为默认值 _top -- 在当前窗体打开链接，并替换当前的整个窗体(框架页)  -->
-        <el-menu-item index="1" >首页</el-menu-item>
+        <el-menu-item index="1" ><span style="font-size: 18px;">P2P网贷后台管理系统</span></el-menu-item>
         <!--<a th:text="${message} " style="text-decoration: none;" target="_blank" v-for='(ud,index) in userData'></a>-->
 
         <el-submenu index="2">
-            <template slot="title">员工中心</template>
-            <el-menu-item index="2-1">修改姓名</el-menu-item>
-            <el-menu-item index="2-2">修改密码</el-menu-item>
+            <template slot="title"><span style="font-size: 18px;">员工中心</span></template>
+            <el-menu-item index="2-1"><span style="font-size: 18px;">修改密码</span></el-menu-item>
+            <el-menu-item index="2-2"><span style="font-size: 18px;">退出</span></el-menu-item>
             <!-- <el-submenu index="2-4">
                 <template slot="title">选项4</template>
                 <el-menu-item index="2-4-1">选项1</el-menu-item>
@@ -58,7 +59,7 @@
         </el-submenu>
 
         <!-- <el-menu-item index="3" disabled>消息中心</el-menu-item> -->
-        <el-menu-item index="4"><span style="color: rosybrown" th:text="${username}"></span></el-menu-item>
+        <el-menu-item index="4"><span style="font-size: 18px;color: #ffd04b" th:text="${username}"></span></el-menu-item>
     </el-menu>
 
 
@@ -128,6 +129,7 @@
                 </iframe>-->
             <!--</div>-->
 
+  </el-container>
 </div>
 
 <script>
@@ -157,10 +159,10 @@
                     console.log("你点击了首页");
                     location.href = "/sb/emp/toIndex";
                 }
-                if (key === '2-1') {
-                    //alert('你点击了 我的工作台 | 选项一') // 实际修改为跳转到 选项一
-                    console.log("2-1");
+                if (key === '2-2') {
+                    location.href = "/sb/emp/toLogin";
                 }
+
             }
 
         }
@@ -241,8 +243,6 @@
 
                 ]);
             },
-
-
 
             removeTab:function(targetName) {
                 let tabs = this.editableTabs2;

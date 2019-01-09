@@ -90,11 +90,10 @@ public class UserRealm extends AuthorizingRealm {
         }
 
         //1 principal 需要返回login方法的数据 2 数据库的密码，shiro自行判断 3 shiro名字
-        System.out.println(11111111);
-        System.out.println(userName);
-        System.out.println(userList.get(0).get("PASSWORD"));
+        //System.out.println(11111111);
+        //System.out.println(userName);
+        //System.out.println(userList.get(0).get("PASSWORD"));
         return new SimpleAuthenticationInfo("",userList.get(0).get("PASSWORD"),"");
-
 
 
     }

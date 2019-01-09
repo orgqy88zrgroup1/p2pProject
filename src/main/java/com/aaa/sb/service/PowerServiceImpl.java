@@ -24,6 +24,10 @@ public class PowerServiceImpl implements PowerService {
     @Autowired
     private HttpSession session;
 
+    /**
+     * 得到List<TreeNode>集合
+     * @return
+     */
     @Override
     public List<TreeNode> getPowerTree() {
         //根据不同的用户名，查到角色id，在查询到该角色所对应的权限
@@ -46,6 +50,10 @@ public class PowerServiceImpl implements PowerService {
         return powerList;
     }
 
+    /**
+     * 添加子节点
+     * @return
+     */
     @Override
     public List<TreeNode> getPowerEndTree() {
         //得到不同用户所能看到的所有节点
@@ -89,6 +97,71 @@ public class PowerServiceImpl implements PowerService {
         }
     }
 
+    /**
+     * 得到所有树节点
+     * @return
+     */
+    @Override
+    public List<TreeNode> getAllTree() {
+        //去除IDEA报黄色/灰色的重复代码的下划波浪线
+        //setting 里面 搜索 inspections -->General -->Duplicated Code 取消勾选.提交之后就可以了.
+        //得到不同用户所能看到的所有节点
+        List<TreeNode> powerAllList = powerDao.getAllTree();
 
+        //临时的powerList
+        List<TreeNode> powerTempList = new ArrayList<TreeNode>();
+        //判断是否为空
+        if(powerAllList!=null&&powerAllList.size()>0){
+            for(TreeNode ptreeNode:powerAllList){
+                if(ptreeNode.getParentId()==0){//如果等于0,说明是一级节点，将所有的父节点先加入到树里
+                    powerTempList.add(ptreeNode);
+                    //在递归绑定子节点，慢慢将树都加入
+                    bindChirldren(ptreeNode,powerAllList);
+                }
+            }
+        }
+
+
+            return powerTempList;
+    }
+
+    /**
+     * 添加
+     * @param map
+     * @return
+     */
+    @Override
+    public int add(Map map) {
+        return powerDao.add(map);
+    }
+
+    /**
+     * 更新
+     * @param map
+     * @return
+     */
+    @Override
+    public int upd(Map map) {
+        return powerDao.upd(map);
+    }
+
+    /**
+     * 删除
+     * @param id
+     * @return
+     */
+    @Override
+    public int del(Integer id) {
+        return powerDao.del(id);
+    }
+
+    /**
+     * 根据id获取对应树节点
+     * @return
+     */
+    @Override
+    public List<Map> getTreeById(Integer id) {
+        return powerDao.getTreeById(id);
+    }
 
 }

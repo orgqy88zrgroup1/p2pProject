@@ -48,6 +48,21 @@ public interface EmpDao {
     List<Map> selByUserId(int id);
 
     /**
+     * 根据部门编号查询员工信息
+     * @param deptno
+     * @return
+     */
+    @Select(value = "select * from tb_emp where deptno = #{deptno}")
+    List<Map> selByDeptNo(int deptno);
+
+    /**
+     * 查询所有用户名
+     * @return
+     */
+    @Select("select username from tb_emp")
+    List<Map> selUsernameOfList();
+
+    /**
      * 员工带参分页查询
      * @param map
      * @return
@@ -85,7 +100,7 @@ public interface EmpDao {
      * @return
      */
     @Delete("<script>delete from tb_emp where id in" +
-            "<foreach collection='list' item='en' open='(' close=')' separator=','></foreach>#{en}</script>")
+            "<foreach collection='list' item='en' open='(' close=')' separator=','>#{en}</foreach></script>")
     int batchDelete(List list);
 
     /**
@@ -105,12 +120,62 @@ public interface EmpDao {
     int upd(Map map);
 
     /**
+     * 根据部门编号更新角色状态为7不可用
+     * @param map
+     * @return
+     */
+    @Update("update tb_emp set roleid=7 where deptno=#{deptno}")
+    int updRoleId(Map map);
+
+    /**
+     * 根据员工id更新角色状态为之前的状态
+     * @param map
+     * @return
+     */
+    @Update("update tb_emp set roleid=#{ROLEID} where id=#{EMPID}")
+    int updRoleIdUse(Map map);
+
+    /**
+     * 删除表tb_emp_dept部门启用的字段
+     * @param map
+     * @return
+     */
+    @Delete("delete from tb_emp_dept where id = #{ID}")
+    int delEmpDeptId(Map map);
+
+    /**
+     * 根据部门编号查询当前id与roleid返回一个list
+     * @param map
+     * @return
+     */
+    @Select("select id,roleid,deptno from tb_emp where deptno = #{deptno}")
+    List<Map> selRoleIdUse(Map map);
+
+
+    /**
      * 删除
      * @param id
      * @return
      */
-    @Delete("delete from tb_user where id=#{ID}")
+    @Delete("delete from tb_emp where id = #{ID}")
     int del(Integer id);
+
+
+    /**
+     * 添加禁用字段id roleid
+     * @param map
+     * @return
+     */
+    @Insert("insert into tb_emp_dept (id,empid,roleid,deptno)values(seq_emp_dept_id.nextval,#{ID},#{ROLEID},#{DEPTNO})")
+    int addStopUseIdAndRoleId(Map map);
+
+    /**
+     * 根据部门编号查询当前id与roleid返回一个list
+     * @param map
+     * @return
+     */
+    @Select("select id,deptno,empid,roleid from tb_emp_dept where deptno = #{deptno}")
+    List<Map> selEmpDeptIdAndRoleId(Map map);
 
 
 }

@@ -21,30 +21,42 @@ public class CapitalServiceImpl implements CapitalService {
     private CapitalDao capitalDao;
     @Override
     public List<Map> getparam(Map map) {
-       /* ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        /*ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpSession session = attr.getRequest().getSession();
         Map userInfo = (Map) session.getAttribute("userInfo");
         System.out.println("现在登录的用户id是：" + (userInfo.get("ID") + ""));
         int userid = Integer.valueOf(userInfo.get("userid")+"");*/
-        map.put("userid",2);
+        map.put("userid",143);
         return capitalDao.getparam(map);
     }
 
     @Override
     public int getCount(Map map) {
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+       /* ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpSession session = attr.getRequest().getSession();
         Map userInfo = (Map) session.getAttribute("userInfo");
+        int userid = Integer.valueOf(userInfo.get("userid")+"");*/
+        map.put("userid",143);
         return capitalDao.getCount(map);
     }
 
     @Override
     public List<Map> getparams(Map map) {
+        /*ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attr.getRequest().getSession();
+        Map userInfo = (Map) session.getAttribute("userInfo");
+        int userid = Integer.valueOf(userInfo.get("userid")+"");*/
+        map.put("userid",143);
         return capitalDao.getparams(map);
     }
 
     @Override
     public int getCounts(Map map) {
+        /*ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = attr.getRequest().getSession();
+        Map userInfo = (Map) session.getAttribute("userInfo");
+        int userid = Integer.valueOf(userInfo.get("userid")+"");*/
+        map.put("userid",143);
         return capitalDao.getCounts(map);
     }
 }

@@ -17,10 +17,10 @@ public interface CapitalDao {
      * @param map
      * @return
      */
-    @Select("<script>select id,realname,accountid,amount,availablebalance,flowdate,flowtype from " +
-            "(select rownum rn,f.id id,r.realname realname,f.accountid accountid,f.amount amount,f.availablebalance,f.flowdate,f.flowtype from user_account_flow f " +
+    @Select("<script>select id,realname,accountid,amount,availablebalance,to_char(flowdate,'yyyy-MM-dd HH24:mi:ss') as flowdate,flowtype from " +
+            "(select rownum rn,f.id,r.realname,f.accountid,f.amount,f.availablebalance,f.flowdate,f.flowtype from user_account_flow f " +
             "join realname_certification r on f.userid=r.userid where 1=1 and f.userid=#{userid} and rownum &lt; #{end}" +
-            "<if test=\"realname!=null and realname!=''\">  and realname =#{realname}</if>" +
+            "<if test=\"flowtype!=null and flowtype!=''\">  and flowtype =#{flowtype}</if>" +
             ")a where a.rn &gt; #{start}</script>")
     List<Map> getparam( Map map);
 
@@ -45,8 +45,8 @@ public interface CapitalDao {
      */
     @Select("<script>select id,realname,bidamount,bidrate,to_char(biddate,'yyyy-MM-dd HH24:mi:ss') as biddate" +
             " from (select rownum rn,s.id,r.realname,s.bidamount,s.bidrate,s.biddate from bid_submit s " +
-            "join realname_certification r on s.userid=r.userid where rownum &lt; #{end}" +
-            "<if test=\"realname!=null and realname!=''\">  and realname like '%'||#{realname}||'%'</if>" +
+            "join realname_certification r on s.userid=r.userid where 1=1 and s.userid=#{userid} and rownum &lt; #{end}" +
+            "<if test=\"biddate!=null and biddate!=''\">and to_char(s.biddate,'yyyy/MM/dd HH24:mi:ss') like '%'||#{biddate}||'%'</if>" +
             ") a where a.rn &gt; #{start}</script>")
     List<Map> getparams(Map map);
 
@@ -55,8 +55,8 @@ public interface CapitalDao {
      * @param map
      * @return
      */
-    @Select("<script>select count(*) from bid_submit s join realname_certification r on s.userid=r.userid <where> " +
-            "<if test=\"realname!=null and realname!=''\">  and realname like '%'||#{realname}||'%'</if>" +
+    @Select("<script>select count(*) from bid_submit s join realname_certification r on s.userid=r.userid <where> 1=1 and s.userid=#{userid}  " +
+            "<if test=\"biddate!=null and biddate!=''\">  and to_char(s.biddate,'yyyy/MM/dd HH24:mi:ss') like '%'||#{biddate}||'%'</if>" +
             "</where></script>")
     int getCounts(Map map);
 }

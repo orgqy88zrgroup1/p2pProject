@@ -38,7 +38,6 @@ public class CapitalController {
     @ResponseBody
     @RequestMapping("/page")
     public Object list(@RequestBody Map map){
-        System.out.println(map);
         Map resultMap=new HashMap();
         resultMap.put("pageData",capitalService.getparam(map));
         resultMap.put("total",capitalService.getCount(map));
@@ -46,7 +45,7 @@ public class CapitalController {
     }
 
     /**
-     * 跳转资金列表页面
+     * 跳转投资列表页面
      * @return
      */
     @RequestMapping("/toLists")
@@ -54,14 +53,13 @@ public class CapitalController {
         return "moneys/invest";
     }
     /**
-     * 资金分页
+     * 投资分页
      * @param map
      * @return
      */
     @ResponseBody
     @RequestMapping("/pages")
     public Object lists(@RequestBody Map map){
-        System.out.println(map);
         Map resultMap=new HashMap();
         resultMap.put("pageData",capitalService.getparams(map));
         resultMap.put("total",capitalService.getCounts(map));

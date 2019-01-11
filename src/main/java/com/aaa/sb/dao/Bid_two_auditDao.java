@@ -46,9 +46,10 @@ public interface Bid_two_auditDao {
      * @param map
      * @return
      */
-    @Select("<script> select userID,username,bidID,auditID,auditTime,auditResult from" +
-            " ( select rownum rn,userID,u.username,bidID,auditID,to_char(auditTime,'yyyy-mm-dd') as auditTime,auditResult from bid_audit b " +
-            " join user_login_info u on b.userID=u.ID" +
+    @Select("<script> select userID,username,usernamea,bidID,auditID,auditTime,auditResult from" +
+            " ( select rownum rn,userID,u.username,bidID,auditID,e.username usernamea,to_char(auditTime,'yyyy-mm-dd') as auditTime,auditResult from bid_audit b " +
+            " left join user_login_info u on b.userID=u.ID" +
+            " left join tb_emp e on b.auditID=e.ID" +
             " where rownum &gt; #{start}  ) a where a.rn &lt; #{end} </script> ")
     List<Map> getaudit(Map map);
     /**

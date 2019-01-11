@@ -1,9 +1,11 @@
 package com.aaa.sb.service;
 
 import com.aaa.sb.dao.BidsDao;
+import com.aaa.sb.dao.EmpDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +18,13 @@ import java.util.Map;
 public class BidsServiecImpl implements BidsService {
     @Autowired
     private BidsDao bidsDao;
+    @Autowired
+    private HttpSession session;
+    @Autowired
+    private EmpDao empDao;
     @Override
     public List<Map> getPageByParam(Map map) {
+
         return bidsDao.getPageByParam(map);
     }
 
@@ -28,8 +35,11 @@ public class BidsServiecImpl implements BidsService {
 
     @Override
     public int update(Map map) {
-        //System.out.println(map);
-        //System.out.println(map.get("BIDSTATE"));
+        //审核人（当前登录用户）
+        String username = session.getAttribute("username").toString();
+        //审核人auditid
+        Integer auditid = Integer.valueOf(empDao.selByUserName(username).get(0).get("ID").toString());
+        map.put("auditid",auditid);
         return bidsDao.update(map);
     }
 

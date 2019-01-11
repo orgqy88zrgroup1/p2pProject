@@ -36,7 +36,7 @@ public interface BidsDao {
      * @param map
      * @return
      */
-    @Insert("update bid_audit set audittime=sysdate,auditresult=#{AUDITRESULT},auditremarks=#{AUDITREMARKS} where userid=#{USERID}")
+    @Update("update bid_audit set auditid=#{auditid},audittime=sysdate,auditresult=#{AUDITRESULT},auditremarks=#{AUDITREMARKS} where userid=#{USERID}")
     int update(Map map);
 
     /**

@@ -51,7 +51,7 @@ public class BidTwoAuditController {
     @ResponseBody
     @RequestMapping("/update")
     public int update(@RequestBody Map map){
-        System.out.println(map+".....................");
+
         return bidTwoAuditService.updatetongguo(map);
     }
 

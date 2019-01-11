@@ -1,5 +1,6 @@
 package com.aaa.sb.dao;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -36,8 +37,15 @@ public interface Bid_one_auditDao {
      * @param map
      * @return
      */
-    @Update("update bid_info set bidState=4 where id=#{id}")
+    @Update("update bid_info set bidState=4 where id=#{ID}")
     int updatetongguo(Map map);
+    /**
+     * 插入审核记录
+     * @param map
+     * @return
+     */
+    @Insert("insert into bid_audit (id,userID,bidID,auditID,auditTime,auditResult,auditRemarks)values(SEQ_BIDAUDIT_ID.nextval,#{USERID},#{ID},#{auditID},#{auditTime},#{bidState},#{auditRemarks})")
+    int insertaudit(Map map);
 
     /**
      * 满标审核驳回

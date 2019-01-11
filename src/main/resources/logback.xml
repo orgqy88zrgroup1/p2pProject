@@ -44,7 +44,7 @@
     error： 错误信息。用的也比较多。
     fatal： 级别比较高了。重大错误，这种级别你可以直接停止程序了，是不应该出现的错误么！不用那么紧张，其实就是一个程度的问题。
    -->
-    <root level="DEBUG">
+    <root level="WARN">
         <appender-ref ref="STDOUT" /><!--标准输出 控制态输出-->
         <appender-ref ref="FILE" />
     </root>

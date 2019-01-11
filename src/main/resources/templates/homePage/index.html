@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
     <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.11/lib/theme-chalk/index.css">
-
+    <link href="images/style.css" rel="stylesheet" type="text/css" />
     <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js">
     </script>
     <style type="text/css">
@@ -42,24 +42,24 @@
             text-color="#fff"
             active-text-color="#ffd04b"
     >
-        <!-- _blank -- 在新窗口中打开链接 _parent -- 在父窗体中打开链接 _self -- 在当前窗体打开链接,此为默认值 _top -- 在当前窗体打开链接，并替换当前的整个窗体(框架页)  -->
-        <el-menu-item index="1" ><span style="font-size: 18px;">P2P网贷后台管理系统</span></el-menu-item>
-        <!--<a th:text="${message} " style="text-decoration: none;" target="_blank" v-for='(ud,index) in userData'></a>-->
+       <!--  _blank 在新窗口中打开链接 _parent  在父窗体中打开链接 _self  在当前窗体打开链接,此为默认值 _top 在当前窗体打开链接，并替换当前的整个窗体(框架页)-->  &ndash;&gt;
+        <el-menu-item index="1" ><span style="font-size: 18px;font-family: '楷体'">零点网贷后台管理系统</span></el-menu-item>
+       <!--<a th:text="${message} " style="text-decoration: none;" target="_blank" v-for='(ud,index) in userData'></a>-->
 
-        <el-submenu index="2">
-            <template slot="title"><span style="font-size: 18px;">员工中心</span></template>
-            <el-menu-item index="2-1"><span style="font-size: 18px;">修改密码</span></el-menu-item>
-            <el-menu-item index="2-2"><span style="font-size: 18px;">退出</span></el-menu-item>
-            <!-- <el-submenu index="2-4">
+        <el-submenu index="2" style="margin-left:1000px">
+            <template slot="title"><span style="font-size: 16px;font-family: '楷体'">个人中心</span></template>
+            <el-menu-item index="2-1"><span style="font-size: 16px;font-family: '楷体'">修改密码</span></el-menu-item>
+            <el-menu-item index="2-2"><span style="font-size: 16px;font-family: '楷体'">退出</span></el-menu-item>
+            <!--<el-submenu index="2-4">
                 <template slot="title">选项4</template>
                 <el-menu-item index="2-4-1">选项1</el-menu-item>
                 <el-menu-item index="2-4-2">选项2</el-menu-item>
                 <el-menu-item index="2-4-3">选项3</el-menu-item>
-            </el-submenu> -->
+            </el-submenu>-->
         </el-submenu>
-
-        <!-- <el-menu-item index="3" disabled>消息中心</el-menu-item> -->
-        <el-menu-item index="4"><span style="font-size: 18px;color: #ffd04b" th:text="${username}"></span></el-menu-item>
+        <!--width="50px" height="50px"  娃娃体-简-->
+        <el-menu-item index="3" ><span style="font-size: 16px;font-family: '楷体';color: #ffd04b" th:text="'欢迎您'+${username}"></span></el-menu-item>
+        <el-menu-item index="4" ><img style="border-radius: 50%;" src="../image/user22.png" width="40px" height="40px" /></el-menu-item>
     </el-menu>
 
 
@@ -70,18 +70,16 @@
 <div id="app" v-loading="loading1" :data="tables" element-loading-background="rgba(0, 0, 0, 0.8)" element-loading-text="拼命加载中"   >
   <el-container style="border: 1px solid #eee">
 
-    <!-- <el-header style="text-align: right; width: auto; font-size: 12px"> -->
-    <!--<el-dropdown>
+    <!-- <el-header style="text-align: right; width: auto; font-size: 12px">
+    <el-dropdown>
         <i class="el-icon-setting" style="margin-right: 15px"></i>
         <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>查看</el-dropdown-item>
-            <el-dropdown-item>新增</el-dropdown-item>
-            <el-dropdown-item>删除</el-dropdown-item>
+            <el-dropdown-item>退出</el-dropdown-item>
         </el-dropdown-menu>
     </el-dropdown>
-    <span>王小虎</span>
+         <span style="font-size: 18px;color: #ffd04b" th:text="${username}"></span>
 
- </el-header> -->
+ </el-header>-->
 
 
 
@@ -180,7 +178,7 @@
 
             },
             editableTabsValue2: '2',
-            editableTabs2:[{title:'首页', name:'2', content:"<iframe src='https://www.baidu.com' frameborder='no' scrolling='no'  style='width:100%;height:550px'> </iframe>"}],
+            editableTabs2:[{title:'首页', name:'2', content:"<iframe src='/sb/stat/toPerView' frameborder='no' scrolling='no'  style='width:100%;height:550px'> </iframe>"}],
             tabIndex: 2,
             tables:[{a:'a',b:'b'}],
             loading1:true,
@@ -238,8 +236,9 @@
                 var t1 = JSON.parse(t);
                 return createElement('span',[
                     //createElement('i', {'class':{(self.editableTabsValue2.icon): true}}),
+                    //{'font-family:"楷体"'}
                     createElement('i', {'class':t1}),
-                    createElement('span', node.label),
+                    createElement('span', {style:{'font-family':"楷体"}},node.label)
 
                 ]);
             },

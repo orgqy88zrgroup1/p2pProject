@@ -111,7 +111,7 @@ public class Bid_two_auditServiceImpl implements Bid_two_auditService {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
+            //获取当前用户名
         String username = session.getAttribute("username").toString();
         //审核人id
         Integer id = Integer.valueOf(empDao.selByUserName(username).get(0).get("ID").toString());

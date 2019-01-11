@@ -46,8 +46,10 @@ public interface Bid_two_auditDao {
      * @param map
      * @return
      */
-    @Select("<script> select id,userID,bidID,auditID,auditTime,auditResult from " +
-            " ( select rownum rn,id,userID,bidID,auditID,auditTime,auditResult from bid_audit" +
+    @Select("<script> select userID,username,usernamea,bidID,auditID,auditTime,auditResult from" +
+            " ( select rownum rn,userID,u.username,bidID,auditID,e.username usernamea,to_char(auditTime,'yyyy-mm-dd') as auditTime,auditResult from bid_audit b " +
+            " left join user_login_info u on b.userID=u.ID" +
+            " left join tb_emp e on b.auditID=e.ID" +
             " where rownum &gt; #{start}  ) a where a.rn &lt; #{end} </script> ")
     List<Map> getaudit(Map map);
     /**
@@ -111,7 +113,7 @@ public interface Bid_two_auditDao {
      * @return
      */
     @Insert("insert into user_account_flow (id,userID,accountID,amount,availableBalance,flowDate,flowType)values(SEQ_SYSTEMACCOUNTFLOW_ID.nextval,#{userid},#{accountid},#{amount},#{availableBalance},#{flowDate},8)")
-    int insertliushui2(@Param("userid") int userid, @Param("accountid") int accountid, @Param("amount") double amount, @Param("availableBalance") double availableBalance, @Param("flowDate") Date flowDate);
+    int insertliushui2(@Param("userid") int userid,@Param("accountid") int accountid,@Param("amount") double amount,@Param("availableBalance") double availableBalance,@Param("flowDate") Date flowDate);
 
     /**
      * 根据用户userid查询标user_account id
@@ -129,7 +131,7 @@ public interface Bid_two_auditDao {
      * @return
      */
     @Update("update user_account set freezingAmount=#{a},receivePrincipal=#{b},receiveInterest=#{c} where userID=#{userid}")
-    int updatedongjie(@Param("a") double a, @Param("b") double b, @Param("c") double c, @Param("userid") int userid);
+    int updatedongjie(@Param("a") double a,@Param("b") double b,@Param("c") double c,@Param("userid") int userid);
 
     /**
      * 根据标id和用户id查询投资金额

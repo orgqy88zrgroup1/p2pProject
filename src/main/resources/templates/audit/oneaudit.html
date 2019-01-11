@@ -23,6 +23,7 @@
 
         <el-table
                 :data="tableData"
+                border
                 style="width: 100%">
             <el-table-column
                     v-if="show"
@@ -165,6 +166,7 @@
                     { required: true, message: '请输入姓名', trigger: 'blur' }
                 ]
             },
+
         },
         created:function(){
             //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
@@ -228,7 +230,7 @@
                     type: 'warning'
                 }).then(function(){
                     var  url="/sb/oneaudit/update";
-                    axios.post(url,{id:row.ID}).then(function (response) {
+                    axios.post(url,{ID:row.ID,USERID:row.USERID,bidState:row.NAME,bidCurrentAmount:row.BIDCURRENTAMOUNT,biddeadline:row.BIDDEADLINE,bidrate:row.BIDRATE}).then(function (response) {
                         if(response.data>0){
                             _self.$message({
                                 message: '操作成功',

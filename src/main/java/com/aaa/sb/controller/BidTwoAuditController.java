@@ -75,13 +75,14 @@ public class BidTwoAuditController {
     }
 
     /**
-     * 历史审核记录
+     * 历史审核记录1
      * @param map
      * @return
      */
     @ResponseBody
     @RequestMapping("/recordaudit")
     public Object getaudit(@RequestBody Map map){
+
         return bidTwoAuditService.getaudit(map);
 
     }

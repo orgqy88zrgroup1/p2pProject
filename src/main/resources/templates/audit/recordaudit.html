@@ -18,42 +18,43 @@
 </div>
 </center>
 <center>
-<div id="tableView">
+<div id="tableView" style="width: 100%">
     <el-row>
 
         <el-table
                 :data="tableData"
+                border
                 style="width: 100%">
             <el-table-column
                     v-if="show"
                     prop="ID"
                     label="ID"
-                    width="50">
+                    width="225px">
             </el-table-column>
             <el-table-column
-                    prop="USERID"
+                    prop="USERNAME"
                     label="招标人"
-                    width="50">
+                    width="250px">
             </el-table-column>
             <el-table-column
-                    prop="bidID"
+                    prop="BIDID"
                     label="招标ID"
-                    width="50">
+                    width="250px">
             </el-table-column>
-            <el-table-column
-                    prop="auditID"
+         <!--   <el-table-column
+                    prop="AUDITID"
                     label="审核人"
-                    width="70">
-            </el-table-column>
+                    width="170">
+            </el-table-column>-->
             <el-table-column
-                    prop="auditTime"
+                    prop="AUDITTIME"
                     label="审核时间"
-                    width="70z">
+                    width="300px">
             </el-table-column>
             <el-table-column
-                    prop="auditResult"
+                    prop="AUDITRESULT"
                     label="审核结果"
-                    width="50">
+                    width="300px">
             </el-table-column>
 
         </el-table>
@@ -126,6 +127,7 @@
 
             axios.post('/sb/twoaudit/recordaudit',{'start':start,'end':end}).then(function(response){
                 self.total=response.data.total;
+
                 self.tableData = response.data.pageData;
             });
         },
@@ -144,89 +146,6 @@
                 setTimeout(function(){
                     _self.loading = false;
                 },300);
-            },
-           /* //表格编辑事件
-            editClick:function(row) {
-                this.goUrl="/af/post/update";
-                this.editFormVisible = true;
-                this.editForm = Object.assign({}, row);
-            },*/
-            //驳回事件
-           /* deleteClick:function(row) {
-                var _self = this;
-                this.$confirm('确认驳回吗?', '提示', {
-                    type: 'warning'
-                }).then(function(){
-                    var  url="/sb/oneaudit/toUpdate";
-                    axios.post(url,{id:row.ID}).then(function (response) {
-                        if(response.data>0){
-                            _self.$message({
-                                message: '驳回成功',
-                                type: 'success'
-                            });
-                        }
-                    });
-                }).catch(function(e){
-                    if(e != "cancel")
-                        console.log("出现错误：" + e);
-                });
-                _self.loadingData();//重新加载数据
-
-            },
-            //通过事件
-            agree:function(row) {
-                var _self = this;
-                this.$confirm('确认通过吗?', '提示', {
-                    type: 'warning'
-                }).then(function(){
-                    var  url="/sb/oneaudit/update";
-                    axios.post(url,{id:row.ID}).then(function (response) {
-                        if(response.data>0){
-                            _self.$message({
-                                message: '操作成功',
-                                type: 'success'
-                            });
-                        }else{
-                            _self.$message({
-                                message: '操作失败',
-                                type: 'error'
-                            });
-                        }
-                        _self.loadingData();
-                    });
-                }).catch(function(e){
-                    if(e != "cancel")
-                        console.log("出现错误：" + e);
-                });
-
-            },
-            //新建事件
-            addClick:function() {
-                this.goUrl="/af/post/add";
-                var _self = this;
-                this.editForm={
-                    NAME: '',
-                    COMPANY: '',
-                    REALNAME: '',
-                    PHONE:'',
-                    SEX:'',
-                    ROLENAME:''
-                };
-                this.editFormVisible = true;
-                _self.loadingData();//重新加载数据
-            },*/
-            //表格查询事件
-            searchClick:function() {
-                var self = this;
-                self.loadingData();//重新加载数据
-            },
-            //表格勾选事件
-            selectionChange:function(val) {
-                for(var i=0;i<val.length;i++) {
-                    var row = val[i];
-                }
-                this.multipleSelection = val;
-                console.info(val);
             },
             //分页大小修改事件
             pageSizeChange:function(val) {

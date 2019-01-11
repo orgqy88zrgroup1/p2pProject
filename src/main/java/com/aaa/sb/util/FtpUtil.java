@@ -4,6 +4,8 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +19,7 @@ import java.util.UUID;
  * author:zhangran
  * createTime:2018-12-13 09:51
  */
-
+@Component
 public class FtpUtil {
     @Autowired
     private static FtpConfig ftpConfig;

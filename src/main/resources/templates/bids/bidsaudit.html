@@ -62,12 +62,12 @@
             <el-table-column
                     prop="BIDRATE"
                     label="还款利率"
-                    width="200">
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="BIDDEADDAY"
                     label="招标天数"
-                    width="200">
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="BIDSTATE"
@@ -105,9 +105,9 @@
             </el-table-column>
             <el-table-column
                     label="操作"
-                    width="200">
+                    width="100">
                 <template scope="scope">
-                    <el-button :plain="true"   type="success" size="small" icon="edit" @click="editClick(scope.row)">审核</el-button>
+                    <el-button :plain="true"  :disabled="scope.row.AUDITRESULT == '审核通过'||'审核失败'"  type="success" size="small" icon="edit" @click="editClick(scope.row)">审核</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -191,7 +191,7 @@
             loading:false,
             //搜索表单
             searchForm: {
-                name: '',
+                realname: '',
                 auditresult: ''
             },
             //多选值
@@ -239,7 +239,7 @@
                 //response.data 固定用法得到数据 pageData 是后台map里的键
                 self.total=response.data.total;
                 self.tableData = response.data.pageData;
-                alert(JSON.stringify(response.data.pageData));//转成json字符串查看
+                //alert(JSON.stringify(response.data.pageData));//转成json字符串查看
                 // self.multipleSelection=response.data.data;
             });
         },
@@ -274,7 +274,7 @@
             //表格审核事件
 
             editClick: function (row) {
-                alert(row.ID);
+                //alert(row.ID);
                 //提交的路径 这里执行修改方法
                 this.goUrl = "/sb/bids/update";
                 this.editFormVisible = true;
@@ -308,8 +308,8 @@
                 var formData = this.editForm;//保存该对象里的值
                 //alert(formData);
                 var goUrl = this.goUrl;
-                alert(goUrl);
-                alert(JSON.stringify(formData));
+                //alert(goUrl);
+                //alert(JSON.stringify(formData));
                 axios.post(goUrl, formData).then(function (response) {
                     console.log(response.data);
                     // alert(222);

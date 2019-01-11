@@ -26,9 +26,9 @@ public interface VideoDao {
      * @param map
      * @return
      */
-    @Select("<script>select count(*) from video_audit <where>" +
-            "<if test=\"realname!=null and realname!=''\">and realname like '%'||#{realname}||'%'</if>"+
-            "<if test=\"auditresult!=null and auditresult!=''\">and auditresult=#{auditresult}</if>"+
+    @Select("<script>select count(*) from video_audit v join realname_certification r on r.userid=v.userid <where>" +
+            "<if test=\"realname!=null and realname!=''\">and r.realname like '%'||#{realname}||'%'</if>"+
+            "<if test=\"auditresult!=null and auditresult!=''\">and v.auditresult=#{auditresult}</if>"+
             "</where></script>")
     int getPageCount(Map map);
     /**

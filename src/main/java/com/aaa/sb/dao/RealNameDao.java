@@ -34,12 +34,11 @@ public interface RealNameDao {
     int getPageCount(Map map);
 
     /**
-     * 审核通过时更新
+     * 审核后更新
      * @param map
      * @return
      */
     @Update("update REALNAME_CERTIFICATION set auditTime=sysdate,auditresult=#{AUDITRESULT},auditremarks=#{AUDITREMARKS} where id=#{ID}")
     int update(Map map);
-
 
 }

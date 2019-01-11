@@ -51,12 +51,12 @@
             <el-table-column
                     prop="SEX"
                     label="性别"
-                    width="150">
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="ACADEMIC"
                     label="学历"
-                    width="200">
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="HOUSED"
@@ -66,12 +66,12 @@
             <el-table-column
                     prop="MARRIAGE"
                     label="婚姻"
-                    width="200">
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="INCOME"
                     label="收入"
-                    width="200">
+                    width="100">
             </el-table-column>
             <el-table-column
                     prop="AUDITTIME"
@@ -85,9 +85,9 @@
             </el-table-column>
             <el-table-column
                     label="操作"
-                    width="200">
+                    width="100">
                 <template scope="scope">
-                    <el-button :plain="true"  type="success" size="small" icon="edit" @click="editClick(scope.row)">审核</el-button>
+                    <el-button :plain="true" :disabled="scope.row.AUDITRESULT != '未审核'" type="success" size="small" icon="edit" @click="editClick(scope.row)">审核</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -219,7 +219,7 @@
                 //response.data 固定用法得到数据 pageData 是后台map里的键
                 self.total=response.data.total;
                 self.tableData = response.data.pageData;
-                alert(JSON.stringify(response.data.pageData));//转成json字符串查看
+                //alert(JSON.stringify(response.data.pageData));//转成json字符串查看
                 // self.multipleSelection=response.data.data;
             });
         },
@@ -249,18 +249,9 @@
             //表格审核事件
 
             editClick:function(row) {
-                alert(row.ID);
-                //根据这一行的某个字段去查询对应的你想要的信息
-                /*var _self=this;
-                axios.post('/sb/realname/lists'+row.ID).then(function(response){
-                    //得到信息后放入弹框的数组里
-                    _self.editForm=response.data;//得到所有的信息json数据
-                    alert(response.data);
-
-                    this.editForm = Object.assign({}, response.data);
-                });*/
+                //alert(row.ID);
                 //提交的路径 这里执行修改方法
-                alert(row.IDIMAGEFOUNTVAR);
+                //alert(row.IDIMAGEFOUNTVAR);
                 this.forwardPic = '/sb/realname/show?fileName='+row.IDIMAGEFOUNTVAR;
                 this.backPic = '/sb/realname/show?fileName='+row.IDIMAGEBACKVAR;
                 this.goUrl="/sb/realname/update";
@@ -273,14 +264,6 @@
                 var self = this;
                 self.loadingData();//重新加载数据
             },
-            //表格勾选事件
-            /*selectionChange:function(val) {
-                for(var i=0;i<val.length;i++) {
-                    var row = val[i];
-                }
-                this.multipleSelection = val;
-                console.info(val);
-            },*/
             //分页大小修改事件 val每页条数
             pageSizeChange:function(val) {
                 console.log('每页 ' + val +' 条');
@@ -298,24 +281,26 @@
             },
             //保存点击事件
             editSubmit:function(){
+                //alert(1111111);
                 var _self = this;
-                _self.loading = true;
+                //_self.loading = true;
                 var formData =this.editForm;//保存该对象里的值
                 //alert(formData);
                 var goUrl=this.goUrl;
-                alert(goUrl);
-                alert(JSON.stringify(formData));
+                //alert(goUrl);
+                //alert(JSON.stringify(formData));
                 axios.post(goUrl,formData).then(function(response){
-                    console.log(response.data);
-                    // alert(222);
-                    // self.total=response.data.total;
+                    //console.log(response.data);
+                   //  alert(222);
+                    //alert(response.data);
+                     //self.total=response.data.total;
                     if(response.data>0){
                         _self.editFormVisible = false;
-                        _self.loadingData();//重新加载数据
                     }
+                    _self.loadingData();//重新加载数据
 
-                })
-                console.info(this.editForm);
+                });
+
             }
         },
 

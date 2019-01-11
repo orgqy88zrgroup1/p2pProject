@@ -37,14 +37,6 @@ public class RealNameController {
     private ResourceLoader resourceLoader;
 
     /**
-     * 跳转招标页面
-     * @return
-     */
-    @RequestMapping("/toLists")
-    public String toLists(){
-        return "ifb/ifb";
-    }
-    /**
      * 跳转列表页面
      * @return
      */
@@ -74,6 +66,8 @@ public class RealNameController {
     @ResponseBody
     @RequestMapping("/update")
     public Object update(@RequestBody Map map ){
+        System.out.println(map);
+        //System.out.println(realNameService.update(map));
         return realNameService.update(map);
     }
 

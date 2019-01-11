@@ -43,4 +43,22 @@ public interface StatisticsDao {
     List<Map> selAddrssAndNum();
 
 
+    /**
+     * 得到标信息表的用户需求  1 2 3
+     * @return
+     */
+    @Select("select bidtype from bid_info group by bidtype")
+    List<Map> selBidType();
+
+    /**
+     * 得到标信息表的用户需求数据
+     * data [{value: 30, name: '车贷'}]
+     * @return
+     */
+    @Select("select (ROUND((select count(*) from bid_info where bidtype = #{demand}) / (select count(*) from bid_info ),2))*100 as a from dual")
+    int selBidTypeData(int demand);
+
+
+
+
 }

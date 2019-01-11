@@ -94,4 +94,24 @@ public class StatisticsController {
     }
 
 
+    /**
+     * 用户需求
+     * @return List<Map>
+     */
+    @ResponseBody
+    @RequestMapping("/demand")
+    public Object demand(){
+        //System.out.println(statisticsService.selBid());
+        return statisticsService.selDemandData();
+    }
+    /**
+     * 用户需求跳转
+     * @return
+     */
+    @RequestMapping("toDemandView")
+    public String toDemandView(){
+        return "statistics/demandProfit";
+    }
+
+
 }

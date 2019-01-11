@@ -33,4 +33,10 @@ public interface StatisticsService {
      * @return
      */
     List<Map> selAddrssAndNum();
+
+    /**
+     * 用户需求
+     * @return
+     */
+    List<Map> selDemandData();
 }

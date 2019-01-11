@@ -11,13 +11,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @MapperScan("com.aaa.sb.dao")//启动类进行扫描
-public class SpringbootMainApplication {
+public class SpringBootMainApplication {
     /**
      * 主函数
      * @param args
      */
     public static void main(String[] args) {
         //获取一个类的class对象
-        SpringApplication.run(SpringbootMainApplication.class);
+        SpringApplication.run(SpringBootMainApplication.class);
     }
 }

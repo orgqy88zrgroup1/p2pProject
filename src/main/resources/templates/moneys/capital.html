@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>资金记录列表</title>
+    <!-- 引入样式 -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script type="text/javascript" src="../js/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+<div id="app">
+    <h2>{{ message }}</h2>
+</div>
+
+<div id="tableView">
+
+    <!--列表顶部搜索和工具条-->
+    <el-row>
+        <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+            <el-form-item label="流水类型">
+                <template>
+                    <el-select v-model="searchForm.flowtype" clearable placeholder="请选择">
+                        <el-option
+                                v-for="item in options"
+                                :key="item.FLOWTYPE"
+                                :label="item.NAME"
+                                :value="item.FLOWTYPE">
+                        </el-option>
+                    </el-select>
+                </template>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" icon="search" @click="searchClick">查询</el-button>
+            </el-form-item>
+        </el-form>
+    </el-row>
+    <!--列表  里面的值必须跟json字符串里的数据一样  -->
+    <el-row>
+        <el-table
+                :data="tableData"
+                v-loading.body="loading"
+                border
+                style="width: 100%">
+            <el-table-column
+                    prop="REALNAME"
+                    label="姓名"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="AMOUNT"
+                    label="变动金额"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="AVAILABLEBALANCE"
+                    label="变动后金额"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    prop="FLOWDATE"
+                    label="流水时间"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="FLOWTYPE"
+                    label="流水类型"
+                    width="200">
+                <template scope="scope">
+                    <div v-if="scope.row.FLOWTYPE=='1'">
+                        <span style="color:red;">充值</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='2'">
+                        <span style="color:green;">冻结</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='3'">
+                        <span style="color:green;">解冻</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='4'">
+                        <span style="color:green;">账户拨款</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='5'">
+                        <span style="color:green;">提现</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='6'">
+                        <span style="color:green;">还款</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='7'">
+                        <span style="color:green;">收款</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='8'">
+                        <span style="color:green;">投资扣款</span>
+                    </div>
+                    <div v-if="scope.row.FLOWTYPE=='9'">
+                        <span style="color:green;">流标还款</span>
+                    </div>
+                </template>
+            </el-table-column>
+        </el-table>
+    </el-row>
+
+    <!--列表底部工具条和分页符-->
+    <el-row style="margin-top: 20px" type="flex" justify="end">
+        <el-col :span="18" >
+            <el-pagination
+                    style="float: right"
+                    @size-change="pageSizeChange"
+                    @current-change="currentPageChange"
+                    :current-page="currentPage"
+                    :page-sizes="[5,10,15,20,25,30]"
+                    :page-size="pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
+        </el-col>
+    </el-row>
+</div>
+
+
+<script type="text/javascript">
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: '资金记录'
+        }
+    });
+
+    var tableView = new Vue({
+        el: '#tableView',
+        data: {
+            //查询流水类型
+            options: [],
+            //列表数据 数组
+            tableData: [],
+            //显示加载中样式
+            loading:false,
+            //搜索表单
+            searchForm: {
+                realname: ''
+
+            },
+            //多选值
+            multipleSelection: [],
+            //当前页
+            currentPage:1,
+            //分页大小
+            pageSize:5,
+            //总记录数
+            total:800,
+            goUrl:'',
+        },
+        created:function(){
+            //在 then的内部不能使用Vue的实例化的this, 因为在内部 this 没有被绑定。
+            var self = this;
+            var start =(this.currentPage-1)*this.pageSize;
+            var end =this.currentPage*this.pageSize+1;
+            //请求地址url  携带参数是json格式  回调函数
+            axios.post('/sb/capital/page',{'start':start,'end':end}).then(function(response){
+                // console.log(response.data);
+                //alert(response.data.total);
+                //response.data 固定用法得到数据 pageData 是后台map里的键
+                alert(111111111);
+                self.total=response.data.total;
+                self.tableData = response.data.pageData;
+                var arr = [];
+                arr.push(99);
+                alert(JSON.stringify(arr));
+                //alert(arr.includes(1));
+                //arr.push(1);
+                //alert(arr.includes(1));
+                for(var i=0;i<response.data.pageData.length;i++) {
+                    if(!arr.includes(response.data.pageData[i].FLOWTYPE)){
+                        //alert(response.data.pageData[i].FLOWTYPE);
+                        arr.push(response.data.pageData[i].FLOWTYPE);//1 1 2 12 3 123 4
+                        //alert(3333333333);
+                        //alert(JSON.stringify(arr));
+                        switch (response.data.pageData[i].FLOWTYPE) {
+                            case 1:
+                                response.data.pageData[i].NAME = '充值';
+                                break;
+                            case 2:
+                                response.data.pageData[i].NAME = '冻结';
+                                break;
+                            case 3:
+                                response.data.pageData[i].NAME = '解冻';
+                                break;
+                            case 4:
+                                response.data.pageData[i].NAME = '账户拨款';
+                                break;
+                            case 5:
+                                response.data.pageData[i].NAME = '提现';
+                                break;
+                            case 6:
+                                response.data.pageData[i].NAME = '还款';
+                                break;
+                            case 7:
+                                response.data.pageData[i].NAME = '收款';
+                                break;
+                            case 8:
+                                response.data.pageData[i].NAME = '投资扣款';
+                                break;
+                            case 9:
+                                response.data.pageData[i].NAME = '流标还款';
+                                break;
+                            default:
+                                response.data.pageData[i].NAME = "错误";
+                        }
+                        self.options.push({FLOWTYPE:response.data.pageData[i].FLOWTYPE,NAME:response.data.pageData[i].NAME});
+                    }
+                }
+                alert(JSON.stringify(self.options));
+
+
+
+                //alert(JSON.stringify(response.data.pageData));//转成json字符串查看
+                // self.multipleSelection=response.data.data;
+            });
+        },
+        methods:{
+            //表格重新加载数据
+            loadingData:function() {
+                var self = this;
+                self.options=[];
+                self.loading = true;
+
+                var start =(this.currentPage-1)*this.pageSize;
+                var end =this.currentPage*this.pageSize+1;
+                var searchForm={'start':start,'end':end,'flowtype':this.searchForm.flowtype};
+                //   alert(JSON.stringify(searchForm));
+                axios.post('/sb/capital/page',searchForm).then(function(response){
+                    //console.log(response.data);
+                    // alert(222);
+                    self.total=response.data.total;
+                    self.tableData = response.data.pageData;
+                });
+                axios.post('/sb/capital/page',{'start':start,'end':end}).then(function(response){
+                    var arr = [];
+                    arr.push(99);
+                    alert(JSON.stringify(arr));
+                    //alert(arr.includes(1));
+                    //arr.push(1);
+                    //alert(arr.includes(1));
+                    for(var i=0;i<response.data.pageData.length;i++) {
+                        if(!arr.includes(response.data.pageData[i].FLOWTYPE)){
+                            //alert(response.data.pageData[i].FLOWTYPE);
+                            arr.push(response.data.pageData[i].FLOWTYPE);//1 1 2 12 3 123 4
+                            //alert(3333333333);
+                            //alert(JSON.stringify(arr));
+                            switch (response.data.pageData[i].FLOWTYPE) {
+                                case 1:
+                                    response.data.pageData[i].NAME = '充值';
+                                    break;
+                                case 2:
+                                    response.data.pageData[i].NAME = '冻结';
+                                    break;
+                                case 3:
+                                    response.data.pageData[i].NAME = '解冻';
+                                    break;
+                                case 4:
+                                    response.data.pageData[i].NAME = '账户拨款';
+                                    break;
+                                case 5:
+                                    response.data.pageData[i].NAME = '提现';
+                                    break;
+                                case 6:
+                                    response.data.pageData[i].NAME = '还款';
+                                    break;
+                                case 7:
+                                    response.data.pageData[i].NAME = '收款';
+                                    break;
+                                case 8:
+                                    response.data.pageData[i].NAME = '投资扣款';
+                                    break;
+                                case 9:
+                                    response.data.pageData[i].NAME = '流标还款';
+                                    break;
+                                default:
+                                    response.data.pageData[i].NAME = "错误";
+                            }
+                            self.options.push({FLOWTYPE:response.data.pageData[i].FLOWTYPE,NAME:response.data.pageData[i].NAME});
+                        }
+                    }
+                    alert(JSON.stringify(self.options));
+                });
+
+                setTimeout(function(){
+                    console.info("加载数据成功");
+                    self.loading = false;
+                },300);
+            },
+            //表格查询事件
+            searchClick:function() {
+                var self = this;
+                self.loadingData();//重新加载数据
+            },
+            //分页大小修改事件 val每页条数
+            pageSizeChange:function(val) {
+                console.log('每页 ' + val +' 条');
+                //变化后的每页数量
+                this.pageSize = val;
+                var _self = this;
+                _self.loadingData();//当前对象 重新加载数据
+            },
+            //当前页修改事件
+            currentPageChange:function(val) {
+                this.currentPage = val;
+                console.log('当前页: ' + val);
+                var _self = this;
+                _self.loadingData();//重新加载数据
+            },
+        },
+
+    })
+</script>
+</body>
+</html>
